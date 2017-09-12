@@ -127,7 +127,7 @@ print(pstr, "tests")
 #> #########################################################################
 ```
 
-You can see that the function Lintest takes the PSTR object "pstr" and overwrites it when return. This is the way I recommend as the functions handling the PSTR object in the package update the object by adding new atrributes or members. However, the same function will change the values of the attributes which it updates.
+You can see from the code above that the function "LinTest" takes the PSTR object "pstr" and overwrites it when return. This is the way I recommend as the functions handling the PSTR object in the package update the object by adding new atrributes or members. However, the same function will change the values of the attributes which it updates.
 
 In order to avoid the loss of some important information in the object due to overwriting, consider the following example
 

@@ -1,7 +1,7 @@
 Package: PSTR
 Type: Package
 Title: Panel Smooth Transition Regression Modelling
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: person("Yukai", "Yang", email = "yukai.yang@statistik.uu.se",role = c("aut", "cre"))
 Description: Provides the Panel Smooth Transition Regression (PSTR) modelling.
     The modelling procedure consists of three stages: Specification, Estimation and Evaluation.
@@ -19,6 +19,6 @@ RoxygenNote: 6.0.1
 Imports: tibble, snowfall
 Suggests: knitr, rmarkdown
 NeedsCompilation: no
-Packaged: 2017-09-13 11:46:30 UTC; yyang
+Packaged: 2017-09-13 16:39:32 UTC; KYZONE
 Author: Yukai Yang [aut, cre]
 Maintainer: Yukai Yang <yukai.yang@statistik.uu.se>

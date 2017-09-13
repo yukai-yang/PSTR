@@ -9,7 +9,7 @@
 ## utility functions
 #################################################################################
 
-
+vnum = "1.0.2"
 
 # simple cat
 cat0 <- function(...)
@@ -35,7 +35,7 @@ version <- function(){
   cat0("## Department of Statistics")
   cat0("## Uppsala University")
   cat0("## yukai.yang@statistik.uu.se")
-  cat0("## Version 1.0.1, Sep. 2017")
+  cat0("## Version ",vnum," Sep. 2017")
   cat0("#########################################################################")
 }
 
@@ -66,7 +66,7 @@ print.PSTR <- function(x, mode="summary", digits=4, ...)
 {
   cat0("#########################################################################")
   cat0("## package name: PSTR")
-  cat0("## Version 1.0.1, Sep. 2017")
+  cat0("## Version ",vnum," Sep. 2017")
 
   tmp = NULL
   for(iter in 1:length(mode)){
@@ -123,9 +123,10 @@ print_tests <- function(obj,digits)
   cat0("***********************************************************************")
   cat0("Results of the linearity (homogeneity) tests:")
 
+  im = obj$im
+
   if(!is.null(obj$test)){
     for(iter in 1:length(obj$test)){
-      im = obj$im
 
       cat0("-----------------------------------------------------------------------")
       cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
@@ -149,6 +150,20 @@ print_tests <- function(obj,digits)
       print(signif(tmp,digits))
 
     }
+  }else{
+    if(!is.null(obj$wcb_test)){
+      for(iter in 1:length(obj$wcb_test)){
+
+        cat0("-----------------------------------------------------------------------")
+        cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
+
+        ttmp = cbind(1:im, obj$wcb_test[[iter]][,2:3,drop=F])
+        rownames(ttmp) = rep(" ",im)
+        colnames(ttmp) = c("m","WB_PV", "WCB_PV")
+      }
+
+      print(signif(ttmp,digits))
+    }
   }
 
   cat0("***********************************************************************")
@@ -156,7 +171,6 @@ print_tests <- function(obj,digits)
 
   if(!is.null(obj$sqtest)){
     for(iter in 1:length(obj$sqtest)){
-      im = obj$im
 
       cat0("-----------------------------------------------------------------------")
       cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")

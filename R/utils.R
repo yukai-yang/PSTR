@@ -35,7 +35,7 @@ version <- function(){
   cat0("## Department of Statistics")
   cat0("## Uppsala University")
   cat0("## yukai.yang@statistik.uu.se")
-  cat0("## Version 1.0.0, Sep. 2017")
+  cat0("## Version 1.0.1, Sep. 2017")
   cat0("#########################################################################")
 }
 
@@ -66,7 +66,7 @@ print.PSTR <- function(x, mode="summary", digits=4, ...)
 {
   cat0("#########################################################################")
   cat0("## package name: PSTR")
-  cat0("## Version 1.0.0, Sep. 2017")
+  cat0("## Version 1.0.1, Sep. 2017")
 
   tmp = NULL
   for(iter in 1:length(mode)){

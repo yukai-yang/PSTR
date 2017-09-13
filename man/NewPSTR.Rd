@@ -43,6 +43,7 @@ There is no need to specify the number of individuals,  as it will be obtained a
 \examples{
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
     tvars=c('vala','debta','cfa','sales'), iT=14)
+pstr
 }
 \seealso{
 \code{\link{LinTest}}

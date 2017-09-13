@@ -69,7 +69,7 @@ NULL
 #' @import tibble
 NULL
 
-#' @importFrom snowfall sfInit sfExport sfSapply sfStop
+#' @import snowfall
 NULL
 
 
@@ -107,6 +107,7 @@ NULL
 #' @examples
 #' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
 #'     tvars=c('vala','debta','cfa','sales'), iT=14)
+#' pstr
 #' @export
 NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, iT)
 {

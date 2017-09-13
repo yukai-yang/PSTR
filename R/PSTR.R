@@ -108,8 +108,12 @@ NULL
 #'
 #' @examples
 #' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-#'     tvars=c('vala','debta','cfa','sales'), iT=14)
+#'     tvars=c('vala','debta'), iT=14)
+#'
 #' pstr
+#'
+#' print(pstr,"summary")
+#'
 #' @export
 NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, im=1, iT)
 {
@@ -298,6 +302,27 @@ sLMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
 #' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
 #' @seealso \code{\link{NewPSTR}}
 #' @keywords specification
+#'
+#' @examples
+#' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
+#'     tvars=c('vala'), iT=14) # create a new PSTR object
+#'
+#' pstr = LinTest(pstr)
+#'
+#' print(pstr, "tests")
+#'
+#' \donttest{
+#' # Don't forget to attach the package for the parallel computation.
+#' library(snowfall)
+#'
+#' # you should not run this on personal computer!
+#' # pstr = WCB_LinTest(use=pstr, iB=5000, parallel=T, cpus=50)
+#'
+#' # a light version for checking on your personal computer.
+#' pstr = WCB_LinTest(use=pstr, iB=4, parallel=T, cpus=2)
+#'
+#' print(pstr, "tests")
+#' }
 #'
 #' @name LinTest
 NULL
@@ -618,6 +643,19 @@ Der2GFunc <- function(vg,vs,vp)
 #' @seealso \code{\link{NewPSTR}}, \code{\link{LinTest}} and \code{\link{WCB_LinTest}}
 #' @keywords estimation
 #'
+#' @examples
+#' \donttest{
+#' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
+#'     tvars=c('vala'), iT=14) # create a new PSTR object
+#'
+#' # "L-BFGS-B" is used by default
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, par=c(1.6,.5), vLower=4, vUpper=4)
+#' # You can also choose the method yourself.
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, par=c(1.6,.5), method='CG')
+#'
+#' print(pstr, "estimates", digits=6)
+#' }
+#'
 #' @export
 EstPSTR <- function(use, im=1, iq, par, vLower=2, vUpper=2, method='L-BFGS-B')
 {
@@ -795,6 +833,34 @@ EstPSTR <- function(use, im=1, iq, par, vLower=2, vUpper=2, method='L-BFGS-B')
 #' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
 #' @seealso \code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}} and \code{\link{EstPSTR}}
 #' @keywords evaluation
+#'
+#' @examples
+#' \donttest{
+#' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
+#'     tvars=c('vala'), iT=14) # create a new PSTR object
+#'
+#' # Estimate the model first
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, par=c(1.6,.5), method='CG')
+#'
+#' # Then you can evaluate the model
+#' pstr = EvalTest(use=pstr, vq=pstr$mQ[,1])
+#'
+#' print(pstr, "eval")
+#'
+#' # You can do the wild bootstrap and wild cluster bootstrap
+#'
+#' library(snowfall)
+#'
+#' pstr = WCB_TVTest(use=pstr, iB=4, parallel=T, cpus=2)
+#'
+#' # pstr$mQ[,1] is the transition variable stored in the object
+#' # You can also try other transition variables.
+#' pstr = WCB_HETest(use=pstr, vq=pstr$mQ[,1], iB=4, parallel=T, cpus=2)
+#'
+#' print(pstr, "eval")
+#'
+#' # Don't forget to change the values of iB and cpus during experiments.
+#' }
 #'
 #' @name EvalTest
 NULL

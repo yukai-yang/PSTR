@@ -60,6 +60,28 @@ The wild bootstrap (WB) tests are heteroskedasticity robust, while the wild clus
 
 The two functions never change the existing values in the input PSTR object. They add more values (attributes) into the input object and return.
 }
+\examples{
+pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
+    tvars=c('vala'), iT=14) # create a new PSTR object
+
+pstr = LinTest(pstr)
+
+print(pstr, "tests")
+
+\donttest{
+# Don't forget to attach the package for the parallel computation.
+library(snowfall)
+
+# you should not run this on personal computer!
+# pstr = WCB_LinTest(use=pstr, iB=5000, parallel=T, cpus=50)
+
+# a light version for checking on your personal computer.
+pstr = WCB_LinTest(use=pstr, iB=4, parallel=T, cpus=2)
+
+print(pstr, "tests")
+}
+
+}
 \seealso{
 \code{\link{NewPSTR}}
 }

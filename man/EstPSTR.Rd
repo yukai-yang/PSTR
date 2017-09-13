@@ -53,6 +53,20 @@ The user should have obtained the information about which transition variable (\
 
 The estimation function never change the existing values in the input PSTR object. It adds more values (attributes) into the input object and return.
 }
+\examples{
+\donttest{
+pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
+    tvars=c('vala'), iT=14) # create a new PSTR object
+
+# "L-BFGS-B" is used by default
+pstr = EstPSTR(use=pstr, im=1, iq=1, par=c(1.6,.5), vLower=4, vUpper=4)
+# You can also choose the method yourself.
+pstr = EstPSTR(use=pstr, im=1, iq=1, par=c(1.6,.5), method='CG')
+
+print(pstr, "estimates", digits=6)
+}
+
+}
 \seealso{
 \code{\link{NewPSTR}}, \code{\link{LinTest}} and \code{\link{WCB_LinTest}}
 }

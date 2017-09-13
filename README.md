@@ -15,7 +15,13 @@ Parallel computation (as an option) is implemented in some functions, especially
 Example
 -------
 
-After installing and attaching the package, you can take a look at all the available functions and data in the package
+After installing the package, you need to load (attach better say) it by running the code
+
+``` r
+library(PSTR)
+```
+
+Then you can take a look at all the available functions and data in the package
 
 ``` r
 ls( grep("PSTR", search()) ) 
@@ -95,10 +101,11 @@ You can do the wild bootstrap and wild cluster bootstrap by running the followin
 
 ``` r
 iB = 5000 # the number of repetitions in the bootstrap
+library(snowfall)
 pstr = WCB_LinTest(use=pstr,iB=iB,parallel=T,cpus=50)
 ```
 
-It takes a long long time to run the bootstrap. This function is developed for those who work on some super-computation server with many cores and a large memory.
+It takes a long long time to run the bootstrap. This function is developed for those who work on some super-computation server with many cores and a large memory. Note that you will have to attach the "snowfall" package manually.
 
 But of course, you can try the function on your personal computer by reducing the number of repetitions and the cores.
 

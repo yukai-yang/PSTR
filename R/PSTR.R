@@ -69,7 +69,7 @@ NULL
 #' @import tibble
 NULL
 
-#' @import snowfall
+#' @importFrom snowfall sfInit sfExport sfSapply sfStop
 NULL
 
 

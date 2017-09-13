@@ -7,19 +7,16 @@
 \alias{WCB_HETest}
 \title{Conduct the evaluation tests.}
 \usage{
-EvalTest(use, type = c("time-varying", "heterogeneity"), im = 1,
-  vq = NULL)
+EvalTest(use, type = c("time-varying", "heterogeneity"), vq = NULL)
 
-WCB_TVTest(use, im = 1, iB = 100, parallel = F, cpus = 4)
+WCB_TVTest(use, iB = 100, parallel = F, cpus = 4)
 
-WCB_HETest(use, im = 1, vq, iB = 100, parallel = F, cpus = 4)
+WCB_HETest(use, vq, iB = 100, parallel = F, cpus = 4)
 }
 \arguments{
 \item{use}{an object of the class PSTR, created by \code{\link{EstPSTR}} function.}
 
 \item{type}{a character vector specifying the types of the evaluation tests to be conducted. The value can be taken either or both of \code{"time-varying"} \code{"heterogeneity"}. By default, do both.}
-
-\item{im}{specifies the maximal number of switches in the transtion function in the remaining nonlinearity. The default value is 1.}
 
 \item{vq}{a vector of a new transition variable for the no remaining nonlinearity test.}
 

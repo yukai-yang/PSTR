@@ -125,7 +125,7 @@ print_tests <- function(obj,digits)
 
   if(!is.null(obj$test)){
     for(iter in 1:length(obj$test)){
-      im = length(obj$test[[iter]])
+      im = obj$im
 
       cat0("-----------------------------------------------------------------------")
       cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
@@ -141,8 +141,7 @@ print_tests <- function(obj,digits)
       colnames(tmp) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
 
       if(!is.null(obj$wcb_test)){
-        ttmp = obj$wcb_test[[iter]]
-        ttmp = matrix(ttmp, nrow=im)[,2:3]
+        ttmp = obj$wcb_test[[iter]][,2:3,drop=F]
         colnames(ttmp) = c("WB_PV", "WCB_PV")
         tmp = cbind(tmp, ttmp)
       }
@@ -157,7 +156,7 @@ print_tests <- function(obj,digits)
 
   if(!is.null(obj$sqtest)){
     for(iter in 1:length(obj$sqtest)){
-      im = length(obj$sqtest[[iter]])
+      im = obj$im
 
       cat0("-----------------------------------------------------------------------")
       cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
@@ -173,8 +172,7 @@ print_tests <- function(obj,digits)
       colnames(tmp) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
 
       if(!is.null(obj$wcb_sqtest)){
-        ttmp = obj$wcb_sqtest[[iter]]
-        ttmp = matrix(ttmp, nrow=im)[,2:3]
+        ttmp = obj$wcb_sqtest[[iter]][,2:3,drop=F]
         colnames(ttmp) = c("WB_PV", "WCB_PV")
         tmp = cbind(tmp, ttmp)
       }

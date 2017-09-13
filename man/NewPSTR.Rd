@@ -4,7 +4,7 @@
 \alias{NewPSTR}
 \title{Create an object of the class PSTR.}
 \usage{
-NewPSTR(data, dep, indep, indep_k = NULL, tvars, iT)
+NewPSTR(data, dep, indep, indep_k = NULL, tvars, im = 1, iT)
 }
 \arguments{
 \item{data}{a tibble of data. The number of rows of \code{data} must be the sample size \code{iT} times individuals number N.}
@@ -16,6 +16,8 @@ NewPSTR(data, dep, indep, indep_k = NULL, tvars, iT)
 \item{indep_k}{a vector of column numbers of names of the independent variables in the nonlinear part. If \code{indep_k} is not given (\code{= NULL}), the nonlinear part will be the same as the linear part.}
 
 \item{tvars}{a vector of column numbers or names of the potential transition variables to be tested.}
+
+\item{im}{maximal number of switches in the transition function used in the linearity evaluation tests, by default \code{im=1}.}
 
 \item{iT}{sample size.}
 }
@@ -29,6 +31,7 @@ The object is a list containing the following components:
 \item{mX}{the matrix of the explanatory variables in the linear part}
 \item{mK}{the matrix of the explanatory variables in the nonlinear part}
 \item{mQ}{the matrix of the potential transition variables}
+\item{im}{the maximal number of switches used in the linearity test}
 }
 \description{
 Create an object of the S3 class PSTR for later usage. This function should be run prior to the other functions in the package. It will return an object which you will use as an input for the other functions. It builds up the basic settings for the Panel Smooth Transition Regression (PSTR) Modelling.

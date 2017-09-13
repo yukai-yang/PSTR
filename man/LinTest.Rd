@@ -6,14 +6,12 @@
 \alias{WCB_LinTest}
 \title{Conduct the linearity tests.}
 \usage{
-LinTest(use, im = 1)
+LinTest(use)
 
-WCB_LinTest(use, im = 1, iB = 100, parallel = F, cpus = 4)
+WCB_LinTest(use, iB = 100, parallel = F, cpus = 4)
 }
 \arguments{
 \item{use}{an object of the class PSTR, created by \code{\link{NewPSTR}} function.}
-
-\item{im}{specifies the maximal number of switches in the transtion function. The default value is 1.}
 
 \item{iB}{specify the number of repetitions in the bootstrap procedure. By default, it is 100.}
 

@@ -88,6 +88,7 @@ NULL
 #' @param indep a vector of column numbers of names of the independent variables.
 #' @param indep_k a vector of column numbers of names of the independent variables in the nonlinear part. If \code{indep_k} is not given (\code{= NULL}), the nonlinear part will be the same as the linear part.
 #' @param tvars a vector of column numbers or names of the potential transition variables to be tested.
+#' @param im maximal number of switches in the transition function used in the linearity evaluation tests, by default \code{im=1}.
 #' @param iT sample size.
 #'
 #' @return An object of the class PSTR for later usage.
@@ -99,6 +100,7 @@ NULL
 #' \item{mX}{the matrix of the explanatory variables in the linear part}
 #' \item{mK}{the matrix of the explanatory variables in the nonlinear part}
 #' \item{mQ}{the matrix of the potential transition variables}
+#' \item{im}{the maximal number of switches used in the linearity test}
 #'
 #' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
 #' @seealso \code{\link{LinTest}}
@@ -109,7 +111,7 @@ NULL
 #'     tvars=c('vala','debta','cfa','sales'), iT=14)
 #' pstr
 #' @export
-NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, iT)
+NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, im=1, iT)
 {
   ret = list(); class(ret) = "PSTR"
   if(!is_tibble(data)) stop(simpleError("data should be a tibble!"))
@@ -136,6 +138,7 @@ NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, iT)
   ret$mX = as.matrix(mX)
   ret$mK = as.matrix(mK)
   ret$mQ = as.matrix(mQ)
+  ret$im = im
 
   iN = sum(tmp)/iT; ret$iN = iN
 
@@ -280,7 +283,6 @@ sLMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
 #' The two functions never change the existing values in the input PSTR object. They add more values (attributes) into the input object and return.
 #'
 #' @param use an object of the class PSTR, created by \code{\link{NewPSTR}} function.
-#' @param im specifies the maximal number of switches in the transtion function. The default value is 1.
 #' @param iB specify the number of repetitions in the bootstrap procedure. By default, it is 100.
 #' @param parallel a boolean value showing if the parallel computation is applied.
 #' @param cpus number of cores used in the parallel computation. The value will be ignored if \code{parallel=F}.
@@ -303,12 +305,13 @@ NULL
 
 #' @rdname LinTest
 #' @export
-LinTest <- function(use, im=1)
+LinTest <- function(use)
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   ret = use
   iT = use$iT; iN = use$iN
+  im = use$im
 
   # get the data here
   vY = use$vY; vYb = use$vYb
@@ -366,12 +369,13 @@ LinTest <- function(use, im=1)
 
 #' @rdname LinTest
 #' @export
-WCB_LinTest <- function(use, im=1, iB=100, parallel=F, cpus=4)
+WCB_LinTest <- function(use, iB=100, parallel=F, cpus=4)
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   ret = use
   iT = use$iT; iN = use$iN
+  im = use$im
 
   # get the data here
   vY = use$vY; vYb = use$vYb
@@ -446,8 +450,7 @@ WCB_LinTest <- function(use, im=1, iB=100, parallel=F, cpus=4)
     LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
 
     sfInit(parallel=parallel,cpus=cpus)
-    #sfExport(list=c('iT','iN','vU','eY','mXb','mX','sLMTEST'))
-    sfExport(list=c('sLMTEST'))
+    #sfExport(list=c('sLMTEST'))
     qLM1 = sfSapply(1:iB,ftmp_wb)
     qLM2 = sfSapply(1:iB,ftmp_wcb)
     sfStop()
@@ -474,7 +477,7 @@ WCB_LinTest <- function(use, im=1, iB=100, parallel=F, cpus=4)
       sqLM = sLMTEST(iT=iT,iN=iN,vU=vUK,mX=mXK,mW=mWK,mM=mM,s2=s2K,mX2=mX2K,invXX=invXK)
 
       sfInit(parallel=parallel,cpus=cpus)
-      sfExport(list=c('sLMTEST'))
+      #sfExport(list=c('sLMTEST'))
       sqLM1 = sfSapply(1:iB,sqftmp_wb)
       sqLM2 = sfSapply(1:iB,sqftmp_wcb)
       sfStop()
@@ -486,7 +489,7 @@ WCB_LinTest <- function(use, im=1, iB=100, parallel=F, cpus=4)
       LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
 
       sfInit(parallel=parallel,cpus=cpus)
-      sfExport(list=c('sLMTEST'))
+      #sfExport(list=c('sLMTEST'))
       qLM1 = sfSapply(1:iB,ftmp_wb)
       qLM2 = sfSapply(1:iB,ftmp_wcb)
       sfStop()
@@ -494,8 +497,8 @@ WCB_LinTest <- function(use, im=1, iB=100, parallel=F, cpus=4)
       rtmp = rbind( rtmp, c(LM, mean(LM<=qLM1), mean(LM<=qLM2)) )
     }
 
-    ret$wcb_test[[qter]] = rtmp
-    ret$wcb_sqtest[[qter]] = rrtmp
+    ret$wcb_test[[qter]] = matrix(rtmp, nrow=im)
+    ret$wcb_sqtest[[qter]] = matrix(rrtmp, nrow=im)
 
   }
 
@@ -772,7 +775,6 @@ EstPSTR <- function(use, im=1, iq, par, vLower=2, vUpper=2, method='L-BFGS-B')
 #'
 #' @param use an object of the class PSTR, created by \code{\link{EstPSTR}} function.
 #' @param type a character vector specifying the types of the evaluation tests to be conducted. The value can be taken either or both of \code{"time-varying"} \code{"heterogeneity"}. By default, do both.
-#' @param im specifies the maximal number of switches in the transtion function in the remaining nonlinearity. The default value is 1.
 #' @param vq a vector of a new transition variable for the no remaining nonlinearity test.
 #' @param iB specify the number of repetitions in the bootstrap procedure. By default, it is 100.
 #' @param parallel a boolean value showing if the parallel computation is applied.
@@ -801,13 +803,14 @@ NULL
 
 #' @rdname EvalTest
 #' @export
-EvalTest <- function(use, type=c("time-varying","heterogeneity"), im=1, vq=NULL)
+EvalTest <- function(use, type=c("time-varying","heterogeneity"), vq=NULL)
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   if(is.null(use$beta))
     stop(simpleError("Estimate the model first!"))
   ret = use
+  im = use$im
 
   mD = diag(1,use$iN) %x% rep(1,use$iT)
   mM = diag(1, use$iN*use$iT) - tcrossprod(mD)/use$iT
@@ -847,13 +850,14 @@ EvalTest <- function(use, type=c("time-varying","heterogeneity"), im=1, vq=NULL)
 
 #' @rdname EvalTest
 #' @export
-WCB_TVTest <- function(use, im=1, iB=100, parallel=F, cpus=4)
+WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   if(is.null(use$beta))
     stop(simpleError("Estimate the model first!"))
   ret = use; ruse = use
+  im = use$im
 
   iT = use$iT; iN = use$iN
   vU = use$vU; eY = use$vY - vU
@@ -902,13 +906,15 @@ WCB_TVTest <- function(use, im=1, iB=100, parallel=F, cpus=4)
     LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mV,mW=mW,mM=mM,s2=use$s2,mX2=mV2,invXX=invVV)
 
     sfInit(parallel=parallel,cpus=cpus)
-    sfExport(list=c('sLMTEST','EstPSTR','fTF','DerGFunc'))
+    #sfExport(list=c('sLMTEST','EstPSTR','fTF','DerGFunc'))
     qLM1 = sfSapply(1:iB,ftmp_wb)
     qLM2 = sfSapply(1:iB,ftmp_wcb)
     sfStop()
 
     ret$wcb_tv = rbind(ret$wcb_tv,c(LM, mean(LM<=qLM1), mean(LM<=qLM2)))
   }
+
+  ret$wcb_tv = matrix(ret$wcb_tv, nrow=im)
 
   return(ret)
 }
@@ -917,13 +923,14 @@ WCB_TVTest <- function(use, im=1, iB=100, parallel=F, cpus=4)
 
 #' @rdname EvalTest
 #' @export
-WCB_HETest <- function(use, im=1, vq, iB=100, parallel=F, cpus=4)
+WCB_HETest <- function(use, vq, iB=100, parallel=F, cpus=4)
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   if(is.null(use$beta))
     stop(simpleError("Estimate the model first!"))
   ret = use; ruse = use
+  im = use$im
 
   iT = use$iT; iN = use$iN
   vU = use$vU; eY = use$vY - vU
@@ -972,13 +979,15 @@ WCB_HETest <- function(use, im=1, vq, iB=100, parallel=F, cpus=4)
 
     sfInit(parallel=parallel,cpus=cpus)
     #sfExport(list=c('iT','iN','vU','eY','mXb','mX','sLMTEST'))
-    sfExport(list=c('sLMTEST','EstPSTR','fTF','DerGFunc'))
+    #sfExport(list=c('sLMTEST','EstPSTR','fTF','DerGFunc'))
     qLM1 = sfSapply(1:iB,ftmp_wb)
     qLM2 = sfSapply(1:iB,ftmp_wcb)
     sfStop()
 
     ret$wcb_ht = rbind(ret$wcb_ht,c(LM, mean(LM<=qLM1), mean(LM<=qLM2)))
   }
+
+  ret$wcb_ht = matrix(ret$wcb_ht, nrow=im)
 
   return(ret)
 }

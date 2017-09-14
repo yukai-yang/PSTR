@@ -1,5 +1,5 @@
 #################################################################################
-## package name: PSTR.R
+## package name: PSTR
 ## author: Yukai Yang
 ## Statistiska Inst., Uppsala Universitet
 ## Aug 2017

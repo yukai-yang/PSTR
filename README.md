@@ -2,6 +2,9 @@
 PSTR
 ====
 
+What's new
+-------
+
 Version 1.0.2
 
 The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.
@@ -97,7 +100,7 @@ print(pstr, "tests")
 #> #########################################################################
 ```
 
-You can see that the function "LinTest" takes the PSTR object "pstr" and overwrites it when return. This is the way I recommend as the functions handling the PSTR object in the package update the object by adding new atrributes or members. However, the same function will change the values of the attributes it adds. You can of course create new PSTR objects to take the return values in order to save the results from different settings of the model.
+You can see that the function "LinTest" takes the PSTR object "pstr" and overwrites it when return. This is the way I recommend as the functions handling the PSTR object in the package update the object by adding new attributes or members. However, the same function will change the values of the attributes it adds. You can of course create new PSTR objects to take the return values in order to save the results from different settings of the model.
 
 You can do the wild bootstrap and wild cluster bootstrap by running the following code. (Warning! Don't run it except that you have at least 50 cores!)
 

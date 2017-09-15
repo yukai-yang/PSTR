@@ -2,9 +2,6 @@
 PSTR
 ====
 
-What's new
--------
-
 Version 1.0.2
 
 The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.

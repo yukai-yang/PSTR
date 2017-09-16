@@ -21,7 +21,7 @@ You can either install the stable version from CRAN
 install.packages("PSTR")
 ```
 
-or install the develop version from GitHub
+or install the developer version from GitHub
 
 ``` r
 devtools::install_github("yukai-yang/PSTR")

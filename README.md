@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-PSTR
-====
+PSTR (1.0.2)
+============
 
 The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.
 

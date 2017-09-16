@@ -26,11 +26,28 @@ The wild bootstrap and cluster wild bootstrap tests are also implemented.
 
 Parallel computation (as an option) is implemented in some functions, especially the bootstrap tests. Therefore, the package suits tasks running many cores on super-computation servers.
 
+## How to install
+
+You can either install the stable version from CRAN
+```{r install1, eval=F}
+install.packages("PSTR")
+```
+or install the develop version from GitHub
+```{r install2, eval=F}
+devtools::install_github{"yukai-yang/PSTR"}
+```
+provided that the package "devtools" has been installed beforehand.
+
 ## Example
 
 After installing the package, you need to load (attach better say) it by running the code
-```{r attach}
+```{r attach, eval=F}
 library(PSTR)
+```
+
+You can first check the information and the current version number by running
+```{r version}
+version()
 ```
 
 Then you can take a look at all the available functions and data in the package

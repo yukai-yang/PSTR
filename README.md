@@ -24,7 +24,7 @@ install.packages("PSTR")
 or install the develop version from GitHub
 
 ``` r
-devtools::install_github{"yukai-yang/PSTR"}
+devtools::install_github("yukai-yang/PSTR")
 ```
 
 provided that the package "devtools" has been installed beforehand.

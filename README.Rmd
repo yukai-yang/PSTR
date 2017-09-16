@@ -41,7 +41,7 @@ provided that the package "devtools" has been installed beforehand.
 ## Example
 
 After installing the package, you need to load (attach better say) it by running the code
-```{r attach, eval=F}
+```{r attach}
 library(PSTR)
 ```
 

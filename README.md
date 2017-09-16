@@ -2,8 +2,6 @@
 PSTR
 ====
 
-Version 1.0.2
-
 The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.
 
 The modelling procedure consists of three stages: Specification, Estimation and Evaluation. The package offers tools helping the users to conduct model specification tests, to do PSTR model estimation, and to do model evaluation.
@@ -14,6 +12,23 @@ The wild bootstrap and cluster wild bootstrap tests are also implemented.
 
 Parallel computation (as an option) is implemented in some functions, especially the bootstrap tests. Therefore, the package suits tasks running many cores on super-computation servers.
 
+How to install
+--------------
+
+You can either install the stable version from CRAN
+
+``` r
+install.packages("PSTR")
+```
+
+or install the develop version from GitHub
+
+``` r
+devtools::install_github{"yukai-yang/PSTR"}
+```
+
+provided that the package "devtools" has been installed beforehand.
+
 Example
 -------
 
@@ -21,6 +36,20 @@ After installing the package, you need to load (attach better say) it by running
 
 ``` r
 library(PSTR)
+```
+
+You can first check the information and the current version number by running
+
+``` r
+version()
+#> #########################################################################
+#> ## package name: PSTR
+#> ## author: Yukai Yang
+#> ## Department of Statistics
+#> ## Uppsala University
+#> ## yukai.yang@statistik.uu.se
+#> ## Version 1.0.2 Sep. 2017
+#> #########################################################################
 ```
 
 Then you can take a look at all the available functions and data in the package
@@ -45,7 +74,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
 print(pstr)
 #> #########################################################################
 #> ## package name: PSTR
-#> ## Version 1.0.1, Sep. 2017
+#> ## Version 1.0.2 Sep. 2017
 #> #########################################################################
 #> ***********************************************************************
 #> Summary of the model:
@@ -79,7 +108,7 @@ pstr = LinTest(use=pstr)
 print(pstr, "tests")
 #> #########################################################################
 #> ## package name: PSTR
-#> ## Version 1.0.1, Sep. 2017
+#> ## Version 1.0.2 Sep. 2017
 #> #########################################################################
 #> ***********************************************************************
 #> Results of the linearity (homogeneity) tests:
@@ -97,7 +126,7 @@ print(pstr, "tests")
 #> #########################################################################
 ```
 
-You can see that the function "LinTest" takes the PSTR object "pstr" and overwrites it when return. This is the way I recommend as the functions handling the PSTR object in the package update the object by adding new attributes or members. However, the same function will change the values of the attributes it adds. You can of course create new PSTR objects to take the return values in order to save the results from different settings of the model.
+You can see that the function "LinTest" takes the PSTR object "pstr" and overwrites it when return. This is the way I recommend as the functions handling the PSTR object in the package update the object by adding new atrributes or members. However, the same function will change the values of the attributes it adds. You can of course create new PSTR objects to take the return values in order to save the results from different settings of the model.
 
 You can do the wild bootstrap and wild cluster bootstrap by running the following code. (Warning! Don't run it except that you have at least 50 cores!)
 
@@ -129,7 +158,7 @@ pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(1.6,.5), method="CG")
 print(pstr,"estimates")
 #> #########################################################################
 #> ## package name: PSTR
-#> ## Version 1.0.1, Sep. 2017
+#> ## Version 1.0.2 Sep. 2017
 #> #########################################################################
 #> ***********************************************************************
 #> Results of the PSTR estimation:

@@ -18,7 +18,3 @@ LazyData: true
 RoxygenNote: 6.0.1
 Imports: tibble, snowfall
 Suggests: knitr, rmarkdown
-NeedsCompilation: no
-Packaged: 2017-09-13 16:39:32 UTC; KYZONE
-Author: Yukai Yang [aut, cre]
-Maintainer: Yukai Yang <yukai.yang@statistik.uu.se>

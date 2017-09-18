@@ -103,6 +103,13 @@ pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), method="CG")
 print(pstr,"estimates")
 ```
 
+The argument "useDelta" determines the type of the initial value for the smoothness parameter. By default "useDelta = F" means that the first initial value in "par" is the "gamma" instead of "delta". Here we use the settings "useDelta = T" and "par = c(1.6, .5)" means that the first value of "par" is the "delta" and its value is 1.6. Note that "delta" and "gamma" has the relationship "gamma = exp(delta)". Thus, the following two sentences are equivalent
+```{r estimate2, eval=F}
+pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), method="CG")
+pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(1.6),.5), method="CG")
+```
+For details, read the vignette.
+
 Thus, the evaluation tests can be done based on the estimated model
 ```{r evaluation, eval=F}
 ## evaluatio tests

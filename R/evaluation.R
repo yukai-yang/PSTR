@@ -16,7 +16,7 @@
 #'
 #' \code{WCB_HETest} implements the wild bootstrap (WB) and the wild cluster bootstrap (WCB) evaluation test of no remaining nonlinearity (no remaining heterogeneity).
 #'
-#' The functions need the return value (an object of the class PSTR) from the \code{\link{EstPSTR}}. The model should be estimated before conducting the evaluation tests. They copy the object, reuse its contents, especially the estimates, to produce the evaluation test results, and then return a new object of the class PSTR. The user can choose to save the return value to a new object or simply to overwrite the object returned from \code{EstPSTR}. See the example below.
+#' The functions need the return value (an object of the class PSTR) from the \code{\link{EstPSTR}}. The model should be estimated before conducting the evaluation tests. They copy the object, reuse its contents, especially the estimates, to produce the evaluation test results, and then return a new object of the class PSTR. The user can choose to save the return value to a new object or simply to overwrite the object returned from \code{\link{EstPSTR}}. See the example below.
 #'
 #' The functions conduct two kinds of evaluation tests.
 #' The first kind of tests does the time-varying evaluation tests.
@@ -63,7 +63,7 @@
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
 #' # Estimate the model first
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, par=c(1.6,.5), method='CG')
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), method='CG')
 #'
 #' # Then you can evaluate the model
 #' pstr = EvalTest(use=pstr, vq=pstr$mQ[,1])
@@ -163,7 +163,7 @@ WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
   ftmp_wb <- function(bter){# WB
     ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
     ruse$vY = eY + ve1
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),vLower=1,vUpper=1)
+    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),useDelta=T,vLower=1,vUpper=1)
     vu1 = EST$vU; ss1 = EST$s2 # sigma^2
     tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
     tmp = EST$mD * tmp
@@ -176,7 +176,7 @@ WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
   ftmp_wcb <- function(bter){# WCB
     ve2 = c(t(matrix(sample(c(1,-1),iN,replace=T),iN,iT)))*vU
     ruse$vY = eY + ve2
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),vLower=1,vUpper=1)
+    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),useDelta=T,vLower=1,vUpper=1)
     vu2 = EST$vU; ss2 = EST$s2 # sigma^2
     tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
     tmp = EST$mD * tmp
@@ -195,7 +195,6 @@ WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
     LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mV,mW=mW,mM=mM,s2=use$s2,mX2=mV2,invXX=invVV)
     
     sfInit(parallel=parallel,cpus=cpus)
-    #sfExport(list=c('sLMTEST','EstPSTR','fTF','DerGFunc'))
     qLM1 = sfSapply(1:iB,ftmp_wb)
     qLM2 = sfSapply(1:iB,ftmp_wcb)
     sfStop()
@@ -236,7 +235,7 @@ WCB_HETest <- function(use, vq, iB=100, parallel=F, cpus=4)
   ftmp_wb <- function(bter){# WB
     ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
     ruse$vY = eY + ve1
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),vLower=1,vUpper=1)
+    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),useDelta=T,vLower=1,vUpper=1)
     vu1 = EST$vU; ss1 = EST$s2 # sigma^2
     tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
     tmp = EST$mD * tmp
@@ -249,7 +248,7 @@ WCB_HETest <- function(use, vq, iB=100, parallel=F, cpus=4)
   ftmp_wcb <- function(bter){# WCB
     ve2 = c(t(matrix(sample(c(1,-1),iN,replace=T),iN,iT)))*vU
     ruse$vY = eY + ve2
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),vLower=1,vUpper=1)
+    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),useDelta=T,vLower=1,vUpper=1)
     vu2 = EST$vU; ss2 = EST$s2 # sigma^2
     tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
     tmp = EST$mD * tmp
@@ -267,8 +266,6 @@ WCB_HETest <- function(use, vq, iB=100, parallel=F, cpus=4)
     LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mV,mW=mW,mM=mM,s2=use$s2,mX2=mV2,invXX=invVV)
     
     sfInit(parallel=parallel,cpus=cpus)
-    #sfExport(list=c('iT','iN','vU','eY','mXb','mX','sLMTEST'))
-    #sfExport(list=c('sLMTEST','EstPSTR','fTF','DerGFunc'))
     qLM1 = sfSapply(1:iB,ftmp_wb)
     qLM2 = sfSapply(1:iB,ftmp_wcb)
     sfStop()

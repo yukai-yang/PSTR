@@ -94,12 +94,12 @@ pstr = WCB_LinTest(use=pstr,iB=4,parallel=T,cpus=2)
 
 When you determine which transition variable to use for the estimation, in this case "inva", you can estimate the PSTR model
 ```{r estimate, eval=F}
-pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(1.6,.5), vLower=4, vUpper=4)
+pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), vLower=4, vUpper=4)
 print(pstr,"estimates")
 ```
 By default, the "optim" method "L-BFGS-B" is used, but you can change the method for estimation by doing
 ```{r estimate1}
-pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(1.6,.5), method="CG")
+pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), method="CG")
 print(pstr,"estimates")
 ```
 

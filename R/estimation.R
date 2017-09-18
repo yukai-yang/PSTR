@@ -92,7 +92,8 @@ Der2GFunc <- function(vg,vs,vp)
 #' @param use an object of the class PSTR, created by \code{\link{NewPSTR}} function.
 #' @param im specifies the number of switches in the transtion function. The default value is 1.
 #' @param iq a column number (in \code{mQ}) or variable name specifying the transition variable to use.
-#' @param par initial values for the parameters (\eqn{\delta} and \eqn{c}) to be optimized over. It is a vector of length \code{im}+1, where \code{im} is the number of switches.
+#' @param par initial values for the parameters \eqn{\gamma} or \eqn{\delta}, and \eqn{c} to be optimized over. It is a vector of length \code{im}+1, where \code{im} is the number of switches.
+#' @param useDelta whether delta is used in par in the estimation.
 #' @param vLower a vector or number of the lower offsets determining the lower bounds of the parameters. The lower bounds of the parameters are \code{par - vLower}.
 #' @param vUpper a vector or number of the upper offsets determining the upper bounds of the parameters. The upper bounds of the parameters are \code{par + vUpper}.
 #' @param method the method to be used in optimization. See the function \code{stats::optim}.
@@ -112,6 +113,7 @@ Der2GFunc <- function(vg,vs,vp)
 #' \item{se}{a vector of the standard errors of all the estimates which is cluster-dependency and heteroskedasticity consistent.}
 #' \item{mbeta}{a vector of the estimates of the parameters in the second extreme regime.}
 #' \item{mse}{a vector of the standard errors of the estimates of the parameters in the second extreme regime.}
+#' \item{convergence}{an integer code showing the convergence, see \code{optim}.}
 #'
 #' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
 #' @seealso \code{\link{NewPSTR}}, \code{\link{LinTest}} and \code{\link{WCB_LinTest}}
@@ -123,15 +125,15 @@ Der2GFunc <- function(vg,vs,vp)
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
 #' # "L-BFGS-B" is used by default
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, par=c(1.6,.5), vLower=4, vUpper=4)
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), vLower=4, vUpper=4)
 #' # You can also choose the method yourself.
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, par=c(1.6,.5), method='CG')
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), method='CG')
 #'
 #' print(pstr, "estimates", digits=6)
 #' }
 #'
 #' @export
-EstPSTR <- function(use, im=1, iq, par, vLower=2, vUpper=2, method='L-BFGS-B')
+EstPSTR <- function(use, im=1, iq, par, useDelta=F, vLower=2, vUpper=2, method='L-BFGS-B')
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
@@ -160,6 +162,8 @@ EstPSTR <- function(use, im=1, iq, par, vLower=2, vUpper=2, method='L-BFGS-B')
     return(sum(vE*vE)/iT/iN)
   }
   
+  if(!useDelta) par[1] = log(par[1])
+  
   if(method=='L-BFGS-B') opt = optim(par=par,fn=ResiduleSumSquare,method="L-BFGS-B",
                                      lower=par-vLower,upper=par+vUpper)
   else opt = optim(par=par,fn=ResiduleSumSquare,method=method)
@@ -168,6 +172,7 @@ EstPSTR <- function(use, im=1, iq, par, vLower=2, vUpper=2, method='L-BFGS-B')
   ret$iq=iq
   ret$delta = opt$par[1]; ret$gamma = exp(ret$delta)
   ret$c = opt$par[2:length(opt$par)]
+  ret$convergence = opt$convergence
   
   vg = fTF(vx=mQ,gamma=ret$gamma,vc=ret$c) # g_it
   ret$vg = vg
@@ -223,7 +228,10 @@ EstPSTR <- function(use, im=1, iq, par, vLower=2, vUpper=2, method='L-BFGS-B')
   invA = 0
   for(iter in 1:(iT*iN))
     invA = invA + (dedp[iter,]%*%t(dedp[iter,]) + d2edp2[iter,,]*ret$vU[iter])*2
-  invA = solve(invA)
+  ttmp = try(solve(invA), silent=T)
+  if(class(ttmp)=='try-error'){
+    ttmp = svd(invA); invA = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
+  }else invA = ttmp
   # done
   
   ret$cov = invA %*% mB %*% t(invA)

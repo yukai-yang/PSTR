@@ -6,7 +6,7 @@ New Features in PSTR 1.0.2
 -   In the function "EstPSTR", now the initial value for "gamma" is allowed. The user can freely choose either "gamma" or "delta" to input for the estimation.
 -   Some bugs fixed.
 
-New Featurs in PSTR 1.0.0
+New Featurs in PSTR 1.0.1
 =========================
 
 -   All the functions

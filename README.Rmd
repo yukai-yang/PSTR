@@ -110,7 +110,14 @@ pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(1.6),.5), method="CG")
 ```
 For details, read the vignette.
 
-Thus, the evaluation tests can be done based on the estimated model
+Note that the estimation of a linear panel regression model is also implemented. The user can do it by simply running
+```{r estimate3}
+pstr0 = EstPSTR(use=pstr)
+print(pstr0,"estimates")
+```
+
+
+The evaluation tests can be done based on the estimated model
 ```{r evaluation, eval=F}
 ## evaluatio tests
 pstr1 = EvalTest(use=pstr,vq=pstr$mQ[,1])
@@ -128,3 +135,5 @@ pstr = WCB_TVTest(use=pstr,iB=iB,parallel=T,cpus=cpus)
 ## wild bootstrap heterogeneity evaluation test
 pstr1 = WCB_HETest(use=pstr1,vq=pstr$mQ[,1],iB=iB,parallel=T,cpus=cpus)
 ```
+
+Note that the evaluation functions do not accept the returned object "pstr0" from a linear panel regression model, as the evaluation tests are designed for the estimated PSTR model but not a linear one.

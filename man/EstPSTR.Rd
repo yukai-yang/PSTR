@@ -4,8 +4,8 @@
 \alias{EstPSTR}
 \title{Estimate the PSTR model.}
 \usage{
-EstPSTR(use, im = 1, iq, par, useDelta = F, vLower = 2, vUpper = 2,
-  method = "L-BFGS-B")
+EstPSTR(use, im = 1, iq = NULL, par = NULL, useDelta = F, vLower = 2,
+  vUpper = 2, method = "L-BFGS-B")
 }
 \arguments{
 \item{use}{an object of the class PSTR, created by \code{\link{NewPSTR}} function.}
@@ -14,7 +14,7 @@ EstPSTR(use, im = 1, iq, par, useDelta = F, vLower = 2, vUpper = 2,
 
 \item{iq}{a column number (in \code{mQ}) or variable name specifying the transition variable to use.}
 
-\item{par}{initial values for the parameters \eqn{\gamma} or \eqn{\delta}, and \eqn{c} to be optimized over. It is a vector of length \code{im}+1, where \code{im} is the number of switches.}
+\item{par}{initial values for the parameters \eqn{\gamma} or \eqn{\delta}, and \eqn{c} to be optimized over. It is a vector of length \code{im}+1, where \code{im} is the number of switches. when missing, the function will choose the initial values automatically.}
 
 \item{useDelta}{whether delta is used in par in the estimation.}
 
@@ -28,7 +28,7 @@ EstPSTR(use, im = 1, iq, par, useDelta = F, vLower = 2, vUpper = 2,
 a new object of the class PSTR containing the results from the estimation.
 
 The object is a list containing the components made in \code{\link{NewPSTR}} and the following new components:
-\item{iq}{specify which transition variable will be used in estimation.}
+\item{iq}{specify which transition variable will be used in estimation. The default value \code{NULL} implies a linear panel regression model.}
 \item{delta}{the estimate of \eqn{\delta}.}
 \item{c}{the estimates of \eqn{c}.}
 \item{vg}{the values of the transition function given the estimates of \eqn{\delta} and \eqn{c} and the transition variables \eqn{q_{it}}.}
@@ -60,6 +60,10 @@ The estimation function never change the existing values in the input PSTR objec
 \donttest{
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
     tvars=c('vala'), iT=14) # create a new PSTR object
+
+# estimate a linear panel regression model
+pstr = EstPSTR(use=pstr)
+print(pstr, "estimates", digits=6)
 
 # "L-BFGS-B" is used by default
 pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), vLower=4, vUpper=4)

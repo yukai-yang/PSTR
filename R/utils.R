@@ -231,6 +231,18 @@ print_estimates <- function(obj,digits)
     print(signif(tmp,digits))
     cat0("-----------------------------------------------------------------------")
     cat0("Estimated standard deviation of the residuals is ",signif(sqrt(obj$s2),digits))
+  }else{
+    if(!is.null(obj$est)){
+      cat0("-----------------------------------------------------------------------")
+      cat0("A linear panel regression with fixed effects is estimated.")
+      cat0("-----------------------------------------------------------------------")
+      cat0("Parameter estimates are")
+      tmp = rbind(obj$est,obj$se)
+      rownames(tmp) = c('Est','s.e.')
+      print(signif(tmp,digits))
+      cat0("-----------------------------------------------------------------------")
+      cat0("Estimated standard deviation of the residuals is ",signif(sqrt(obj$s2),digits))
+    }
   }
 }
 

@@ -92,7 +92,7 @@ Der2GFunc <- function(vg,vs,vp)
 #' @param use an object of the class PSTR, created by \code{\link{NewPSTR}} function.
 #' @param im specifies the number of switches in the transtion function. The default value is 1.
 #' @param iq a column number (in \code{mQ}) or variable name specifying the transition variable to use.
-#' @param par initial values for the parameters \eqn{\gamma} or \eqn{\delta}, and \eqn{c} to be optimized over. It is a vector of length \code{im}+1, where \code{im} is the number of switches.
+#' @param par initial values for the parameters \eqn{\gamma} or \eqn{\delta}, and \eqn{c} to be optimized over. It is a vector of length \code{im}+1, where \code{im} is the number of switches. when missing, the function will choose the initial values automatically.
 #' @param useDelta whether delta is used in par in the estimation.
 #' @param vLower a vector or number of the lower offsets determining the lower bounds of the parameters. The lower bounds of the parameters are \code{par - vLower}.
 #' @param vUpper a vector or number of the upper offsets determining the upper bounds of the parameters. The upper bounds of the parameters are \code{par + vUpper}.
@@ -101,7 +101,7 @@ Der2GFunc <- function(vg,vs,vp)
 #' @return a new object of the class PSTR containing the results from the estimation.
 #'
 #' The object is a list containing the components made in \code{\link{NewPSTR}} and the following new components:
-#' \item{iq}{specify which transition variable will be used in estimation.}
+#' \item{iq}{specify which transition variable will be used in estimation. The default value \code{NULL} implies a linear panel regression model.}
 #' \item{delta}{the estimate of \eqn{\delta}.}
 #' \item{c}{the estimates of \eqn{c}.}
 #' \item{vg}{the values of the transition function given the estimates of \eqn{\delta} and \eqn{c} and the transition variables \eqn{q_{it}}.}
@@ -124,6 +124,10 @@ Der2GFunc <- function(vg,vs,vp)
 #' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
+#' # estimate a linear panel regression model
+#' pstr = EstPSTR(use=pstr)
+#' print(pstr, "estimates", digits=6)
+#'
 #' # "L-BFGS-B" is used by default
 #' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), vLower=4, vUpper=4)
 #' # You can also choose the method yourself.
@@ -133,7 +137,7 @@ Der2GFunc <- function(vg,vs,vp)
 #' }
 #'
 #' @export
-EstPSTR <- function(use, im=1, iq, par, useDelta=F, vLower=2, vUpper=2, method='L-BFGS-B')
+EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=F, vLower=2, vUpper=2, method='L-BFGS-B')
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
@@ -146,117 +150,158 @@ EstPSTR <- function(use, im=1, iq, par, useDelta=F, vLower=2, vUpper=2, method='
   mK = use$mK
   ik = ncol(mK)
   
-  vQ = use$mQ[,iq]
-  mQ = t(matrix(vQ,iT*iN,im))
-  
   ftmp <- function(vx) return(vx - mean(vx))
   
-  ResiduleSumSquare <- function(vp){
-    # vp[1] = log(gamma) or delta
-    vg = fTF(vx=mQ,gamma=exp(vp[1]),vc=vp[2:length(vp)])
-    mXX = mK * vg
-    aXX = array(c(mXX), dim=c(iT,iN,ik))
-    mXXb = cbind(mXb, matrix(c(apply(aXX,c(2,3),ftmp)), iT*iN, ik))
-    tmp = chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb
-    vE = c(vYb-mXXb%*%tmp)
-    return(sum(vE*vE)/iT/iN)
-  }
-  
-  if(!useDelta) par[1] = log(par[1])
-  
-  if(method=='L-BFGS-B') opt = optim(par=par,fn=ResiduleSumSquare,method="L-BFGS-B",
-                                     lower=par-vLower,upper=par+vUpper)
-  else opt = optim(par=par,fn=ResiduleSumSquare,method=method)
-  
-  # return value
   ret$iq=iq
-  ret$delta = opt$par[1]; ret$gamma = exp(ret$delta)
-  ret$c = opt$par[2:length(opt$par)]
-  ret$convergence = opt$convergence
   
-  vg = fTF(vx=mQ,gamma=ret$gamma,vc=ret$c) # g_it
-  ret$vg = vg
-  mXX = mK * vg # x_it * g_it
-  
-  aXX = array(c(mXX), dim=c(iT,iN,ik))
-  mXXb = cbind(mXb, matrix(c(apply(aXX,c(2,3),ftmp)), iT*iN, ik)) # mean adjust
-  tmp = chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb # beta
-  ret$beta = c(tmp); names(ret$beta) = c(paste0(use$mX_name,'_0'), paste0(use$mK_name,'_1'))
-  
-  mXX = cbind(mX, mXX) # (x_it, x_it*g_it)
-  ret$mXX = mXX
-  
-  ret$vU = c(apply(matrix(c(vY-mXX%*%tmp),iT,iN),2,ftmp))
-  ret$s2 = c(ret$vU %*% ret$vU) / (iT*iN)
-  
-  # computing standard errors
-  tmp = Der2GFunc(vg=vg,vs=vQ,vp=c(ret$gamma,ret$c))
-  de1 = tmp$de1; de2 = tmp$de2
-  beta1 = ret$beta[(ncol(mX)+1):length(ret$beta)]
-  
-  dedp = -mXXb
-  d2edp2 = array(0,dim=c(iT*iN,length(ret$beta)+1+im,length(ret$beta)+1+im))
-  tmp = 1
-  for(iter in 1:ncol(de1)){
-    mKK = mK * de1[,iter]
-    aKK = array(c(mKK),dim=c(iT,iN,ik))
-    mKK = matrix(c(apply(aKK,c(2,3),ftmp)), iT*iN, ik)
-    dedp = cbind(dedp, -mKK %*% beta1)
+  if(!is.null(iq)){ 
+    vQ = use$mQ[,iq]
+    mQ = t(matrix(vQ,iT*iN,im))  
     
-    d2edp2[,(ncol(mX)+1):length(ret$beta),length(ret$beta)+iter] = -mKK
-    d2edp2[,length(ret$beta)+iter,(ncol(mX)+1):length(ret$beta)] = -mKK
+    ResiduleSumSquare <- function(vp){
+      # vp[1] = log(gamma) or delta
+      vg = fTF(vx=mQ,gamma=exp(vp[1]),vc=vp[2:length(vp)])
+      mXX = mK * vg
+      aXX = array(c(mXX), dim=c(iT,iN,ik))
+      mXXb = cbind(mXb, matrix(c(apply(aXX,c(2,3),ftmp)), iT*iN, ik))
+      tmp = chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb
+      vE = c(vYb-mXXb%*%tmp)
+      return(sum(vE*vE)/iT/iN)
+    }
     
-    for(jter in iter:ncol(de1)){
-      mKK = mK * de2[,tmp]
+    if(!useDelta) par[1] = log(par[1])
+    
+    if(method=='L-BFGS-B') opt = optim(par=par,fn=ResiduleSumSquare,method="L-BFGS-B",
+                                       lower=par-vLower,upper=par+vUpper)
+    else opt = optim(par=par,fn=ResiduleSumSquare,method=method)
+    
+    # return value 
+    ret$delta = opt$par[1]; ret$gamma = exp(ret$delta)
+    ret$c = opt$par[2:length(opt$par)]
+    ret$convergence = opt$convergence
+    
+    vg = fTF(vx=mQ,gamma=ret$gamma,vc=ret$c) # g_it
+    ret$vg = vg
+    mXX = mK * vg # x_it * g_it 
+    aXX = array(c(mXX), dim=c(iT,iN,ik))
+    mXXb = cbind(mXb, matrix(c(apply(aXX,c(2,3),ftmp)), iT*iN, ik)) # mean adjust
+    tmp = chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb # beta
+    ret$beta = c(tmp); names(ret$beta) = c(paste0(use$mX_name,'_0'), paste0(use$mK_name,'_1'))
+    
+    mXX = cbind(mX, mXX) # (x_it, x_it*g_it)
+    ret$mXX = mXX
+    
+    ret$vU = c(apply(matrix(c(vY-mXX%*%tmp),iT,iN),2,ftmp))
+    ret$s2 = c(ret$vU %*% ret$vU) / (iT*iN)
+    
+    # computing standard errors
+    tmp = Der2GFunc(vg=vg,vs=vQ,vp=c(ret$gamma,ret$c))
+    de1 = tmp$de1; de2 = tmp$de2
+    beta1 = ret$beta[(ncol(mX)+1):length(ret$beta)]
+    
+    dedp = -mXXb
+    d2edp2 = array(0,dim=c(iT*iN,length(ret$beta)+1+im,length(ret$beta)+1+im))
+    tmp = 1
+    for(iter in 1:ncol(de1)){
+      mKK = mK * de1[,iter]
       aKK = array(c(mKK),dim=c(iT,iN,ik))
       mKK = matrix(c(apply(aKK,c(2,3),ftmp)), iT*iN, ik)
+      dedp = cbind(dedp, -mKK %*% beta1)
       
-      d2edp2[,length(ret$beta)+iter,length(ret$beta)+jter] = -mKK %*% beta1
-      d2edp2[,length(ret$beta)+jter,length(ret$beta)+iter] = -mKK %*% beta1
-      tmp = tmp+1
+      d2edp2[,(ncol(mX)+1):length(ret$beta),length(ret$beta)+iter] = -mKK
+      d2edp2[,length(ret$beta)+iter,(ncol(mX)+1):length(ret$beta)] = -mKK
+      
+      for(jter in iter:ncol(de1)){
+        mKK = mK * de2[,tmp]
+        aKK = array(c(mKK),dim=c(iT,iN,ik))
+        mKK = matrix(c(apply(aKK,c(2,3),ftmp)), iT*iN, ik)
+        
+        d2edp2[,length(ret$beta)+iter,length(ret$beta)+jter] = -mKK %*% beta1
+        d2edp2[,length(ret$beta)+jter,length(ret$beta)+iter] = -mKK %*% beta1
+        tmp = tmp+1
+      }
     }
-  }
-  
-  mh = 2*ret$vU*dedp
-  ah = array(c(mh),dim=c(iT,iN,ncol(dedp)))
-  hi = matrix(c(apply(ah,c(2,3),sum)), iN, ncol(dedp))
-  mB = 0
-  for(iter in 1:iN){
-    mB = mB + hi[iter,] %*% t(hi[iter,])
-  }
-  
-  invA = 0
-  for(iter in 1:(iT*iN))
-    invA = invA + (dedp[iter,]%*%t(dedp[iter,]) + d2edp2[iter,,]*ret$vU[iter])*2
-  ttmp = try(solve(invA), silent=T)
-  if(class(ttmp)=='try-error'){
-    ttmp = svd(invA); invA = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
-  }else invA = ttmp
-  # done
-  
-  ret$cov = invA %*% mB %*% t(invA)
-  ret$se = sqrt(diag(ret$cov))
-  names(ret$se) = c(names(ret$beta),'gamma',paste0('c_',1:im))
-  
-  ret$est = c(ret$beta, ret$gamma, ret$c)
-  names(ret$est) = names(ret$se)
-  
-  mM = NULL; mname = NULL
-  mTmp = diag(length(ret$mX_name))
-  for(iter in 1:length(ret$mX_name)){
-    tmp = ret$mX_name[iter] == ret$mK_name
-    if(any(tmp)){
-      mM = rbind(mM, c(mTmp[iter,], tmp))
-      mname = c(mname, ret$mX_name[iter])
+    
+    mh = 2*ret$vU*dedp
+    ah = array(c(mh),dim=c(iT,iN,ncol(dedp)))
+    hi = matrix(c(apply(ah,c(2,3),sum)), iN, ncol(dedp))
+    mB = 0
+    for(iter in 1:iN){
+      mB = mB + hi[iter,] %*% t(hi[iter,])
     }
-  }
-  
-  if(!is.null(mM)){
-    mM = cbind(mM, matrix(0,nrow(mM),1+im))
-    ret$mbeta = c(mM %*% ret$est)
-    names(ret$mbeta) = mname
-    ret$mse = sqrt(diag(mM %*% ret$cov %*% t(mM)))
-    names(ret$mse) = mname
+    
+    invA = 0
+    for(iter in 1:(iT*iN))
+      invA = invA + (dedp[iter,]%*%t(dedp[iter,]) + d2edp2[iter,,]*ret$vU[iter])*2
+    ttmp = try(solve(invA), silent=T)
+    if(class(ttmp)=='try-error'){
+      ttmp = svd(invA); invA = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
+    }else invA = ttmp
+    # done
+    
+    ret$cov = invA %*% mB %*% t(invA)
+    ret$se = sqrt(diag(ret$cov))
+    names(ret$se) = c(names(ret$beta),'gamma',paste0('c_',1:im))
+    
+    ret$est = c(ret$beta, ret$gamma, ret$c)
+    names(ret$est) = names(ret$se)
+    
+    mM = NULL; mname = NULL
+    mTmp = diag(length(ret$mX_name))
+    for(iter in 1:length(ret$mX_name)){
+      tmp = ret$mX_name[iter] == ret$mK_name
+      if(any(tmp)){
+        mM = rbind(mM, c(mTmp[iter,], tmp))
+        mname = c(mname, ret$mX_name[iter])
+      }
+    }
+    
+    if(!is.null(mM)){
+      mM = cbind(mM, matrix(0,nrow(mM),1+im))
+      ret$mbeta = c(mM %*% ret$est)
+      names(ret$mbeta) = mname
+      ret$mse = sqrt(diag(mM %*% ret$cov %*% t(mM)))
+      names(ret$mse) = mname
+    }
+ 
+  }else{
+    
+    tmp = chol2inv(chol(t(mXb)%*%mXb)) %*% t(mXb) %*% vYb
+    #vE = c(vYb-mXb%*%tmp)
+    
+    # return value 
+    ret$beta = c(tmp); names(ret$beta) = use$mX_name
+    
+    ret$vU = c(apply(matrix(c(vY-mX%*%tmp),iT,iN),2,ftmp))
+    ret$s2 = c(ret$vU %*% ret$vU) / (iT*iN)
+    
+    # computing standard errors
+    dedp = -mXb
+    
+    mh = 2*ret$vU*dedp
+    ah = array(c(mh),dim=c(iT,iN,ncol(dedp)))
+    hi = matrix(c(apply(ah,c(2,3),sum)), iN, ncol(dedp))
+    mB = 0
+    for(iter in 1:iN){
+      mB = mB + hi[iter,] %*% t(hi[iter,])
+    }
+    
+    invA = 0
+    for(iter in 1:(iT*iN))
+      invA = invA + dedp[iter,]%*%t(dedp[iter,])*2
+    ttmp = try(solve(invA), silent=T)
+    if(class(ttmp)=='try-error'){
+      ttmp = svd(invA); invA = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
+    }else invA = ttmp
+    # done
+    
+    ret$cov = invA %*% mB %*% t(invA)
+    ret$se = sqrt(diag(ret$cov))
+    names(ret$se) = names(ret$beta)
+    
+    ret$est = ret$beta
+    names(ret$est) = names(ret$se)
+    
   }
   
   return(ret)

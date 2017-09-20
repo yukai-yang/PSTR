@@ -16,7 +16,7 @@
 #'
 #' \code{WCB_HETest} implements the wild bootstrap (WB) and the wild cluster bootstrap (WCB) evaluation test of no remaining nonlinearity (no remaining heterogeneity).
 #'
-#' The functions need the return value (an object of the class PSTR) from the \code{\link{EstPSTR}}. The model should be estimated before conducting the evaluation tests. They copy the object, reuse its contents, especially the estimates, to produce the evaluation test results, and then return a new object of the class PSTR. The user can choose to save the return value to a new object or simply to overwrite the object returned from \code{\link{EstPSTR}}. See the example below.
+#' The functions need the return value (an object of the class PSTR) from the \code{\link{EstPSTR}}. Note that the PSTR model should be estimated before conducting the evaluation tests. They copy the object, reuse its contents, especially the estimates, to produce the evaluation test results, and then return a new object of the class PSTR. The user can choose to save the return value to a new object or simply to overwrite the object returned from \code{\link{EstPSTR}}. See the example below.
 #'
 #' The functions conduct two kinds of evaluation tests.
 #' The first kind of tests does the time-varying evaluation tests.
@@ -96,8 +96,8 @@ EvalTest <- function(use, type=c("time-varying","heterogeneity"), vq=NULL)
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
-  if(is.null(use$beta))
-    stop(simpleError("Estimate the model first!"))
+  if(is.null(use$iq))
+    stop(simpleError("Estimate the PSTR model first!"))
   ret = use
   im = use$im
   
@@ -143,8 +143,8 @@ WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
-  if(is.null(use$beta))
-    stop(simpleError("Estimate the model first!"))
+  if(is.null(use$iq))
+    stop(simpleError("Estimate the PSTR model first!"))
   ret = use; ruse = use
   im = use$im
   
@@ -215,8 +215,8 @@ WCB_HETest <- function(use, vq, iB=100, parallel=F, cpus=4)
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
-  if(is.null(use$beta))
-    stop(simpleError("Estimate the model first!"))
+  if(is.null(use$iq))
+    stop(simpleError("Estimate the PSTR model first!"))
   ret = use; ruse = use
   im = use$im
   

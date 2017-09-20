@@ -205,7 +205,37 @@ pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(1.6),.5), method="CG")
 
 For details, read the vignette.
 
-Thus, the evaluation tests can be done based on the estimated model
+Note that the estimation of a linear panel regression model is also implemented. The user can do it by simply running
+
+``` r
+pstr0 = EstPSTR(use=pstr)
+print(pstr0,"estimates")
+#> #########################################################################
+#> ## package name: PSTR
+#> ## Version 1.0.2 Sep. 2017
+#> #########################################################################
+#> ***********************************************************************
+#> Results of the PSTR estimation:
+#> -----------------------------------------------------------------------
+#> A linear panel regression with fixed effects is estimated.
+#> -----------------------------------------------------------------------
+#> Parameter estimates are
+#>          dt_75     dt_76     dt_77    dt_78    dt_79    dt_80    dt_81
+#> Est  -0.007759 -0.008248 -0.004296 0.002356 0.004370 0.008246 0.004164
+#> s.e.  0.002306  0.002544  0.002718 0.002820 0.002753 0.002959 0.002992
+#>          dt_82     dt_83    dt_84    dt_85    dt_86     dt_87     vala
+#> Est  -0.005294 -0.010040 0.006864 0.009740 0.007027 0.0004091 0.008334
+#> s.e.  0.002664  0.002678 0.003092 0.003207 0.003069 0.0030080 0.001259
+#>          debta     cfa    sales
+#> Est  -0.016380 0.06506 0.007957
+#> s.e.  0.005725 0.01079 0.002412
+#> -----------------------------------------------------------------------
+#> Estimated standard deviation of the residuals is 0.04375
+#> ***********************************************************************
+#> #########################################################################
+```
+
+The evaluation tests can be done based on the estimated model
 
 ``` r
 ## evaluatio tests
@@ -226,3 +256,5 @@ pstr = WCB_TVTest(use=pstr,iB=iB,parallel=T,cpus=cpus)
 ## wild bootstrap heterogeneity evaluation test
 pstr1 = WCB_HETest(use=pstr1,vq=pstr$mQ[,1],iB=iB,parallel=T,cpus=cpus)
 ```
+
+Note that the evaluation functions do not accept the returned object "pstr0" from a linear panel regression model, as the evaluation tests are designed for the estimated PSTR model but not a linear one.

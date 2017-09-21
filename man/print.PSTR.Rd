@@ -4,12 +4,12 @@
 \alias{print.PSTR}
 \title{Print the object of the class PSTR.}
 \usage{
-\method{print}{PSTR}(x, mode = "summary", digits = 4, ...)
+\method{print}{PSTR}(x, mode = c("su", "e"), digits = 4, ...)
 }
 \arguments{
 \item{x}{an object of the class PSTR returned from some functions in the package. See below "See Also" for a list of these functions.}
 
-\item{mode}{a vector of character strings specifying which results to print. It takes the values c('summary', 'tests', 'estimates', 'evaluation'). By default 'summary'.}
+\item{mode}{a vector of character strings specifying which results to print. It takes the values c('summary', 'tests', 'estimates', 'evaluation'). By default 'su' and 'e' which means all.}
 
 \item{digits}{integer indicating the number of decimal places (for the \code{round} function inside) to be used. Negative values are allowed (see \code{round}).}
 

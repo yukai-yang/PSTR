@@ -46,7 +46,7 @@ version <- function(){
 #' This function prints the object of the class PSTR.
 #'
 #' @param x an object of the class PSTR returned from some functions in the package. See below "See Also" for a list of these functions.
-#' @param mode a vector of character strings specifying which results to print. It takes the values c('summary', 'tests', 'estimates', 'evaluation'). By default 'summary'.
+#' @param mode a vector of character strings specifying which results to print. It takes the values c('summary', 'tests', 'estimates', 'evaluation'). By default 'su' and 'e' which means all.
 #' @param digits integer indicating the number of decimal places (for the \code{round} function inside) to be used. Negative values are allowed (see \code{round}).
 #' @param ... further arguments passed to or from other methods. Ignored here.
 #'
@@ -62,7 +62,7 @@ version <- function(){
 #' print(pstr)
 #' print(pstr, mode='summary',digits=2)
 #' @export
-print.PSTR <- function(x, mode="summary", digits=4, ...)
+print.PSTR <- function(x, mode=c("su","e"), digits=4, ...)
 {
   cat0("#########################################################################")
   cat0("## package name: PSTR")

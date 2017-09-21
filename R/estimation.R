@@ -175,16 +175,18 @@ EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=F, vLower=2, vUpper=2
     if(is.null(par)){
       useDelta = T
       tmp = unname(quantile(vQ, (1:im) / (im+1)))
-      par = c(log(8/min(diff(tmp))), tmp)
+      par = c(log(8/min(diff(c(0,tmp)))), tmp)
     }
     
     if(!useDelta) par[1] = log(par[1])
     
     ret$par = par
     
-    if(method=='L-BFGS-B') opt = optim(par=par,fn=ResiduleSumSquare,method="L-BFGS-B",
-                                       lower=par-vLower,upper=par+vUpper)
-    else opt = optim(par=par,fn=ResiduleSumSquare,method=method)
+    tmp = try({
+      if(method=='L-BFGS-B') opt = optim(par=par,fn=ResiduleSumSquare,method="L-BFGS-B",lower=par-vLower,upper=par+vUpper)
+      else opt = optim(par=par,fn=ResiduleSumSquare,method=method)
+      }, silent = T )
+    if(class(tmp)=='try-error') stop(simpleError("The optimization failed."))
     
     # return value 
     ret$delta = opt$par[1]; ret$gamma = exp(ret$delta)

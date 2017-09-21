@@ -41,6 +41,7 @@ The object is a list containing the components made in \code{\link{NewPSTR}} and
 \item{mbeta}{a vector of the estimates of the parameters in the second extreme regime.}
 \item{mse}{a vector of the standard errors of the estimates of the parameters in the second extreme regime.}
 \item{convergence}{an integer code showing the convergence, see \code{optim}.}
+\item{par}{a vector of the initial values used in the optimization. Note that the first element is always delta, no matter whether gamma is used as input.}
 }
 \description{
 This function implements the estimation of the \code{\link{PSTR}} model.

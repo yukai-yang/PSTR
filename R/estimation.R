@@ -114,6 +114,7 @@ Der2GFunc <- function(vg,vs,vp)
 #' \item{mbeta}{a vector of the estimates of the parameters in the second extreme regime.}
 #' \item{mse}{a vector of the standard errors of the estimates of the parameters in the second extreme regime.}
 #' \item{convergence}{an integer code showing the convergence, see \code{optim}.}
+#' \item{par}{a vector of the initial values used in the optimization. Note that the first element is always delta, no matter whether gamma is used as input.}
 #'
 #' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
 #' @seealso \code{\link{NewPSTR}}, \code{\link{LinTest}} and \code{\link{WCB_LinTest}}
@@ -155,6 +156,8 @@ EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=F, vLower=2, vUpper=2
   ret$iq=iq
   
   if(!is.null(iq)){ 
+    if(im < 1) stop(simpleError("The number of switches is invalid."))
+    
     vQ = use$mQ[,iq]
     mQ = t(matrix(vQ,iT*iN,im))  
     
@@ -169,7 +172,15 @@ EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=F, vLower=2, vUpper=2
       return(sum(vE*vE)/iT/iN)
     }
     
+    if(is.null(par)){
+      useDelta = T
+      tmp = unname(quantile(vQ, (1:im) / (im+1)))
+      par = c(log(8/min(diff(tmp))), tmp)
+    }
+    
     if(!useDelta) par[1] = log(par[1])
+    
+    ret$par = par
     
     if(method=='L-BFGS-B') opt = optim(par=par,fn=ResiduleSumSquare,method="L-BFGS-B",
                                        lower=par-vLower,upper=par+vUpper)

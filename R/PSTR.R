@@ -63,7 +63,7 @@
 NULL
 
 
-#' @importFrom stats optim pchisq pf
+#' @importFrom stats optim pchisq pf quantile
 NULL
 
 #' @import tibble

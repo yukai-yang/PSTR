@@ -7,7 +7,7 @@
 plot_transition(obj, logx = F, size = 1.5, color = "black", ...)
 }
 \arguments{
-\item{obj}{an object of the class PSTR returned from some functions in the package. See below "See Also" for a list of these functions.}
+\item{obj}{an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.}
 
 \item{logx}{specify whether to use log transformation for x-axis.}
 
@@ -47,9 +47,9 @@ ret
 
 }
 \seealso{
-Functions which return an object of the class PSTR:
+Functions which return an object of the class PSTR and can be input into this function
 
-\code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}}, \code{\link{EstPSTR}}, \code{\link{EvalTest}}, \code{\link{WCB_TVTest}} and \code{\link{WCB_HETest}}
+ \code{\link{EstPSTR}}
 }
 \author{
 Yukai Yang, \email{yukai.yang@statistik.uu.se}

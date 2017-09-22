@@ -57,6 +57,13 @@
 #' \code{\link{version}} shows the version number and some information of the package.
 #'
 #' \code{\link{print.PSTR}} prints the object of the class PSTR.
+#' 
+#' \code{\link{plot_transition}}
+#' 
+#' @section  Data:
+#' \code{\link{Hansen99}} a balanced panel of 565 US firms observed for the years 1973–1987.
+#' 
+#' \code{\link{sunspot}} transformed Wolf annual sunspot numbers for the years 1710-1979.
 #'
 #' @docType package
 #' @name PSTR

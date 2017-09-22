@@ -324,7 +324,7 @@ print_evaluation <- function(obj,digits)
 #' The funciton uses some functions in the ggplot2 package and aims to give a quick plot of the transtion function.
 #' The user can customize the title, subtitle, caption, x and y labels, for details, read the help file for the \code{labs} function in ggplot2.
 #'
-#' @param obj an object of the class PSTR returned from some functions in the package. See below "See Also" for a list of these functions.
+#' @param obj an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.
 #' @param logx specify whether to use log transformation for x-axis.
 #' @param size the size of the circle.
 #' @param color the color of the circle.
@@ -333,9 +333,9 @@ print_evaluation <- function(obj,digits)
 #' @return A ggplot object. The user can plot it simply by print the object.
 #'
 #' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
-#' @seealso Functions which return an object of the class PSTR:
+#' @seealso Functions which return an object of the class PSTR and can be input into this function
 #'
-#' \code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}}, \code{\link{EstPSTR}}, \code{\link{EvalTest}}, \code{\link{WCB_TVTest}} and \code{\link{WCB_HETest}}
+#'  \code{\link{EstPSTR}}
 #' @keywords utils
 #'
 #' @examples

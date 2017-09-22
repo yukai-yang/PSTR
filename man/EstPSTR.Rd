@@ -72,6 +72,11 @@ pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), vLower=4, vUp
 pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
 
 print(pstr, "estimates", digits=6)
+
+# The estimation of a linear panel regression model with fix effects is also implemented.
+pstr0 = EstPSTR(use=pstr)
+
+print(pstr0,"estimates")
 }
 
 }

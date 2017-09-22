@@ -1,5 +1,5 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-New Features in PSTR 1.0.2
+New Features in PSTR 1.1.0
 ==========================
 
 -   Better documentation.

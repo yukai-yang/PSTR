@@ -32,7 +32,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
     tvars=c('vala'), iT=14) # create a new PSTR object
 
 # estimate the PSTR model
-pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), method='CG')
+pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
 
 # plot the transition function
 
@@ -40,9 +40,9 @@ ret = plot_transition(pstr)
 # plot by running
 ret
 
-ret = plot_transition(pstr, color = "blue", size = 2
+ret = plot_transition(pstr, color = "blue", size = 2,
     x="customize the label for x axis",y="customize the label for y axis",
-    title="The Title",subtitle="The subtitle",caption="Make a caption here.",logx=T)
+    title="The Title",subtitle="The subtitle",caption="Make a caption here.",logx=TRUE)
 ret
 
 }

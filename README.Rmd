@@ -32,7 +32,7 @@ You can either install the stable version from CRAN
 ```{r install1, eval=F}
 install.packages("PSTR")
 ```
-or install the developer version from GitHub
+or install the development version from GitHub
 ```{r install2, eval=F}
 devtools::install_github("yukai-yang/PSTR")
 ```
@@ -109,6 +109,12 @@ pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), method="CG")
 pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(1.6),.5), method="CG")
 ```
 For details, read the vignette.
+
+Now you can plot the estimated transition function by running
+```{r plot}
+plot_transition(pstr, color = "blue", size = 2, x="Tobin's Q in log scale",
+   title="The Estimated Transition Function",caption="If you wanna write something in the caption.",logx=TRUE)
+```
 
 Note that the estimation of a linear panel regression model is also implemented. The user can do it by simply running
 ```{r estimate3}

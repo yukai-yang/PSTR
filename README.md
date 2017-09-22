@@ -21,7 +21,7 @@ You can either install the stable version from CRAN
 install.packages("PSTR")
 ```
 
-or install the developer version from GitHub
+or install the development version from GitHub
 
 ``` r
 devtools::install_github("yukai-yang/PSTR")
@@ -56,8 +56,10 @@ Then you can take a look at all the available functions and data in the package
 
 ``` r
 ls( grep("PSTR", search()) ) 
-#> [1] "EstPSTR"     "EvalTest"    "Hansen99"    "LinTest"     "NewPSTR"    
-#> [6] "version"     "WCB_HETest"  "WCB_LinTest" "WCB_TVTest"
+#>  [1] "EstPSTR"         "EvalTest"        "Hansen99"       
+#>  [4] "LinTest"         "NewPSTR"         "plot_transition"
+#>  [7] "sunspot"         "version"         "WCB_HETest"     
+#> [10] "WCB_LinTest"     "WCB_TVTest"
 ```
 
 In the package, a data set called "Hansen99" is offered to give prompt example. For details of the data set, you can run
@@ -215,6 +217,15 @@ pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(1.6),.5), method="CG")
 ```
 
 For details, read the vignette.
+
+Now you can plot the estimated transition function by running
+
+``` r
+plot_transition(pstr, color = "blue", size = 2, x="Tobin's Q in log scale",
+   title="The Estimated Transition Function",caption="If you wanna write something in the caption.",logx=TRUE)
+```
+
+![](README-plot-1.png)
 
 Note that the estimation of a linear panel regression model is also implemented. The user can do it by simply running
 

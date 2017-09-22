@@ -343,7 +343,7 @@ print_evaluation <- function(obj,digits)
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
 #' # estimate the PSTR model
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), method='CG')
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
 #' 
 #' # plot the transition function
 #' 
@@ -351,18 +351,21 @@ print_evaluation <- function(obj,digits)
 #' # plot by running
 #' ret
 #' 
-#' ret = plot_transition(pstr, color = "blue", size = 2
+#' ret = plot_transition(pstr, color = "blue", size = 2,
 #'     x="customize the label for x axis",y="customize the label for y axis",
-#'     title="The Title",subtitle="The subtitle",caption="Make a caption here.",logx=T)
+#'     title="The Title",subtitle="The subtitle",caption="Make a caption here.",logx=TRUE)
 #' ret
 #' 
 #' @export
 plot_transition <- function(obj, logx=F, size=1.5, color="black", ...)
 {
+  if(class(obj)!="PSTR")
+    stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
   if(is.null(obj$vg)) stop(simpleError("The PSTR model is not estimated yet."))
   
-  ret = ggplot(tibble(vg=obj$vg,vq=obj$mQ[,obj$iq]), aes(y=vg,x=vq)) +
-    labs(y="transition function", x=obj$mQ_name[obj$iq])
+  tmp = tibble(gg=obj$vg,qq=obj$mQ[,obj$iq])
+  
+  ret = ggplot(tmp, aes(y=tmp$gg,x=tmp$qq)) + labs(y="transition function", x=obj$mQ_name[obj$iq])
   
   if(length(list(...))>0) ret = ret + labs(...)
   

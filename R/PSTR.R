@@ -69,6 +69,9 @@ NULL
 #' @import tibble
 NULL
 
+#' @importFrom ggplot2 ggplot aes geom_point labs scale_x_log10
+NULL
+
 #' @importFrom snowfall sfInit sfExport sfSapply sfStop
 NULL
 

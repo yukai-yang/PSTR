@@ -130,15 +130,15 @@ Der2GFunc <- function(vg,vs,vp)
 #' print(pstr, "estimates", digits=6)
 #'
 #' # "L-BFGS-B" is used by default
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), vLower=4, vUpper=4)
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), vLower=4, vUpper=4)
 #' # You can also choose the method yourself.
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), method='CG')
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
 #'
 #' print(pstr, "estimates", digits=6)
 #' }
 #'
 #' @export
-EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=F, vLower=2, vUpper=2, method='L-BFGS-B')
+EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpper=2, method='L-BFGS-B')
 {
   if(class(use)!="PSTR")
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))

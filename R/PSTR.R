@@ -58,7 +58,7 @@
 #'
 #' \code{\link{print.PSTR}} prints the object of the class PSTR.
 #' 
-#' \code{\link{plot_transition}}
+#' \code{\link{plot_transition}} plots the transition function of an estimated PSTR model.
 #' 
 #' @section  Data:
 #' \code{\link{Hansen99}} a balanced panel of 565 US firms observed for the years 1973–1987.

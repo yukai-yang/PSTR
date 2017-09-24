@@ -71,6 +71,8 @@ González, A., Teräsvirta, T., van Dijk, D. and Yang, Y. (2017) \emph{Panel Smo
 \code{\link{print.PSTR}} prints the object of the class PSTR.
 
 \code{\link{plot_transition}} plots the transition function of an estimated PSTR model.
+
+\code{\link{plot_surface}} plots the surface of the target function for the nonlinear least square estimation.
 }
 
 \section{Data}{

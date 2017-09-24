@@ -17,5 +17,6 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
 Imports: tibble, snowfall,
-    ggplot2
+    ggplot2,
+    plotly
 Suggests: knitr, rmarkdown

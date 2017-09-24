@@ -60,6 +60,8 @@
 #' 
 #' \code{\link{plot_transition}} plots the transition function of an estimated PSTR model.
 #' 
+#' \code{\link{plot_surface}} plots the surface of the target function for the nonlinear least square estimation.
+#' 
 #' @section  Data:
 #' \code{\link{Hansen99}} a balanced panel of 565 US firms observed for the years 1973–1987.
 #' 
@@ -77,6 +79,9 @@ NULL
 NULL
 
 #' @importFrom ggplot2 ggplot aes geom_point labs scale_x_log10
+NULL
+
+#' @importFrom plotly add_surface plot_ly
 NULL
 
 #' @importFrom snowfall sfInit sfExport sfSapply sfStop

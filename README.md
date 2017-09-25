@@ -4,6 +4,7 @@ PSTR (1.1.0)
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR)
 ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green)
+![](http://cranlogs.r-pkg.org/badges/PSTR?color=green)
 
 The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.
 

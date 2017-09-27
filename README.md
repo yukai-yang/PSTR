@@ -2,10 +2,7 @@
 PSTR (1.1.0)
 ============
 
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR)
-![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green)
-![](http://cranlogs.r-pkg.org/badges/PSTR?color=green)
-![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR) ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
 
 The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.
 
@@ -63,8 +60,8 @@ Then you can take a look at all the available functions and data in the package
 ls( grep("PSTR", search()) ) 
 #>  [1] "EstPSTR"         "EvalTest"        "Hansen99"       
 #>  [4] "LinTest"         "NewPSTR"         "plot_transition"
-#>  [7] "sunspot"         "version"         "WCB_HETest"     
-#> [10] "WCB_LinTest"     "WCB_TVTest"
+#>  [7] "version"         "WCB_HETest"      "WCB_LinTest"    
+#> [10] "WCB_TVTest"
 ```
 
 In the package, a data set called "Hansen99" is offered to give prompt example. For details of the data set, you can run

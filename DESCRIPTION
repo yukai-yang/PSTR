@@ -20,3 +20,5 @@ Imports: tibble, snowfall,
     ggplot2,
     plotly
 Suggests: knitr, rmarkdown
+URL: https://github.com/yukai-yang/PSTR
+BugReports: https://github.com/yukai-yang/PSTR/issues

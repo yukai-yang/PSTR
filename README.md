@@ -44,7 +44,7 @@ You can first check the information and the current version number by running
 
 ``` r
 version()
-#> Version 1.2.0 'Orange Panel' from GitHub
+#> PSTR version 1.2.0 (Orange Panel) from GitHub
 ```
 
 Then you can take a look at all the available functions and data in the package

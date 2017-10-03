@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-PSTR (1.2.0)
-============
+PSTR 1.2.0 'Orange Panel'
+=========================
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR) ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
 
@@ -44,14 +44,7 @@ You can first check the information and the current version number by running
 
 ``` r
 version()
-#> #########################################################################
-#> ## package name: PSTR
-#> ## author: Yukai Yang
-#> ## Department of Statistics
-#> ## Uppsala University
-#> ## yukai.yang@statistik.uu.se
-#> ## Version 1.2.0 Sep. 2017
-#> #########################################################################
+#> Version 1.2.0 'Orange Panel' from GitHub
 ```
 
 Then you can take a look at all the available functions and data in the package
@@ -60,7 +53,7 @@ Then you can take a look at all the available functions and data in the package
 ls( grep("PSTR", search()) ) 
 #>  [1] "EstPSTR"         "EvalTest"        "Hansen99"       
 #>  [4] "LinTest"         "NewPSTR"         "plot_response"  
-#>  [7] "plot_surface"    "plot_transition" "sunspot"        
+#>  [7] "plot_target"     "plot_transition" "sunspot"        
 #> [10] "version"         "WCB_HETest"      "WCB_LinTest"    
 #> [13] "WCB_TVTest"
 ```
@@ -77,38 +70,31 @@ You can create a new object of the class PSTR by doing
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
                tvars=c('vala'), im=1, iT=14)
 print(pstr)
-#> #########################################################################
-#> ## package name: PSTR
-#> ## Version 1.2.0 Sep. 2017
-#> #########################################################################
-#> ***********************************************************************
+#> ###########################################################################
+#> ## PSTR 1.2.0 'Orange Panel' from GitHub
+#> ###########################################################################
+#> ***************************************************************************
 #> Summary of the model:
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #>   time horizon sample size = 14,  number of individuals = 560
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Dependent variable:  inva
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Explanatory variables in the linear part:
 #>   dt_75 dt_76 dt_77 dt_78 dt_79 dt_80 dt_81 dt_82 dt_83 dt_84 dt_85 dt_86 dt_87 vala debta cfa sales
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Explanatory variables in the non-linear part:
 #>   vala debta cfa sales
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Potential transition variable(s) to be tested:
 #>   vala
-#> #########################################################################
-#> ***********************************************************************
+#> ###########################################################################
+#> ***************************************************************************
 #> Results of the linearity (homogeneity) tests:
-#> ***********************************************************************
+#> ***************************************************************************
 #> Sequence of homogeneity tests for selecting number of switches 'm':
-#> #########################################################################
-#> ***********************************************************************
-#> Results of the PSTR estimation:
-#> #########################################################################
-#> ***********************************************************************
-#> Results of the evaluation tests:
-#> ***********************************************************************
-#> #########################################################################
+#> ***************************************************************************
+#> ###########################################################################
 ```
 
 It says that the data set "Hansen99" is used, the dependent variable is "inva", the variables in the data from column 4 to 20 are the explanatory variables in the linear part (though you can write down the names of them), the explanatory variables in the nonlinear part are the four ones in "indep\_k", and the potential transition variable is "vala" (Tobin's Q).
@@ -122,24 +108,23 @@ The following code does linearity tests
 ``` r
 pstr = LinTest(use=pstr) 
 print(pstr, "tests")
-#> #########################################################################
-#> ## package name: PSTR
-#> ## Version 1.2.0 Sep. 2017
-#> #########################################################################
-#> ***********************************************************************
+#> ###########################################################################
+#> ## PSTR 1.2.0 'Orange Panel' from GitHub
+#> ###########################################################################
+#> ***************************************************************************
 #> Results of the linearity (homogeneity) tests:
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> LM tests based on transition variable 'vala'
 #>   m  LM_X PV  LM_F PV HAC_X        PV HAC_F        PV
 #>   1 125.3  0 28.99  0 30.03 4.819e-06 6.952 1.396e-05
-#> ***********************************************************************
+#> ***************************************************************************
 #> Sequence of homogeneity tests for selecting number of switches 'm':
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> LM tests based on transition variable 'vala'
 #>   m  LM_X PV  LM_F PV HAC_X        PV HAC_F        PV
 #>   1 125.3  0 28.99  0 30.03 4.819e-06 6.952 1.396e-05
-#> ***********************************************************************
-#> #########################################################################
+#> ***************************************************************************
+#> ###########################################################################
 ```
 
 You can see that the function "LinTest" takes the PSTR object "pstr" and overwrites it when return. This is the way I recommend as the functions handling the PSTR object in the package update the object by adding new atrributes or members. However, the same function will change the values of the attributes it adds. You can of course create new PSTR objects to take the return values in order to save the results from different settings of the model.
@@ -172,15 +157,14 @@ By default, the "optim" method "L-BFGS-B" is used, but you can change the method
 ``` r
 pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), method="CG")
 print(pstr,"estimates")
-#> #########################################################################
-#> ## package name: PSTR
-#> ## Version 1.2.0 Sep. 2017
-#> #########################################################################
-#> ***********************************************************************
+#> ###########################################################################
+#> ## PSTR 1.2.0 'Orange Panel' from GitHub
+#> ###########################################################################
+#> ***************************************************************************
 #> Results of the PSTR estimation:
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Transition variable 'vala' is used in the estimation.
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Parameter estimates in the linear part (first extreme regime) are
 #>        dt_75_0   dt_76_0   dt_77_0  dt_78_0  dt_79_0  dt_80_0  dt_81_0
 #> Est  -0.004332 -0.007436 -0.005040 0.001092 0.003012 0.006406 0.001119
@@ -191,25 +175,25 @@ print(pstr,"estimates")
 #>       debta_0   cfa_0   sales_0
 #> Est  -0.06389 0.08598 -0.000464
 #> s.e.  0.02035 0.03117  0.004060
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Parameter estimates in the non-linear part are
 #>       vala_1 debta_1    cfa_1 sales_1
 #> Est  0.02403 0.06768 -0.04671 0.01033
 #> s.e. 0.06772 0.02021  0.03373 0.00494
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Parameter estimates in the second extreme regime are
 #>      vala_{0+1} debta_{0+1} cfa_{0+1} sales_{0+1}
 #> Est    0.006810    0.003784   0.03927    0.009865
 #> s.e.   0.001193    0.011720   0.01235    0.003116
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Non-linear parameter estimates are
 #>      gamma    c_1
 #> Est  4.953 0.4949
 #> s.e. 1.211 0.2538
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Estimated standard deviation of the residuals is 0.04323
-#> ***********************************************************************
-#> #########################################################################
+#> ***************************************************************************
+#> ###########################################################################
 ```
 
 The argument "useDelta" determines the type of the initial value for the smoothness parameter. By default "useDelta = F" means that the first initial value in "par" is the "gamma" instead of "delta". Here we use the settings "useDelta = T" and "par = c(1.6, .5)" means that the first value of "par" is the "delta" and its value is 1.6. Note that "delta" and "gamma" has the relationship "gamma = exp(delta)". Thus, the following two sentences are equivalent
@@ -236,15 +220,12 @@ Note that the estimation of a linear panel regression model is also implemented.
 ``` r
 pstr0 = EstPSTR(use=pstr)
 print(pstr0,"estimates")
-#> #########################################################################
-#> ## package name: PSTR
-#> ## Version 1.2.0 Sep. 2017
-#> #########################################################################
-#> ***********************************************************************
-#> Results of the PSTR estimation:
-#> -----------------------------------------------------------------------
+#> ###########################################################################
+#> ## PSTR 1.2.0 'Orange Panel' from GitHub
+#> ###########################################################################
+#> ***************************************************************************
 #> A linear panel regression with fixed effects is estimated.
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Parameter estimates are
 #>          dt_75     dt_76     dt_77    dt_78    dt_79    dt_80    dt_81
 #> Est  -0.007759 -0.008248 -0.004296 0.002356 0.004370 0.008246 0.004164
@@ -255,10 +236,10 @@ print(pstr0,"estimates")
 #>          debta     cfa    sales
 #> Est  -0.016380 0.06506 0.007957
 #> s.e.  0.005725 0.01079 0.002412
-#> -----------------------------------------------------------------------
+#> ---------------------------------------------------------------------------
 #> Estimated standard deviation of the residuals is 0.04375
-#> ***********************************************************************
-#> #########################################################################
+#> ***************************************************************************
+#> ###########################################################################
 ```
 
 The evaluation tests can be done based on the estimated model

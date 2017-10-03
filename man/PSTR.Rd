@@ -78,7 +78,7 @@ González, A., Teräsvirta, T., van Dijk, D. and Yang, Y. (2017) \emph{Panel Smo
 
 \code{\link{plot_response}} plots curve or surfaces of the expected reponse agaist the corresponding variable.
 
-\code{\link{plot_surface}} plots the surface of the target function for the nonlinear least square estimation.
+\code{\link{plot_target}} plots the surface of the target function for the nonlinear least square estimation.
 }
 
 \section{Data}{

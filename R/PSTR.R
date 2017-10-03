@@ -82,6 +82,9 @@ NULL
 #' @importFrom stats optim pchisq pf quantile
 NULL
 
+#' @importFrom magrittr %>%
+NULL
+
 #' @import tibble
 NULL
 

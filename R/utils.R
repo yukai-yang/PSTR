@@ -10,6 +10,7 @@
 #################################################################################
 
 vnum = "1.2.0"
+location = "GitHub"
 
 # simple cat
 cat0 <- function(...)
@@ -29,16 +30,8 @@ cat0 <- function(...)
 #'
 #' @export
 version <- function(){
-  cat0("#########################################################################")
-  cat0("## package name: PSTR")
-  cat0("## author: Yukai Yang")
-  cat0("## Department of Statistics")
-  cat0("## Uppsala University")
-  cat0("## yukai.yang@statistik.uu.se")
-  cat0("## Version ",vnum," Sep. 2017")
-  cat0("#########################################################################")
+  cat0("Version ", vnum, " 'Orange Panel' from ",location)
 }
-
 
 
 #' Print the object of the class PSTR.
@@ -64,9 +57,8 @@ version <- function(){
 #' @export
 print.PSTR <- function(x, mode=c("su","e"), digits=4, ...)
 {
-  cat0("#########################################################################")
-  cat0("## package name: PSTR")
-  cat0("## Version ",vnum," Sep. 2017")
+  cat0(paste0(rep("#",getOption("width")),collapse=''))
+  cat0("## PSTR ", vnum, " 'Orange Panel' from ",location)
 
   tmp = NULL
   for(iter in 1:length(mode)){
@@ -83,35 +75,35 @@ print.PSTR <- function(x, mode=c("su","e"), digits=4, ...)
   if(4 %in% tmp) print_evaluation(x,digits)
 
   if(length(tmp)==0){
-    cat0("***********************************************************************")
+    cat0(paste0(rep("*",getOption("width")),collapse=''))
     cat0("The argument 'mode' only accepts the values:")
-    cat0("  'summary'(default), 'tests', 'estimates' or 'evaluation'.")
+    cat0("  'summary', 'tests', 'estimates' or 'evaluation'.")
     cat0("Incomplete words, such as 'su' or 'mm' for 'summary', are allowed.")
   }
 
-  cat0("***********************************************************************")
-  cat0("#########################################################################")
+  cat0(paste0(rep("*",getOption("width")),collapse=''))
+  cat0(paste0(rep("#",getOption("width")),collapse=''))
 }
 
 
 print_summary <- function(obj)
 {
-  cat0("#########################################################################")
-  cat0("***********************************************************************")
+  cat0(paste0(rep("#",getOption("width")),collapse=''))
+  cat0(paste0(rep("*",getOption("width")),collapse=''))
   cat0("Summary of the model:")
 
-  cat0("-----------------------------------------------------------------------")
+  cat0(paste0(rep("-",getOption("width")),collapse=''))
   cat0("  time horizon sample size = ",obj$iT,",  number of individuals = ",obj$iN)
 
-  cat0("-----------------------------------------------------------------------")
+  cat0(paste0(rep("-",getOption("width")),collapse=''))
   cat0("Dependent variable:  ",obj$vY_name)
-  cat0("-----------------------------------------------------------------------")
+  cat0(paste0(rep("-",getOption("width")),collapse=''))
   cat0("Explanatory variables in the linear part:")
   cat0("  ",obj$mX_name)
-  cat0("-----------------------------------------------------------------------")
+  cat0(paste0(rep("-",getOption("width")),collapse=''))
   cat0("Explanatory variables in the non-linear part:")
   cat0("  ",obj$mK_name)
-  cat0("-----------------------------------------------------------------------")
+  cat0(paste0(rep("-",getOption("width")),collapse=''))
   cat0("Potential transition variable(s) to be tested:")
   cat0("  ",obj$mQ_name)
 }
@@ -119,8 +111,8 @@ print_summary <- function(obj)
 
 print_tests <- function(obj,digits)
 {
-  cat0("#########################################################################")
-  cat0("***********************************************************************")
+  cat0(paste0(rep("#",getOption("width")),collapse=''))
+  cat0(paste0(rep("*",getOption("width")),collapse=''))
   cat0("Results of the linearity (homogeneity) tests:")
 
   im = obj$im
@@ -128,7 +120,7 @@ print_tests <- function(obj,digits)
   if(!is.null(obj$test)){
     for(iter in 1:length(obj$test)){
 
-      cat0("-----------------------------------------------------------------------")
+      cat0(paste0(rep("-",getOption("width")),collapse=''))
       cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
 
       tmp = NULL
@@ -148,13 +140,12 @@ print_tests <- function(obj,digits)
       }
 
       print(signif(tmp,digits))
-
     }
   }else{
     if(!is.null(obj$wcb_test)){
       for(iter in 1:length(obj$wcb_test)){
 
-        cat0("-----------------------------------------------------------------------")
+        cat0(paste0(rep("-",getOption("width")),collapse=''))
         cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
 
         ttmp = cbind(1:im, obj$wcb_test[[iter]][,2:3,drop=F])
@@ -166,13 +157,13 @@ print_tests <- function(obj,digits)
     }
   }
 
-  cat0("***********************************************************************")
+  cat0(paste0(rep("*",getOption("width")),collapse=''))
   cat0("Sequence of homogeneity tests for selecting number of switches 'm':")
 
   if(!is.null(obj$sqtest)){
     for(iter in 1:length(obj$sqtest)){
 
-      cat0("-----------------------------------------------------------------------")
+      cat0(paste0(rep("-",getOption("width")),collapse=''))
       cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
 
       tmp = NULL
@@ -192,7 +183,6 @@ print_tests <- function(obj,digits)
       }
 
       print(signif(tmp,digits))
-
     }
   }
 }
@@ -200,47 +190,46 @@ print_tests <- function(obj,digits)
 
 print_estimates <- function(obj,digits)
 {
-  cat0("#########################################################################")
-  cat0("***********************************************************************")
-
-  cat0("Results of the PSTR estimation:")
-
   if(!is.null(obj$iq)){
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("#",getOption("width")),collapse=''))
+    cat0(paste0(rep("*",getOption("width")),collapse=''))
+    cat0("Results of the PSTR estimation:")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("Transition variable '",obj$mQ_name[obj$iq],"' is used in the estimation.")
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("Parameter estimates in the linear part (first extreme regime) are")
     tmp = rbind(obj$beta[1:length(obj$mX_name)],obj$se[1:length(obj$mX_name)])
     rownames(tmp) = c('Est','s.e.')
     print(signif(tmp,digits))
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("Parameter estimates in the non-linear part are")
     tmp = rbind(obj$beta[(length(obj$mX_name)+1):length(obj$beta)],obj$se[(length(obj$mX_name)+1):length(obj$beta)])
     rownames(tmp) = c('Est','s.e.')
     print(signif(tmp,digits))
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("Parameter estimates in the second extreme regime are")
     tmp = rbind(obj$mbeta,obj$mse)
     rownames(tmp) = c('Est','s.e.')
     colnames(tmp) = paste0(colnames(tmp),'_{0+1}')
     print(signif(tmp,digits))
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("Non-linear parameter estimates are")
     tmp = rbind(obj$est[(length(obj$beta)+1):length(obj$est)],obj$se[(length(obj$beta)+1):length(obj$se)])
     rownames(tmp) = c('Est','s.e.')
     print(signif(tmp,digits))
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("Estimated standard deviation of the residuals is ",signif(sqrt(obj$s2),digits))
   }else{
     if(!is.null(obj$est)){
-      cat0("-----------------------------------------------------------------------")
+      cat0(paste0(rep("#",getOption("width")),collapse=''))
+      cat0(paste0(rep("*",getOption("width")),collapse=''))
       cat0("A linear panel regression with fixed effects is estimated.")
-      cat0("-----------------------------------------------------------------------")
+      cat0(paste0(rep("-",getOption("width")),collapse=''))
       cat0("Parameter estimates are")
       tmp = rbind(obj$est,obj$se)
       rownames(tmp) = c('Est','s.e.')
       print(signif(tmp,digits))
-      cat0("-----------------------------------------------------------------------")
+      cat0(paste0(rep("-",getOption("width")),collapse=''))
       cat0("Estimated standard deviation of the residuals is ",signif(sqrt(obj$s2),digits))
     }
   }
@@ -249,13 +238,15 @@ print_estimates <- function(obj,digits)
 
 print_evaluation <- function(obj,digits)
 {
-  cat0("#########################################################################")
-  cat0("***********************************************************************")
+  if(!is.null(obj$tv) || !is.null(obj$wcb_tv) || !is.null(obj$ht) || !is.null(obj$wcb_ht)){
+    cat0(paste0(rep("#",getOption("width")),collapse=''))
+    cat0(paste0(rep("*",getOption("width")),collapse=''))
 
-  cat0("Results of the evaluation tests:")
+    cat0("Results of the evaluation tests:")
+  }
 
   if(!is.null(obj$tv)){
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("Parameter constancy test")
     im = length(obj$tv)
 
@@ -273,7 +264,7 @@ print_evaluation <- function(obj,digits)
   }
 
   if(!is.null(obj$wcb_tv)){
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("WB and WCB parameter constancy test")
     tmp = obj$wcb_tv[,2:3,drop=F]
     im = nrow(tmp)
@@ -285,7 +276,7 @@ print_evaluation <- function(obj,digits)
   }
 
   if(!is.null(obj$ht)){
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("No remaining nonliearity (heterogeneity) test")
     im = length(obj$ht)
 
@@ -303,7 +294,7 @@ print_evaluation <- function(obj,digits)
   }
 
   if(!is.null(obj$wcb_ht)){
-    cat0("-----------------------------------------------------------------------")
+    cat0(paste0(rep("-",getOption("width")),collapse=''))
     cat0("WB and WCB no remaining nonliearity (heterogeneity) test")
     tmp = obj$wcb_ht[,2:3,drop=F]
     im = nrow(tmp)
@@ -465,16 +456,14 @@ plot_response <- function(obj, vars, log_scale=FALSE, length.out=20)
       mz = t(matrix(apply(expand.grid(vx, vg),1,ftmp), nrow=length(vx)))
       vzz = c(apply(cbind(vx, vgg), 1, ftmp))
 
-      tmpp = list(xaxis=list(title=paste0(varname,"_x")), yaxis=list(title=paste0(tvarname,"_y")),zaxis=list(title="response"))
+      tmpp = list(xaxis=list(title=paste0(varname,"_x")),
+                  yaxis=list(title=paste0(tvarname,"_y")),zaxis=list(title="response"))
       if(log_scale[1]) tmpp$xaxis$type = "log"
       if(log_scale[2]) tmpp$yaxis$type = "log"
 
       tmp = add_surface(plot_ly(x=vx, y=vy, z=mz))
-      #tmp = add_trace(tmp, x=vx, y=vyy, z=vzz,
-      #                type = 'scatter3d', mode = 'lines',
-      #                line = list(color = vzz, width = 5))
 
-      tmp = layout(tmp, scene=tmpp)
+      tmp = tmp %>% layout(scene=tmpp)
 
 
       eval(parse(text=paste0("ret$",varname," = tmp")))
@@ -600,7 +589,7 @@ plot_target <- function(obj,im=1,iq=NULL,par=NULL,basedon=c(1,2),from,to,length.
 
     tmpp = list(xaxis=list(title=pnames[1]),
                 yaxis=list(title=pnames[2]),zaxis=list(title="target"))
-    ret = layout(ret, scene=tmpp)
+    ret = ret %>% layout(scene=tmpp)
 
     return(ret)
   }

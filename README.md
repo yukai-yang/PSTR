@@ -208,7 +208,7 @@ For details, read the vignette.
 Now you can plot the estimated transition function by running
 
 ``` r
-plot_transition(pstr, logx=TRUE, color = "blue", size = 2,
+plot_transition(pstr, log_scale=TRUE, color = "blue", size = 2,
     x="Tobin's Q in log scale", title="The Estimated Transition Function",
     caption="If you wanna write something in the caption, do it here.")
 ```

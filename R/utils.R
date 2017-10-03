@@ -30,7 +30,7 @@ cat0 <- function(...)
 #'
 #' @export
 version <- function(){
-  cat0("Version ", vnum, " 'Orange Panel' from ",location)
+  cat0("PSTR version ", vnum, " (Orange Panel) from ",location)
 }
 
 

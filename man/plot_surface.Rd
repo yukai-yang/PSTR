@@ -5,7 +5,7 @@
 \title{Plot the surface of the target function for the nonlinear least square estimation.}
 \usage{
 plot_surface(obj, im = 1, iq = NULL, par = NULL, basedon = c(1, 2),
-  from, to, length.out)
+  from, to, length.out = 40)
 }
 \arguments{
 \item{obj}{an object of the class PSTR returned from some functions in the package.}
@@ -22,7 +22,7 @@ plot_surface(obj, im = 1, iq = NULL, par = NULL, basedon = c(1, 2),
 
 \item{to}{a vector of length 2 of the end (maximal) values of the parameters.}
 
-\item{length.out}{desired length (number of points) for the parameters.}
+\item{length.out}{a 2-dim vector or scalar of desired length (number of points) for the parameters. 40 by default.}
 }
 \value{
 A plottable object from the \code{plotly} package.

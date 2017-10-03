@@ -1,4 +1,10 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+New Features in PSTR 1.2.0
+==========================
+
+-   New function "plot\_response" which use the ggplot2 and plotly packages to plot the curve or surface of the expected response (contribution) against some variable and the transition variable.
+-   The estimation function "EstPSTR" will return the estimated time-invariante individule effects.
+
 New Features in PSTR 1.1.0
 ==========================
 

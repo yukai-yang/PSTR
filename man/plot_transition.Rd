@@ -4,12 +4,12 @@
 \alias{plot_transition}
 \title{Plot the transition function of the estimated PSTR model.}
 \usage{
-plot_transition(obj, logx = F, size = 1.5, color = "black", ...)
+plot_transition(obj, log_scale = F, size = 1.5, color = "black", ...)
 }
 \arguments{
 \item{obj}{an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.}
 
-\item{logx}{specify whether to use log transformation for x-axis.}
+\item{log_scale}{specify whether to use log transformation for x-axis.}
 
 \item{size}{the size of the circle.}
 
@@ -42,14 +42,14 @@ ret
 
 ret = plot_transition(pstr, color = "blue", size = 2,
     x="customize the label for x axis",y="customize the label for y axis",
-    title="The Title",subtitle="The subtitle",caption="Make a caption here.",logx=TRUE)
+    title="The Title",subtitle="The subtitle",caption="Make a caption here.",log_scale=TRUE)
 ret
 
 }
 \seealso{
 Functions which return an object of the class PSTR and can be input into this function
 
- \code{\link{EstPSTR}}
+\code{\link{EstPSTR}}
 }
 \author{
 Yukai Yang, \email{yukai.yang@statistik.uu.se}

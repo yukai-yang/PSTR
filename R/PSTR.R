@@ -24,6 +24,11 @@
 #' The Panel Smooth Transition Regression (PSTR) model is defined to be
 #' \deqn{y_{it} = \mu_i + \beta_0' x_{it} + \beta_1' z_{it} g_{it} + u_{it}}
 #' where \eqn{g_{it}} is the transition function taking the logistic form with the transition variable for individual \eqn{i}, \eqn{x_{it}} contains the explanatory variables in the linear part, and \eqn{z_{it}} contains the explanatory variables in the nonlinear part, and they can be different.
+#' 
+#' The transition function \eqn{g_{it}} takes the logistic form
+#' \deqn{g(q_{it} ; \gamma, c) = \left( 1 + \exp \left( - \gamma \prod_{j=1}^{m} (q_{it} - c_j) \right) \right)^{-1}}
+#' with \eqn{\gamma > 0} and \eqn{c_1 < c_2 < ... < c_m}. \eqn{\gamma} can be reparametrized as \eqn{\gamma = \exp{\delta}} where \eqn{\delta} is a real number.
+#'
 #'
 #' @section Author and Maintainer:
 #' Yukai Yang
@@ -60,6 +65,8 @@
 #' 
 #' \code{\link{plot_transition}} plots the transition function of an estimated PSTR model.
 #' 
+#' \code{\link{plot_response}} plots curve or surfaces of the expected reponse agaist the corresponding variable.
+#' 
 #' \code{\link{plot_surface}} plots the surface of the target function for the nonlinear least square estimation.
 #' 
 #' @section  Data:
@@ -78,10 +85,10 @@ NULL
 #' @import tibble
 NULL
 
-#' @importFrom ggplot2 ggplot aes geom_point labs scale_x_log10
+#' @importFrom ggplot2 ggplot aes geom_point geom_line labs scale_x_log10
 NULL
 
-#' @importFrom plotly add_surface plot_ly
+#' @importFrom plotly add_surface add_trace plot_ly layout
 NULL
 
 #' @importFrom snowfall sfInit sfExport sfSapply sfStop

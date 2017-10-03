@@ -107,6 +107,7 @@ Der2GFunc <- function(vg,vs,vp)
 #' \item{vg}{the values of the transition function given the estimates of \eqn{\delta} and \eqn{c} and the transition variables \eqn{q_{it}}.}
 #' \item{beta}{the estimates of the coefficient parameters.}
 #' \item{vU}{the residuals.}
+#' \item{vM}{a vector of the estimated time-invariant individual effect.}
 #' \item{s2}{the variance of the residuals.}
 #' \item{cov}{the covariance matrix of the estimates which is cluster-dependency and heteroskedasticity consistent.}
 #' \item{est}{a vector of all the estimates}
@@ -158,6 +159,7 @@ EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpp
   
   ftmp <- function(vx) return(vx - mean(vx))
   
+  ret$imm = im # used in estimation
   ret$iq=iq
   
   if(!is.null(iq)){ 
@@ -206,7 +208,9 @@ EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpp
     mXX = cbind(mX, mXX) # (x_it, x_it*g_it)
     ret$mXX = mXX
     
-    ret$vU = c(apply(matrix(c(vY-mXX%*%tmp),iT,iN),2,ftmp))
+    mtmp = matrix(c(vY-mXX%*%tmp),iT,iN)
+    ret$vM = c(apply(mtmp,2,mean))
+    ret$vU = c(apply(mtmp,2,ftmp))
     ret$s2 = c(ret$vU %*% ret$vU) / (iT*iN)
     
     # computing standard errors
@@ -287,7 +291,9 @@ EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpp
     # return value 
     ret$beta = c(tmp); names(ret$beta) = use$mX_name
     
-    ret$vU = c(apply(matrix(c(vY-mX%*%tmp),iT,iN),2,ftmp))
+    mtmp = matrix(c(vY-mX%*%tmp),iT,iN)
+    ret$vM = c(apply(mtmp,2,mean))
+    ret$vU = c(apply(mtmp,2,ftmp))
     ret$s2 = c(ret$vU %*% ret$vU) / (iT*iN)
     
     # computing standard errors

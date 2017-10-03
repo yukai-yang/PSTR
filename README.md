@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-PSTR 1.2.0 'Orange Panel'
-=========================
+PSTR version 1.2.0 (Orange Panel)
+=================================
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR) ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
 

@@ -1,12 +1,14 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-New Features in PSTR 1.2.0
-==========================
+New Features in PSTR 1.2.0 'Orange Panel'
+=========================================
 
 -   New function "plot\_response" which use the ggplot2 and plotly packages to plot the curve or surface of the expected response (contribution) against some variable and the transition variable.
 -   The estimation function "EstPSTR" will return the estimated time-invariante individule effects.
+-   The width of the separating lines in printing the results can adjust itself automatically to fit the width of the console.
+-   Rewrite the "version" function.
 
-New Features in PSTR 1.1.0
-==========================
+New Features in PSTR 1.1.0 'Red Panel'
+======================================
 
 -   Better documentation.
 -   In the function "EstPSTR", now the initial value for "gamma" is allowed. The user can freely choose either "gamma" or "delta" to input for the estimation.

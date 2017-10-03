@@ -18,7 +18,9 @@ LazyData: true
 RoxygenNote: 6.0.1
 Imports: tibble, snowfall,
     ggplot2,
-    plotly
+    plotly,
+    stats,
+    magrittr
 Suggests: knitr, rmarkdown
 URL: https://github.com/yukai-yang/PSTR
 BugReports: https://github.com/yukai-yang/PSTR/issues

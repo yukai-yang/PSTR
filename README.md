@@ -1,11 +1,8 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-PSTR (1.1.0)
+PSTR (1.2.0)
 ============
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR)
-![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green)
-![](http://cranlogs.r-pkg.org/badges/PSTR?color=green)
-![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR) ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
 
 The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.
 
@@ -53,7 +50,7 @@ version()
 #> ## Department of Statistics
 #> ## Uppsala University
 #> ## yukai.yang@statistik.uu.se
-#> ## Version 1.1.0 Sep. 2017
+#> ## Version 1.2.0 Sep. 2017
 #> #########################################################################
 ```
 
@@ -62,9 +59,10 @@ Then you can take a look at all the available functions and data in the package
 ``` r
 ls( grep("PSTR", search()) ) 
 #>  [1] "EstPSTR"         "EvalTest"        "Hansen99"       
-#>  [4] "LinTest"         "NewPSTR"         "plot_transition"
-#>  [7] "version"         "WCB_HETest"      "WCB_LinTest"    
-#> [10] "WCB_TVTest"
+#>  [4] "LinTest"         "NewPSTR"         "plot_response"  
+#>  [7] "plot_surface"    "plot_transition" "sunspot"        
+#> [10] "version"         "WCB_HETest"      "WCB_LinTest"    
+#> [13] "WCB_TVTest"
 ```
 
 In the package, a data set called "Hansen99" is offered to give prompt example. For details of the data set, you can run
@@ -81,7 +79,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
 print(pstr)
 #> #########################################################################
 #> ## package name: PSTR
-#> ## Version 1.1.0 Sep. 2017
+#> ## Version 1.2.0 Sep. 2017
 #> #########################################################################
 #> ***********************************************************************
 #> Summary of the model:
@@ -126,7 +124,7 @@ pstr = LinTest(use=pstr)
 print(pstr, "tests")
 #> #########################################################################
 #> ## package name: PSTR
-#> ## Version 1.1.0 Sep. 2017
+#> ## Version 1.2.0 Sep. 2017
 #> #########################################################################
 #> ***********************************************************************
 #> Results of the linearity (homogeneity) tests:
@@ -176,7 +174,7 @@ pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), method="CG")
 print(pstr,"estimates")
 #> #########################################################################
 #> ## package name: PSTR
-#> ## Version 1.1.0 Sep. 2017
+#> ## Version 1.2.0 Sep. 2017
 #> #########################################################################
 #> ***********************************************************************
 #> Results of the PSTR estimation:
@@ -240,7 +238,7 @@ pstr0 = EstPSTR(use=pstr)
 print(pstr0,"estimates")
 #> #########################################################################
 #> ## package name: PSTR
-#> ## Version 1.1.0 Sep. 2017
+#> ## Version 1.2.0 Sep. 2017
 #> #########################################################################
 #> ***********************************************************************
 #> Results of the PSTR estimation:

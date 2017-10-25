@@ -2,7 +2,7 @@
 ## package name: PSTR
 ## author: Yukai Yang
 ## Statistiska Inst., Uppsala Universitet
-## Sep 2017
+## Oct 2017
 #################################################################################
 
 

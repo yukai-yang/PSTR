@@ -38,7 +38,7 @@
 #' \email{yukai.yang@@statistik.uu.se}
 #'
 #' @section References:
-#' González, A., Teräsvirta, T., van Dijk, D. and Yang, Y. (2017) \emph{Panel Smooth Transition Regression Models}
+#' \href{http://swopec.hhs.se/hastef/papers/hastef0604.pdf}{González, A., Teräsvirta, T., van Dijk, D. and Yang, Y. (2005) "Panel Smooth Transition Regression Models", SSE/EFI Working Paper Series in Economics and Finance 604, Stockholm School of Economics, revised 11 Oct 2017.}
 #'
 #' @section Function for Initialization:
 #' \code{\link{NewPSTR}} initialize the modelling by creating an object of the class PSTR.

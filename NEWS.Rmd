@@ -13,7 +13,10 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 ```
- 
+
+# New Features in PSTR 1.2.1 'Orange Panel'
+
+* Link to the working paper.
 
 # New Features in PSTR 1.2.0 'Orange Panel'
 

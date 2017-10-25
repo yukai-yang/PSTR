@@ -1,4 +1,9 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+New Features in PSTR 1.2.1 'Orange Panel'
+=========================================
+
+-   Link to the working paper.
+
 New Features in PSTR 1.2.0 'Orange Panel'
 =========================================
 

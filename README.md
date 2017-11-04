@@ -4,7 +4,9 @@ PSTR version 1.2.1 (Orange Panel)
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR) ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
 
-The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.
+The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling. You can also find the package on CRAN, see
+
+[PSTR@CRAN](https://cran.r-project.org/web/packages/PSTR)
 
 The modelling procedure consists of three stages: Specification, Estimation and Evaluation. The package offers tools helping the users to conduct model specification tests, to do PSTR model estimation, and to do model evaluation.
 

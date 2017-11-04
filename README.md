@@ -60,11 +60,15 @@ ls( grep("PSTR", search()) )
 #> [13] "WCB_TVTest"
 ```
 
+### The data
+
 In the package, a data set called "Hansen99" is offered to give prompt example. For details of the data set, you can run
 
 ``` r
 ?Hansen99 
 ```
+
+### Initialization
 
 You can create a new object of the class PSTR by doing
 
@@ -104,6 +108,8 @@ It says that the data set "Hansen99" is used, the dependent variable is "inva", 
 Now you can see that the "NewPSTR" is basically defining the settings of the model.
 
 Note that you can print the object of the class PSTR. By default, it gives you a summary of the PSTR model. They are mainly about which one is the dependent variable, which ones are explanatory variables and etc..
+
+### Specification
 
 The following code does linearity tests
 
@@ -146,6 +152,8 @@ But of course, you can try the function on your personal computer by reducing th
 ``` r
 pstr = WCB_LinTest(use=pstr,iB=4,parallel=T,cpus=2)
 ```
+
+### Estimation
 
 When you determine which transition variable to use for the estimation, in this case "inva", you can estimate the PSTR model
 
@@ -244,6 +252,8 @@ print(pstr0,"estimates")
 #> ###########################################################################
 ```
 
+### Evaluation
+
 The evaluation tests can be done based on the estimated model
 
 ``` r
@@ -267,3 +277,80 @@ pstr1 = WCB_HETest(use=pstr1,vq=pstr$mQ[,1],iB=iB,parallel=T,cpus=cpus)
 ```
 
 Note that the evaluation functions do not accept the returned object "pstr0" from a linear panel regression model, as the evaluation tests are designed for the estimated PSTR model but not a linear one.
+
+### Plotting
+
+In the following, I am going to show the new plotting function `plot_response`, which depicts the relationship between
+which I called response, some explanatory variable *x*<sub>*i**t*</sub> and the transition variable *q*<sub>*i**t*</sub> in the PSTR model.
+
+The response \[*ϕ*<sub>0</sub> + *ϕ*<sub>1</sub>*g*<sub>*i**t*</sub>(*q*<sub>*i**t*</sub>; *γ*, *c*)\]*x*<sub>*i**t*</sub> is actually the contribution that the varabile *x*<sub>*i**t*</sub> makes to the conditional expectation of the dependent *y*<sub>*i**t*</sub> through the smooth transition mechanism.
+
+We can see that the response against the variable is a straight line if there is no nonlinearity. We can plot a surface if the variable *x*<sub>*i**t*</sub> and the transition variable *q*<sub>*i**t*</sub> are distinct, with z-axis the response, x- and y- axises the two variables. And it becomes a curve if the variable *x*<sub>*i**t*</sub> and the transition variable *q*<sub>*i**t*</sub> are identical.
+
+We make the graph by running
+
+``` r
+ret = plot_response(obj=pstr, vars=1:4, log_scale = c(F,T), length.out=100)
+```
+
+`ret` takes the return value of the function. We make the graphs for all the four variables in nonlinear part by using `vars=1:4` (variable names can also be used for specification). Note that we do not do it for the variables in the linear part, as they produce straight lines or planes. `log_scale` is a 2-vector of booleans specifying, for each graph, whether the first (some variable in the nonlinear part) or the second (the transition variable) should be log scaled. `length.out` gives the number of points in the grid for producing the surface or curve. A `length.out` of 100 points looks fine enough.
+
+You may think of "what if I don't wanna make all the variables log scaled?". The solution is to make the graphs separately by running something like
+
+``` r
+ret1 = plot_response(obj=pstr, vars=1, log_scale = c(F,T), length.out=100)
+ret2 = plot_response(obj=pstr, vars=2, log_scale = c(T,T), length.out=100)
+```
+
+Let us take a look the elements in `ret`
+
+``` r
+attributes(ret)
+#> $names
+#> [1] "vala"  "debta" "cfa"   "sales"
+```
+
+We see that `ret` is a list containing elements whose names are the variables' names that we specified when running `plot_response`.
+
+Yes, but they are now plottable objects in the sense that you can simply plot them by running
+
+``` r
+ret$vala
+```
+
+![](README-vala-1.png)
+
+The numbers on the x-axis look not so good as it is difficult to find where the turning-point is.
+
+The `ggplot2` package allows us to manually paint the numbers (the PSTR package collaborates very well with some prevailling packages), and even the label on x-axis (and many more).
+
+``` r
+ret$vala + ggplot2::scale_x_log10(breaks=c(.02,.05,.1,.2,.5,1,2,5,10,20)) +
+    ggplot2::labs(x="Tobin's Q")
+```
+
+![](README-vala2-1.png)
+
+Now we see very clearly that the turning-point approximately 0.5 cut the curve into two regimes, and the two regimes behave so differently. This graph is about the lagged Tobin's Q's contribution to the expected investment. Low Q firms (whose potentials are evaluated to be low by the financial market) look rather reluctant to change their future investment plan, or maybe get changed.
+
+Then let us proceed to the surfaces. Check the response from the debta by running
+
+``` r
+ret$debta
+```
+
+The graph is "living" and you can scracth on it by using your mouse. "vala\_y" shows that the y-axis is the Q, and "debta\_x" shows that the x-axis is the debt. The tool bar on up-right helps you to rotate, pan, zoom and save the graph.
+
+Note that the transition variable Q is in log scale while debt is not.
+
+It is very clear that low Q firms' future investment will be affected by the current debt situation. The more debt there is, the less investment there will be. However, it is not the case for high Q firms who has good potential and is not sensitive to the debt.
+
+The following two living graphs are for the cash flow and the sales.
+
+``` r
+ret$cfa
+```
+
+``` r
+ret$sales
+```

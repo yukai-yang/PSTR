@@ -37,7 +37,7 @@ LMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
   S1 = ( crossprod(mW2) - t(mXW2) %*% invXX %*% mXW2 ) * s2
   invS1 = try(chol2inv(chol(S1)),silent=T)
   if(class(invS1)=='try-error'){
-    ttmp = svd(S1); invS1 = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
+    ttmp = svd(S1);	invS1 = ttmp$u %*% diag(1/ttmp$d, length(ttmp$d)) %*% t(ttmp$u)
   }
   
   vW2U = crossprod(mW2, vU)
@@ -57,7 +57,7 @@ LMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
   S2 = tmp %*% Delta %*% t(tmp)
   invS2 = try(chol2inv(chol(S2)),silent=T)
   if(class(invS2)=='try-error'){
-    ttmp = svd(S2); invS2 = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
+    ttmp = svd(S2); invS2 = ttmp$u %*% diag(1/ttmp$d, length(ttmp$d)) %*% t(ttmp$u)
   }
   
   LM2_X = c(t(vW2U) %*% invS2 %*% vW2U)
@@ -84,7 +84,7 @@ sLMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
   S1 = ( crossprod(mW2) - t(mXW2) %*% invXX %*% mXW2 ) * s2
   invS1 = try(chol2inv(chol(S1)),silent=T)
   if(class(invS1)=='try-error'){
-    ttmp = svd(S1); invS1 = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
+    ttmp = svd(S1); invS1 = ttmp$u %*% diag(1/ttmp$d, length(ttmp$d)) %*% t(ttmp$u)
   }
   
   vW2U = crossprod(mW2, vU)

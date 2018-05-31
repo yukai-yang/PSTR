@@ -50,12 +50,14 @@ These arguments must be of length two for the two parameters, respectively.
 See the \code{seq} function for the details.
 }
 \examples{
-
+\donttest{
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
     tvars=c('vala'), iT=14) # create a new PSTR object
 
 # build the grid based on the first two parameters
-ret = plot_target(obj=pstr,iq=1,basedon=c(1,2),from=c(log(1),6),to=c(log(18),10),length.out=c(40,40))
+ret = plot_target(obj=pstr,iq=1,basedon=c(1,2),from=c(log(1),6),
+  to=c(log(18),10),length.out=c(40,40))
+}
 
 }
 \seealso{

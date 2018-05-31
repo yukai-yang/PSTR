@@ -2,7 +2,7 @@
 ## package name: PSTR
 ## author: Yukai Yang
 ## Statistiska Inst., Uppsala Universitet
-## Sep 2017
+## May 2018
 #################################################################################
 
 #################################################################################
@@ -415,7 +415,7 @@ plot_transition <- function(obj, log_scale=F, size=1.5, color="black", ...)
 #' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
 #'
 #' # plot the curve and surfaces
-#' ret = plot_response(obj=pstr, vars=1:4, log_scale = c(F,T), length.out=40)
+#' ret = plot_response(obj=pstr, vars=1:4, log_scale = c(FALSE,TRUE), length.out=40)
 #' attributes(ret)
 #' ret$vala
 #' ret$debta
@@ -526,13 +526,15 @@ plot_response <- function(obj, vars, log_scale=FALSE, length.out=20)
 #' @keywords utils
 #'
 #' @examples
-#'
+#' \donttest{
 #' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
 #' # build the grid based on the first two parameters
-#' ret = plot_target(obj=pstr,iq=1,basedon=c(1,2),from=c(log(1),6),to=c(log(18),10),length.out=c(40,40))
-#'
+#' ret = plot_target(obj=pstr,iq=1,basedon=c(1,2),from=c(log(1),6),
+#'   to=c(log(18),10),length.out=c(40,40))
+#' }
+#' 
 #' @export
 plot_target <- function(obj,im=1,iq=NULL,par=NULL,basedon=c(1,2),from,to,length.out=40)
 {

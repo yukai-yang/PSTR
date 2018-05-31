@@ -45,7 +45,7 @@
 #' Each column of the data matrix is a lagged transformed sunspot observations from lag order 0 to 10.
 #'
 #' The data were transformed by using the formula
-#' \deqn{y_t = 2 \left{ (1 + x_t)^{1/2} -1 \right}}
+#' \deqn{y_t = 2 \left\{ (1 + x_t)^{1/2} -1 \right\}}
 #' see Ghaddar and Tong (1981)
 #'
 #' @format A tibble with 270 rows and 11 variables:

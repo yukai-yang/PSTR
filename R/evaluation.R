@@ -63,7 +63,7 @@
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
 #' # Estimate the model first
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=T, par=c(1.6,.5), method='CG')
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
 #'
 #' # Then you can evaluate the model
 #' pstr = EvalTest(use=pstr, vq=pstr$mQ[,1])
@@ -74,11 +74,11 @@
 #'
 #' library(snowfall)
 #'
-#' pstr = WCB_TVTest(use=pstr, iB=4, parallel=T, cpus=2)
+#' pstr = WCB_TVTest(use=pstr, iB=4, parallel=TRUE, cpus=2)
 #'
 #' # pstr$mQ[,1] is the transition variable stored in the object
 #' # You can also try other transition variables.
-#' pstr = WCB_HETest(use=pstr, vq=pstr$mQ[,1], iB=4, parallel=T, cpus=2)
+#' pstr = WCB_HETest(use=pstr, vq=pstr$mQ[,1], iB=4, parallel=TRUE, cpus=2)
 #'
 #' print(pstr, "eval")
 #'

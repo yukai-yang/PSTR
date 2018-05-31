@@ -73,10 +73,10 @@ print(pstr, "tests")
 library(snowfall)
 
 # you should not run this on personal computer!
-# pstr = WCB_LinTest(use=pstr, iB=5000, parallel=T, cpus=50)
+# pstr = WCB_LinTest(use=pstr, iB=5000, parallel=TRUE, cpus=50)
 
 # a light version for checking on your personal computer.
-pstr = WCB_LinTest(use=pstr, iB=4, parallel=T, cpus=2)
+pstr = WCB_LinTest(use=pstr, iB=4, parallel=TRUE, cpus=2)
 
 print(pstr, "tests")
 }

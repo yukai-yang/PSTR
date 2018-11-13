@@ -2,7 +2,6 @@
 % Please edit documentation in R/specification.R
 \name{LinTest}
 \alias{LinTest}
-\alias{LinTest}
 \alias{WCB_LinTest}
 \title{Conduct the linearity tests.}
 \usage{

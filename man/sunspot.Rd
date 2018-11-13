@@ -36,7 +36,7 @@ see Ghaddar and Tong (1981)
 }
 \section{References}{
 
-Ghaddar, D. K. and Tong, H. (1981) Data transformation and self‐exciting threshold autoregression, Applied Statistics, 30, 238–48.
+Ghaddar, D. K. and Tong, H. (1981) Data transformation and self-exciting threshold autoregression, Applied Statistics, 30, 238–48.
 }
 
 \keyword{datasets}

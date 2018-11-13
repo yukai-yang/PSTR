@@ -28,6 +28,7 @@ The funciton uses some functions in the ggplot2 package and aims to give a quick
 The user can customize the title, subtitle, caption, x and y labels, for details, read the help file for the \code{labs} function in ggplot2.
 }
 \examples{
+\donttest{
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
     tvars=c('vala'), iT=14) # create a new PSTR object
 
@@ -44,6 +45,7 @@ ret = plot_transition(pstr, color = "blue", size = 2,
     x="customize the label for x axis",y="customize the label for y axis",
     title="The Title",subtitle="The subtitle",caption="Make a caption here.",log_scale=TRUE)
 ret
+}
 
 }
 \seealso{

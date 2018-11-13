@@ -9,9 +9,9 @@ NewPSTR(data, dep, indep, indep_k = NULL, tvars, im = 1, iT)
 \arguments{
 \item{data}{a tibble of data. The number of rows of \code{data} must be the sample size \code{iT} times individuals number N.}
 
-\item{dep}{column number or name of the dependent variable.}
+\item{dep}{column number or name of the dependent variable. Note that this must be specified.}
 
-\item{indep}{a vector of column numbers of names of the independent variables.}
+\item{indep}{a vector of column numbers of names of the independent variables. Note that this must be specified.}
 
 \item{indep_k}{a vector of column numbers of names of the independent variables in the nonlinear part. If \code{indep_k} is not given (\code{= NULL}), the nonlinear part will be the same as the linear part.}
 

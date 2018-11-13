@@ -2,7 +2,6 @@
 % Please edit documentation in R/evaluation.R
 \name{EvalTest}
 \alias{EvalTest}
-\alias{EvalTest}
 \alias{WCB_TVTest}
 \alias{WCB_HETest}
 \title{Conduct the evaluation tests.}

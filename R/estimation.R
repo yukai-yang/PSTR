@@ -161,14 +161,13 @@ EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpp
   
   ret$imm = im # used in estimation
   
-  if(is.numeric(iq)) ret$iq=iq
-  else ret$iq=which(use$mQ_name==iq)
-  
-  if(length(ret$iq)>1) stop(simpleError("Sorry! We only support the one transition variable case."))
-  if(length(iq)<1) stop(simpleError("Fail to find the transition variable."))
+  ret$iq=iq
   
   if(!is.null(iq)){ 
     if(im < 1) stop(simpleError("The number of switches is invalid."))
+    
+    if(!is.numeric(iq)) ret$iq=which(use$mQ_name==iq) 
+    if(length(ret$iq)>1) stop(simpleError("Sorry! We only support the one transition variable case."))
     
     vQ = use$mQ[,iq]
     mQ = t(matrix(vQ,iT*iN,im))  

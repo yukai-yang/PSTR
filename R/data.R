@@ -64,7 +64,7 @@
 #' }
 #' 
 #' @section References:
-#' Ghaddar, D. K. and Tong, H. (1981) Data transformation and self‐exciting threshold autoregression, Applied Statistics, 30, 238–48.
+#' Ghaddar, D. K. and Tong, H. (1981) Data transformation and self-exciting threshold autoregression, Applied Statistics, 30, 238–48.
 #' 
 #' @source \url{http://sidc.oma.be/html/sunspot.html}
 "sunspot"

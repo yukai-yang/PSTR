@@ -9,7 +9,7 @@
 ## utility functions
 #################################################################################
 
-vnum = "1.2.1"
+vnum = "1.2.2"
 location = "GitHub"
 
 # simple cat
@@ -330,6 +330,7 @@ print_evaluation <- function(obj,digits)
 #' @keywords utils
 #'
 #' @examples
+#' \donttest{
 #' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
@@ -346,6 +347,7 @@ print_evaluation <- function(obj,digits)
 #'     x="customize the label for x axis",y="customize the label for y axis",
 #'     title="The Title",subtitle="The subtitle",caption="Make a caption here.",log_scale=TRUE)
 #' ret
+#' }
 #'
 #' @export
 plot_transition <- function(obj, log_scale=F, size=1.5, color="black", ...)

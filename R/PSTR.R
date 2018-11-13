@@ -2,7 +2,7 @@
 ## package name: PSTR
 ## author: Yukai Yang
 ## Statistiska Inst., Uppsala Universitet
-## Oct 2017
+## Nov 2018
 #################################################################################
 
 
@@ -109,8 +109,8 @@ NULL
 #' \code{NA}s in \code{data} are removed automatically inside the function.
 #'
 #' @param data a tibble of data. The number of rows of \code{data} must be the sample size \code{iT} times individuals number N.
-#' @param dep column number or name of the dependent variable.
-#' @param indep a vector of column numbers of names of the independent variables.
+#' @param dep column number or name of the dependent variable. Note that this must be specified.
+#' @param indep a vector of column numbers of names of the independent variables. Note that this must be specified.
 #' @param indep_k a vector of column numbers of names of the independent variables in the nonlinear part. If \code{indep_k} is not given (\code{= NULL}), the nonlinear part will be the same as the linear part.
 #' @param tvars a vector of column numbers or names of the potential transition variables to be tested.
 #' @param im maximal number of switches in the transition function used in the linearity evaluation tests, by default \code{im=1}.
@@ -148,10 +148,13 @@ NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, im=1, iT)
   ret$iT = iT
   iNN = dim(data)[1]/iT
   coln = c(t(matrix(1:iNN, iNN, iT)))
-
+  
   if(length(dep)>1) stop(simpleError("Only one dependent variable!"))
   vY = data[,dep]; ret$vY_name =  names(data[,dep])
+  
+  if(length(indep)<1) stop(simpleError("There is no independent variable!"))
   mX = data[,indep]; ret$mX_name = names(data[,indep])
+  
   if(is.null(indep_k)){
     mK = mX; ret$mK_name = ret$mX_name
   }else{

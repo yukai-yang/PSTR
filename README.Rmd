@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# PSTR version 1.2.1 (Orange Panel)
+# PSTR version 1.2.2 (Orange Panel)
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR) 
 ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) 

@@ -1,5 +1,5 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-PSTR version 1.2.1 (Orange Panel)
+PSTR version 1.2.2 (Orange Panel)
 =================================
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR) ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
@@ -46,7 +46,7 @@ You can first check the information and the current version number by running
 
 ``` r
 version()
-#> PSTR version 1.2.1 (Orange Panel) from GitHub
+#> PSTR version 1.2.2 (Orange Panel) from GitHub
 ```
 
 Then you can take a look at all the available functions and data in the package
@@ -77,7 +77,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
                tvars=c('vala'), im=1, iT=14)
 print(pstr)
 #> ###########################################################################
-#> ## PSTR 1.2.1 'Orange Panel' from GitHub
+#> ## PSTR 1.2.2 'Orange Panel' from GitHub
 #> ###########################################################################
 #> ***************************************************************************
 #> Summary of the model:
@@ -117,7 +117,7 @@ The following code does linearity tests
 pstr = LinTest(use=pstr) 
 print(pstr, "tests")
 #> ###########################################################################
-#> ## PSTR 1.2.1 'Orange Panel' from GitHub
+#> ## PSTR 1.2.2 'Orange Panel' from GitHub
 #> ###########################################################################
 #> ***************************************************************************
 #> Results of the linearity (homogeneity) tests:
@@ -168,7 +168,7 @@ By default, the "optim" method "L-BFGS-B" is used, but you can change the method
 pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), method="CG")
 print(pstr,"estimates")
 #> ###########################################################################
-#> ## PSTR 1.2.1 'Orange Panel' from GitHub
+#> ## PSTR 1.2.2 'Orange Panel' from GitHub
 #> ###########################################################################
 #> ***************************************************************************
 #> Results of the PSTR estimation:
@@ -231,7 +231,7 @@ Note that the estimation of a linear panel regression model is also implemented.
 pstr0 = EstPSTR(use=pstr)
 print(pstr0,"estimates")
 #> ###########################################################################
-#> ## PSTR 1.2.1 'Orange Panel' from GitHub
+#> ## PSTR 1.2.2 'Orange Panel' from GitHub
 #> ###########################################################################
 #> ***************************************************************************
 #> A linear panel regression with fixed effects is estimated.

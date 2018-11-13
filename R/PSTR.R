@@ -160,6 +160,8 @@ NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, im=1, iT)
   }else{
     mK = data[,indep_k]; ret$mK_name = names(data[,indep_k])
   }
+  
+  if(length(tvars)<1) stop(simpleError("Please specify the candidates of the transition variables 'tvars'."))
   mQ = data[,tvars]; ret$mQ_name = names(data[,tvars])
 
   ## remove the NAs

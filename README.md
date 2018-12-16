@@ -158,14 +158,14 @@ pstr = WCB_LinTest(use=pstr,iB=4,parallel=T,cpus=2)
 When you determine which transition variable to use for the estimation, in this case "inva", you can estimate the PSTR model
 
 ``` r
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.46,0), vLower=4, vUpper=4)
+pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), vLower=4, vUpper=4)
 print(pstr,"estimates")
 ```
 
 By default, the "optim" method "L-BFGS-B" is used, but you can change the method for estimation by doing
 
 ``` r
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.46,0), method="CG")
+pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
 print(pstr,"estimates")
 #> ###########################################################################
 #> ## PSTR 1.2.4 'Orange Panel'
@@ -176,30 +176,30 @@ print(pstr,"estimates")
 #> Transition variable 'vala' is used in the estimation.
 #> ---------------------------------------------------------------------------
 #> Parameter estimates in the linear part (first extreme regime) are
-#>        dt_75_0   dt_76_0   dt_77_0  dt_78_0  dt_79_0  dt_80_0   dt_81_0
-#> Est  -0.002821 -0.007510 -0.005811 0.000394 0.002463 0.006084 0.0004155
-#> s.e.  0.002431  0.002577  0.002649 0.002795 0.002708 0.002910 0.0029220
-#>        dt_82_0   dt_83_0    dt_84_0  dt_85_0   dt_86_0   dt_87_0 vala_0
-#> Est  -0.007803 -0.014420 -0.0009157 0.003464 -0.001593 -0.008607 0.1151
-#> s.e.  0.002609  0.002701  0.0030910 0.003232  0.003202  0.003133 0.0411
+#>        dt_75_0   dt_76_0   dt_77_0   dt_78_0  dt_79_0  dt_80_0   dt_81_0
+#> Est  -0.002827 -0.007512 -0.005812 0.0003951 0.002464 0.006085 0.0004164
+#> s.e.  0.002431  0.002577  0.002649 0.0027950 0.002708 0.002910 0.0029220
+#>        dt_82_0   dt_83_0    dt_84_0  dt_85_0   dt_86_0   dt_87_0  vala_0
+#> Est  -0.007802 -0.014410 -0.0009146 0.003467 -0.001591 -0.008606 0.11500
+#> s.e.  0.002609  0.002701  0.0030910 0.003232  0.003202  0.003133 0.04073
 #>       debta_0   cfa_0  sales_0
-#> Est  -0.03403 0.10970 0.002931
-#> s.e.  0.03322 0.04473 0.008214
+#> Est  -0.03392 0.10980 0.002978
+#> s.e.  0.03319 0.04458 0.008221
 #> ---------------------------------------------------------------------------
 #> Parameter estimates in the non-linear part are
 #>        vala_1 debta_1    cfa_1  sales_1
-#> Est  -0.10380 0.02907 -0.08786 0.006009
-#> s.e.  0.04018 0.04891  0.05684 0.012130
+#> Est  -0.10370 0.02892 -0.08801 0.005945
+#> s.e.  0.03981 0.04891  0.05672 0.012140
 #> ---------------------------------------------------------------------------
 #> Parameter estimates in the second extreme regime are
 #>      vala_{0+1} debta_{0+1} cfa_{0+1} sales_{0+1}
-#> Est    0.011300   -0.004958   0.02189    0.008940
-#> s.e.   0.001976    0.017370   0.01883    0.004956
+#> Est    0.011300    -0.00500   0.02183    0.008923
+#> s.e.   0.001976     0.01739   0.01885    0.004957
 #> ---------------------------------------------------------------------------
 #> Non-linear parameter estimates are
 #>       gamma        c_1
-#> Est  0.6311 -0.0001986
-#> s.e. 0.1043  0.7330000
+#> Est  0.6299 -0.0002008
+#> s.e. 0.1032  0.7252000
 #> ---------------------------------------------------------------------------
 #> Estimated standard deviation of the residuals is 0.04301
 #> ***************************************************************************
@@ -209,8 +209,8 @@ print(pstr,"estimates")
 The argument "useDelta" determines the type of the initial value for the smoothness parameter. By default "useDelta = F" means that the first initial value in "par" is the "gamma" instead of "delta". Here we use the settings "useDelta = T" and "par = c(1.6, .5)" means that the first value of "par" is the "delta" and its value is 1.6. Note that "delta" and "gamma" has the relationship "gamma = exp(delta)". Thus, the following two sentences are equivalent
 
 ``` r
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.46,0), method="CG")
-pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(-0.46),0), method="CG")
+pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
+pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(-0.462),0), method="CG")
 ```
 
 For details, read the vignette.

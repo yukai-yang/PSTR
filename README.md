@@ -53,11 +53,11 @@ Then you can take a look at all the available functions and data in the package
 
 ``` r
 ls( grep("PSTR", search()) ) 
-#>  [1] "EstPSTR"         "EvalTest"        "Hansen99"       
-#>  [4] "LinTest"         "NewPSTR"         "plot_response"  
-#>  [7] "plot_target"     "plot_transition" "sunspot"        
-#> [10] "version"         "WCB_HETest"      "WCB_LinTest"    
-#> [13] "WCB_TVTest"
+#>  [1] "EstPSTR"           "EvalTest"          "Hansen99"         
+#>  [4] "LinTest"           "NewPSTR"           "plot_coefficients"
+#>  [7] "plot_response"     "plot_target"       "plot_transition"  
+#> [10] "sunspot"           "version"           "WCB_HETest"       
+#> [13] "WCB_LinTest"       "WCB_TVTest"
 ```
 
 ### The data
@@ -213,27 +213,6 @@ pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
 pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(-0.462),0), method="CG")
 ```
 
-For details, read the vignette.
-
-Now you can plot the estimated transition function by running
-
-``` r
-plot_transition(pstr)
-```
-
-![](README-plot_trans1-1.png)
-
-or a better plot with more arguments
-
-``` r
-plot_transition(pstr, fill='blue', xlim=c(-2,20), color = "dodgerblue4", size = 2, alpha=.3) +
-  ggplot2::geom_vline(ggplot2::aes(xintercept = pstr$c - log(1/0.95 - 1)/pstr$gamma),color='blue') +
-  ggplot2::labs(x="customize the label for x axis",y="customize the label for y axis",
-       title="The Title",subtitle="The subtitle",caption="Make a caption here.")
-```
-
-![](README-plot_trans2-1.png)
-
 Note that the estimation of a linear panel regression model is also implemented. The user can do it by simply running
 
 ``` r
@@ -289,7 +268,35 @@ Note that the evaluation functions do not accept the returned object "pstr0" fro
 
 ### Plotting
 
-In the following, I am going to show the new plotting function `plot_response`, which depicts the relationship between
+After estimating the PSTR model, you can plot the estimated transition function by running
+
+``` r
+plot_transition(pstr)
+```
+
+![](README-plot_trans1-1.png)
+
+or a better plot with more arguments
+
+``` r
+plot_transition(pstr, fill='blue', xlim=c(-2,20), color = "dodgerblue4", size = 2, alpha=.3) +
+  ggplot2::geom_vline(ggplot2::aes(xintercept = pstr$c - log(1/0.95 - 1)/pstr$gamma),color='blue') +
+  ggplot2::labs(x="customize the label for x axis",y="customize the label for y axis",
+       title="The Title",subtitle="The subtitle",caption="Make a caption here.")
+```
+
+![](README-plot_trans2-1.png)
+
+You can also plot the curves of the coefficients, the standard errors and the p-values against the transition variable.
+
+``` r
+ret = plot_coefficients(pstr, vars=1:4, length.out=100, color="dodgerblue4", size=2)
+ret[[1]]
+```
+
+![](README-plot_coef-1.png)
+
+The plotting function `plot_response`, which depicts the relationship between
 which I called response, some explanatory variable *x*<sub>*i**t*</sub> and the transition variable *q*<sub>*i**t*</sub> in the PSTR model.
 
 The response \[*ϕ*<sub>0</sub> + *ϕ*<sub>1</sub>*g*<sub>*i**t*</sub>(*q*<sub>*i**t*</sub>; *γ*, *c*)\]*x*<sub>*i**t*</sub> is actually the contribution that the varabile *x*<sub>*i**t*</sub> makes to the conditional expectation of the dependent *y*<sub>*i**t*</sub> through the smooth transition mechanism.

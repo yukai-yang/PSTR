@@ -2,8 +2,9 @@
 New Features in PSTR 1.2.4 'Orange Panel'
 =========================================
 
--   improve the plotting function "plot\_transition".
--   add new plotting function.
+-   improve the plotting function "plot\_transition" and "plot\_response".
+-   add new plotting function "plot\_coefficients".
+-   change documentation.
 
 New Features in PSTR 1.2.3 'Orange Panel'
 =========================================

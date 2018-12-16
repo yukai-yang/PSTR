@@ -68,9 +68,9 @@ pstr = EstPSTR(use=pstr)
 print(pstr, "estimates", digits=6)
 
 # "L-BFGS-B" is used by default
-pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), vLower=4, vUpper=4)
+pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), vLower=4, vUpper=4)
 # You can also choose the method yourself.
-pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
+pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
 
 print(pstr, "estimates", digits=6)
 

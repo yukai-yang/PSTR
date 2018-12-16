@@ -63,7 +63,7 @@
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
 #' # Estimate the model first
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
 #'
 #' # Then you can evaluate the model
 #' pstr = EvalTest(use=pstr, vq=pstr$mQ[,1])

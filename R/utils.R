@@ -9,7 +9,7 @@
 ## utility functions
 #################################################################################
 
-vnum = "1.2.3"
+vnum = "1.2.4"
 
 # simple cat
 cat0 <- function(...)
@@ -315,10 +315,12 @@ print_evaluation <- function(obj,digits)
 #' The user can customize the title, subtitle, caption, x and y labels, for details, read the help file for the \code{labs} function in ggplot2.
 #'
 #' @param obj an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.
-#' @param log_scale specify whether to use log transformation for x-axis.
 #' @param size the size of the circle.
 #' @param color the color of the circle.
-#' @param ... expression or strings of names passed to the \code{labs} function in ggplot2. The names should be some of "x", "y", "title", "subtitle", and "caption".
+#' @param xlim a numeric vector of dimension 2 specifying the limits of x-axis.
+#' @param ylim a numeric vector of dimension 2 specifying the limits of y-axis.
+#' @param fill the color used to fill the area on the transition curve with observations, \code{NULL} for not fill, see ggplot2.
+#' @param alpha a number controlling the transparency of the points and filled area, \code{NULL} for default, see ggplot2.
 #'
 #' @return A ggplot object. The user can plot it simply by print the object.
 #'
@@ -334,7 +336,7 @@ print_evaluation <- function(obj,digits)
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
 #' # estimate the PSTR model
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
 #'
 #' # plot the transition function
 #'
@@ -342,28 +344,47 @@ print_evaluation <- function(obj,digits)
 #' # plot by running
 #' ret
 #'
-#' ret = plot_transition(pstr, color = "blue", size = 2,
-#'     x="customize the label for x axis",y="customize the label for y axis",
-#'     title="The Title",subtitle="The subtitle",caption="Make a caption here.",log_scale=TRUE)
+#' ret = plot_transition(pstr, fill='blue', xlim=c(-2,20), color = "dodgerblue4", size = 2, alpha=.3)
 #' ret
 #' }
 #'
 #' @export
-plot_transition <- function(obj, log_scale=F, size=1.5, color="black", ...)
+plot_transition <- function(obj, size=1.5, color="blue", xlim=NULL, ylim=NULL, fill=NULL, alpha=NULL)
 {
   if(class(obj)!="PSTR")
-    stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
+    stop(simpleError("The argument 'obj' is not an object of class 'PSTR'."))
   if(is.null(obj$vg)) stop(simpleError("The PSTR model is not estimated yet."))
+  
+  qq=obj$mQ[,obj$iq]
 
-  tmp = tibble(gg=obj$vg,qq=obj$mQ[,obj$iq])
+  ###### new
+  if(is.null(xlim)){ xlim = c(min(min(qq), obj$c - log(1/0.002472623 - 1)/obj$gamma),
+                             max(max(qq), obj$c - log(1/0.9975274 - 1)/obj$gamma)) 
+  }else{
+    if(length(xlim)!=2) stop(simpleError("xlim must be a 2-vector."))
+    if(!is.numeric(xlim)) stop(simpleError("xlim must be numeric."))
+  }
+  
+  if(is.null(ylim)){ ylim = c(0, 1)
+  }else{
+    if(length(ylim)!=2) stop(simpleError("ylim must be a 2-vector."))
+    if(!is.numeric(ylim)) stop(simpleError("ylim must be numeric."))
+  }
+  
+  if(is.null(alpha)) alpha = .2
+  
+  vx = seq(xlim[1],xlim[2],length.out=1001)
+  vy = 1/(1+exp(-obj$gamma*(vx-obj$c)))
+  
+  ret = ggplot() + ggplot2::xlim(xlim) + ggplot2::ylim(ylim)
+  if(!is.null(fill)) ret = ret + geom_rect(aes(xmin=min(qq),ymin=0,xmax=max(qq),ymax=1), alpha=alpha/2, fill=fill) 
+  ret = ret + geom_line(aes(x=vx,y=vy),color='red') +
+    geom_rug(aes(x=qq, y=obj$vg), sides = "b", color=color) +
+    geom_point(aes(x=qq, y= obj$vg), size=size, stroke=T, alpha=alpha, color=color) +
+    labs(y="transition function", x=obj$mQ_name[obj$iq])
+  ######
 
-  ret = ggplot(tmp, aes(y=tmp$gg,x=tmp$qq)) + labs(y="transition function", x=obj$mQ_name[obj$iq])
-
-  if(length(list(...))>0) ret = ret + labs(...)
-
-  if(log_scale) ret = ret + scale_x_log10()
-
-  return(ret + geom_point(size=size, color=color, stroke=T, alpha=.4))
+  return(ret)
 }
 
 
@@ -398,6 +419,8 @@ plot_transition <- function(obj, log_scale=F, size=1.5, color="black", ...)
 #' @param vars a vector of column numbers or names (character strings) specifying which variables in the nonlinear part to use.
 #' @param log_scale a 2-dim vector or scalar specifying whether to take log scale for the variables and the transition variable.
 #' @param length.out a 2-dim vector or scalar of desired length (number of points) for the parameters. 20 by default.
+#' @param color the color of the line.
+#' @param size the size of the line.
 #'
 #' @return A list of plottable objects from the \code{ggplot2} (for curve) and/or \code{plotly} (for surface) package.
 #'
@@ -413,7 +436,7 @@ plot_transition <- function(obj, log_scale=F, size=1.5, color="black", ...)
 #'     tvars=c('vala','debta','cfa','sales'), iT=14) # create a new PSTR object
 #'
 #' # estimate the PSTR model first
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
 #'
 #' # plot the curve and surfaces
 #' ret = plot_response(obj=pstr, vars=1:4, log_scale = c(FALSE,TRUE), length.out=40)
@@ -423,7 +446,7 @@ plot_transition <- function(obj, log_scale=F, size=1.5, color="black", ...)
 #' }
 #'
 #' @export
-plot_response <- function(obj, vars, log_scale=FALSE, length.out=20)
+plot_response <- function(obj, vars, log_scale=FALSE, length.out=20, color="blue", size=1.5)
 {
   if(class(obj)!="PSTR")
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
@@ -472,7 +495,7 @@ plot_response <- function(obj, vars, log_scale=FALSE, length.out=20)
       vz = c(apply(cbind(vy, vg),1,ftmp))
 
       tmp = ggplot(tibble(vy=vy,vz=vz), aes(x=vy,y=vz)) +
-        labs(y="response", x=varname) + geom_line()
+        labs(y="response", x=varname) + geom_line(color=color,size=size)
       if(log_scale[2]) tmp = tmp + scale_x_log10()
 
       eval(parse(text=paste0("ret$",varname," = tmp")))
@@ -598,4 +621,100 @@ plot_target <- function(obj,im=1,iq=NULL,par=NULL,basedon=c(1,2),from,to,length.
   }
   else stop(simpleError("Transition variable missing! Please specify iq."))
 
+}
+
+#' Plot the coefficients, the standard errors and the p-values against the transition variable.
+#'
+#' This function plots the curves of the coefficients, the standard errors and the p-values against the transition variable.
+#'
+#' The curves of the coefficients, the standard errors and the p-values against the transition variable are functions
+#' \deqn{f_1(x) = \beta_{0j} + \beta_{1j}g(x ; \gamma, c)}
+#' \deqn{f_2(x) = se(f_1(x))}
+#' \deqn{f_3(x) = 1 - Prob\{ X < [f_1(x)/f_2(x)]^2 \} }
+#' where \eqn{x} is a variable taking the position of the transition variable,
+#' \eqn{se} stands for the cluster-robust and heteroskedasticity-consistent standard error of the estimate \eqn{f_1(x)} at \eqn{x},
+#' \eqn{X} is a random variable following chi-square distribution with degrees of freedom one.
+#' 
+#' More than one variable can be put in \code{vars}.
+#'
+#' The return value is a list of the same length as \code{vars}, whose elements are plottable objects.
+#'
+#' @param obj an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.
+#' @param vars a vector of column numbers or names (character strings) specifying which variables in the nonlinear part to use.
+#' @param length.out a scalar of desired length (number of points) for building the x-axis. 100 by default.
+#' @param color the color of the lines.
+#' @param size the size of the lines.
+#'
+#' @return A list of plottable objects from the \code{ggplot2} package.
+#'
+#' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
+#' @seealso Functions which return an object of the class PSTR can be input into this function
+#'
+#' \code{\link{EstPSTR}}
+#' 
+#' @keywords utils
+#'
+#' @examples
+#' \donttest{
+#' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
+#'     tvars=c('vala','debta','cfa','sales'), iT=14) # create a new PSTR object
+#'
+#' # estimate the PSTR model first
+#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
+#'
+#' # plot the curve and surfaces
+#' ret = plot_coefficients(pstr, vars=1:4, length.out=100, color="dodgerblue4", size=2)
+#' ret[[1]]
+#' ret[[1]] + ggplot2::scale_x_log10()
+#' }
+#'
+#' @export
+plot_coefficients <- function(obj, vars, length.out=100, color="blue", size=1.5)
+{
+  if(class(obj)!="PSTR")
+    stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
+  if(is.null(obj$vg)) stop(simpleError("The PSTR model is not estimated yet."))
+  
+  tvar = obj$mQ[,obj$iq]
+  tvarname = obj$mQ_name[obj$iq]
+  
+  pp = seq(from=min(tvar), to=max(tvar), length.out=length.out)
+  ratio = 1/(1 + exp(-obj$gamma * (pp - obj$c)))
+  
+  tnames = names(obj$est)
+  
+  ret = list()
+  for(vter in vars){
+    vK = try(obj$mK[,vter],silent=T)
+    if(class(vK)=='try-error' || length(vK)==0) next
+    
+    if(is.numeric(vter)) tchar = obj$mK_name[vter]
+    else tchar = vter
+    
+    tmp = rep(0, length(obj$est))
+    tmp[match(paste0(tchar,"_0"), tnames)] = 1
+    kter = match(paste0(tchar,"_1"), tnames)
+    
+    bb = NULL; se = NULL
+    for(jter in ratio){
+      tmp[kter] = jter
+      bb = c(bb, crossprod(tmp, obj$est))
+      se = c(se, sqrt(t(tmp)%*%obj$cov%*%tmp))
+    }
+    pv = 1-pchisq((bb/se)**2,df=1)
+    
+    dtmp = data.frame(xx=rep(pp,3), yy=c(bb, se, pv),
+                  gg=factor(c( rep("\u03b2", length(bb)), rep("s.e.", length(se)),
+                               rep("p-val", length(pv))), levels=c("\u03b2", "s.e.", "p-val")) ) 
+    
+    tmp = with(dtmp, ggplot(dtmp, aes(x=xx,y=yy))) + geom_line(col=color,size=size) +
+      with(dtmp,facet_grid(rows = vars(gg), scales = "free")) +
+      geom_hline(data=with(dtmp, subset(dtmp, gg=='p-val')), aes(yintercept=.05), col='red', linetype=2) +
+      labs(x=tvarname, y='', title=paste("coefficient",tchar))
+    
+    eval(parse(text=paste0("ret$",tchar," = tmp")))
+    
+  }
+  
+  return(ret)
 }

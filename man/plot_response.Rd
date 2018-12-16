@@ -4,7 +4,8 @@
 \alias{plot_response}
 \title{Curve or surfaces of the expected reponse agaist the corresponding variable.}
 \usage{
-plot_response(obj, vars, log_scale = FALSE, length.out = 20)
+plot_response(obj, vars, log_scale = FALSE, length.out = 20,
+  color = "blue", size = 1.5)
 }
 \arguments{
 \item{obj}{an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.}
@@ -14,6 +15,10 @@ plot_response(obj, vars, log_scale = FALSE, length.out = 20)
 \item{log_scale}{a 2-dim vector or scalar specifying whether to take log scale for the variables and the transition variable.}
 
 \item{length.out}{a 2-dim vector or scalar of desired length (number of points) for the parameters. 20 by default.}
+
+\item{color}{the color of the line.}
+
+\item{size}{the size of the line.}
 }
 \value{
 A list of plottable objects from the \code{ggplot2} (for curve) and/or \code{plotly} (for surface) package.
@@ -51,7 +56,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
     tvars=c('vala','debta','cfa','sales'), iT=14) # create a new PSTR object
 
 # estimate the PSTR model first
-pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
+pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
 
 # plot the curve and surfaces
 ret = plot_response(obj=pstr, vars=1:4, log_scale = c(FALSE,TRUE), length.out=40)

@@ -4,18 +4,23 @@
 \alias{plot_transition}
 \title{Plot the transition function of the estimated PSTR model.}
 \usage{
-plot_transition(obj, log_scale = F, size = 1.5, color = "black", ...)
+plot_transition(obj, size = 1.5, color = "blue", xlim = NULL,
+  ylim = NULL, fill = NULL, alpha = NULL)
 }
 \arguments{
 \item{obj}{an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.}
-
-\item{log_scale}{specify whether to use log transformation for x-axis.}
 
 \item{size}{the size of the circle.}
 
 \item{color}{the color of the circle.}
 
-\item{...}{expression or strings of names passed to the \code{labs} function in ggplot2. The names should be some of "x", "y", "title", "subtitle", and "caption".}
+\item{xlim}{a numeric vector of dimension 2 specifying the limits of x-axis.}
+
+\item{ylim}{a numeric vector of dimension 2 specifying the limits of y-axis.}
+
+\item{fill}{the color used to fill the area on the transition curve with observations, \code{NULL} for not fill, see ggplot2.}
+
+\item{alpha}{a number controlling the transparency of the points and filled area, \code{NULL} for default, see ggplot2.}
 }
 \value{
 A ggplot object. The user can plot it simply by print the object.
@@ -33,7 +38,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
     tvars=c('vala'), iT=14) # create a new PSTR object
 
 # estimate the PSTR model
-pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(1.6,.5), method='CG')
+pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
 
 # plot the transition function
 
@@ -41,9 +46,7 @@ ret = plot_transition(pstr)
 # plot by running
 ret
 
-ret = plot_transition(pstr, color = "blue", size = 2,
-    x="customize the label for x axis",y="customize the label for y axis",
-    title="The Title",subtitle="The subtitle",caption="Make a caption here.",log_scale=TRUE)
+ret = plot_transition(pstr, fill='blue', xlim=c(-2,20), color = "dodgerblue4", size = 2, alpha=.3)
 ret
 }
 

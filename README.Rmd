@@ -124,20 +124,6 @@ The argument "useDelta" determines the type of the initial value for the smoothn
 pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
 pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(-0.462),0), method="CG")
 ```
-For details, read the vignette.
-
-Now you can plot the estimated transition function by running
-```{r plot_trans1}
-plot_transition(pstr)
-```
-
-or a better plot with more arguments
-```{r plot_trans2}
-plot_transition(pstr, fill='blue', xlim=c(-2,20), color = "dodgerblue4", size = 2, alpha=.3) +
-  ggplot2::geom_vline(ggplot2::aes(xintercept = pstr$c - log(1/0.95 - 1)/pstr$gamma),color='blue') +
-  ggplot2::labs(x="customize the label for x axis",y="customize the label for y axis",
-       title="The Title",subtitle="The subtitle",caption="Make a caption here.")
-```
 
 Note that the estimation of a linear panel regression model is also implemented. The user can do it by simply running
 ```{r estimate3}
@@ -170,7 +156,26 @@ Note that the evaluation functions do not accept the returned object "pstr0" fro
 
 ### Plotting
 
-In the following, I am going to show the new plotting function `plot_response`, which depicts the relationship between
+After estimating the PSTR model, you can plot the estimated transition function by running
+```{r plot_trans1}
+plot_transition(pstr)
+```
+
+or a better plot with more arguments
+```{r plot_trans2}
+plot_transition(pstr, fill='blue', xlim=c(-2,20), color = "dodgerblue4", size = 2, alpha=.3) +
+  ggplot2::geom_vline(ggplot2::aes(xintercept = pstr$c - log(1/0.95 - 1)/pstr$gamma),color='blue') +
+  ggplot2::labs(x="customize the label for x axis",y="customize the label for y axis",
+       title="The Title",subtitle="The subtitle",caption="Make a caption here.")
+```
+
+You can also plot the curves of the coefficients, the standard errors and the p-values against the transition variable.
+```{r plot_coef}
+ret = plot_coefficients(pstr, vars=1:4, length.out=100, color="dodgerblue4", size=2)
+ret[[1]]
+```
+
+The plotting function `plot_response`, which depicts the relationship between
 \begin{equation*}
 [\phi_0 + \phi_1 g_{it}(q_{it} ; \gamma, c)] x_{it}
 \end{equation*}

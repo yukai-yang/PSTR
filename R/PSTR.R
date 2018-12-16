@@ -88,7 +88,7 @@ NULL
 #' @import tibble
 NULL
 
-#' @importFrom ggplot2 ggplot aes geom_point geom_line labs scale_x_log10
+#' @importFrom ggplot2 ggplot aes geom_point geom_rug geom_rect geom_line geom_hline facet_grid vars labs scale_x_log10 xlim ylim
 NULL
 
 #' @importFrom plotly add_surface add_trace plot_ly layout

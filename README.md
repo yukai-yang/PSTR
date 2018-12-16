@@ -1,10 +1,10 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-PSTR version 1.2.3 (Orange Panel)
+PSTR version 1.2.4 (Orange Panel)
 =================================
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR) ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
 
-The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling. You can also find the package on CRAN, see
+The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling. You can find the package on CRAN, see
 
 [PSTR@CRAN](https://cran.r-project.org/web/packages/PSTR)
 
@@ -46,7 +46,7 @@ You can first check the information and the current version number by running
 
 ``` r
 version()
-#> PSTR version 1.2.3 (Orange Panel) from GitHub
+#> PSTR version 1.2.4 (Orange Panel)
 ```
 
 Then you can take a look at all the available functions and data in the package
@@ -77,7 +77,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
                tvars=c('vala'), im=1, iT=14)
 print(pstr)
 #> ###########################################################################
-#> ## PSTR 1.2.3 'Orange Panel' from GitHub
+#> ## PSTR 1.2.4 'Orange Panel'
 #> ###########################################################################
 #> ***************************************************************************
 #> Summary of the model:
@@ -117,7 +117,7 @@ The following code does linearity tests
 pstr = LinTest(use=pstr) 
 print(pstr, "tests")
 #> ###########################################################################
-#> ## PSTR 1.2.3 'Orange Panel' from GitHub
+#> ## PSTR 1.2.4 'Orange Panel'
 #> ###########################################################################
 #> ***************************************************************************
 #> Results of the linearity (homogeneity) tests:
@@ -158,17 +158,17 @@ pstr = WCB_LinTest(use=pstr,iB=4,parallel=T,cpus=2)
 When you determine which transition variable to use for the estimation, in this case "inva", you can estimate the PSTR model
 
 ``` r
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), vLower=4, vUpper=4)
+pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.46,0), vLower=4, vUpper=4)
 print(pstr,"estimates")
 ```
 
 By default, the "optim" method "L-BFGS-B" is used, but you can change the method for estimation by doing
 
 ``` r
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), method="CG")
+pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.46,0), method="CG")
 print(pstr,"estimates")
 #> ###########################################################################
-#> ## PSTR 1.2.3 'Orange Panel' from GitHub
+#> ## PSTR 1.2.4 'Orange Panel'
 #> ###########################################################################
 #> ***************************************************************************
 #> Results of the PSTR estimation:
@@ -176,32 +176,32 @@ print(pstr,"estimates")
 #> Transition variable 'vala' is used in the estimation.
 #> ---------------------------------------------------------------------------
 #> Parameter estimates in the linear part (first extreme regime) are
-#>        dt_75_0   dt_76_0   dt_77_0  dt_78_0  dt_79_0  dt_80_0  dt_81_0
-#> Est  -0.004332 -0.007436 -0.005040 0.001092 0.003012 0.006406 0.001119
-#> s.e.  0.002502  0.002586  0.002738 0.002799 0.002697 0.002862 0.002944
-#>        dt_82_0   dt_83_0  dt_84_0  dt_85_0  dt_86_0   dt_87_0   vala_0
-#> Est  -0.007943 -0.014010 0.000836 0.004903 0.000628 -0.006537 -0.01722
-#> s.e.  0.002677  0.002757 0.003085 0.003234 0.003104  0.003192  0.06771
-#>       debta_0   cfa_0   sales_0
-#> Est  -0.06389 0.08598 -0.000464
-#> s.e.  0.02035 0.03117  0.004060
+#>        dt_75_0   dt_76_0   dt_77_0  dt_78_0  dt_79_0  dt_80_0   dt_81_0
+#> Est  -0.002821 -0.007510 -0.005811 0.000394 0.002463 0.006084 0.0004155
+#> s.e.  0.002431  0.002577  0.002649 0.002795 0.002708 0.002910 0.0029220
+#>        dt_82_0   dt_83_0    dt_84_0  dt_85_0   dt_86_0   dt_87_0 vala_0
+#> Est  -0.007803 -0.014420 -0.0009157 0.003464 -0.001593 -0.008607 0.1151
+#> s.e.  0.002609  0.002701  0.0030910 0.003232  0.003202  0.003133 0.0411
+#>       debta_0   cfa_0  sales_0
+#> Est  -0.03403 0.10970 0.002931
+#> s.e.  0.03322 0.04473 0.008214
 #> ---------------------------------------------------------------------------
 #> Parameter estimates in the non-linear part are
-#>       vala_1 debta_1    cfa_1 sales_1
-#> Est  0.02403 0.06768 -0.04671 0.01033
-#> s.e. 0.06772 0.02021  0.03373 0.00494
+#>        vala_1 debta_1    cfa_1  sales_1
+#> Est  -0.10380 0.02907 -0.08786 0.006009
+#> s.e.  0.04018 0.04891  0.05684 0.012130
 #> ---------------------------------------------------------------------------
 #> Parameter estimates in the second extreme regime are
 #>      vala_{0+1} debta_{0+1} cfa_{0+1} sales_{0+1}
-#> Est    0.006810    0.003784   0.03927    0.009865
-#> s.e.   0.001193    0.011720   0.01235    0.003116
+#> Est    0.011300   -0.004958   0.02189    0.008940
+#> s.e.   0.001976    0.017370   0.01883    0.004956
 #> ---------------------------------------------------------------------------
 #> Non-linear parameter estimates are
-#>      gamma    c_1
-#> Est  4.953 0.4949
-#> s.e. 1.211 0.2538
+#>       gamma        c_1
+#> Est  0.6311 -0.0001986
+#> s.e. 0.1043  0.7330000
 #> ---------------------------------------------------------------------------
-#> Estimated standard deviation of the residuals is 0.04323
+#> Estimated standard deviation of the residuals is 0.04301
 #> ***************************************************************************
 #> ###########################################################################
 ```
@@ -209,8 +209,8 @@ print(pstr,"estimates")
 The argument "useDelta" determines the type of the initial value for the smoothness parameter. By default "useDelta = F" means that the first initial value in "par" is the "gamma" instead of "delta". Here we use the settings "useDelta = T" and "par = c(1.6, .5)" means that the first value of "par" is the "delta" and its value is 1.6. Note that "delta" and "gamma" has the relationship "gamma = exp(delta)". Thus, the following two sentences are equivalent
 
 ``` r
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(1.6,.5), method="CG")
-pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(1.6),.5), method="CG")
+pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.46,0), method="CG")
+pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(-0.46),0), method="CG")
 ```
 
 For details, read the vignette.
@@ -218,12 +218,21 @@ For details, read the vignette.
 Now you can plot the estimated transition function by running
 
 ``` r
-plot_transition(pstr, log_scale=TRUE, color = "blue", size = 2,
-    x="Tobin's Q in log scale", title="The Estimated Transition Function",
-    caption="If you wanna write something in the caption, do it here.")
+plot_transition(pstr)
 ```
 
-![](README-plot-1.png)
+![](README-plot_trans1-1.png)
+
+or a better plot with more arguments
+
+``` r
+plot_transition(pstr, fill='blue', xlim=c(-2,20), color = "dodgerblue4", size = 2, alpha=.3) +
+  ggplot2::geom_vline(ggplot2::aes(xintercept = pstr$c - log(1/0.95 - 1)/pstr$gamma),color='blue') +
+  ggplot2::labs(x="customize the label for x axis",y="customize the label for y axis",
+       title="The Title",subtitle="The subtitle",caption="Make a caption here.")
+```
+
+![](README-plot_trans2-1.png)
 
 Note that the estimation of a linear panel regression model is also implemented. The user can do it by simply running
 
@@ -231,7 +240,7 @@ Note that the estimation of a linear panel regression model is also implemented.
 pstr0 = EstPSTR(use=pstr)
 print(pstr0,"estimates")
 #> ###########################################################################
-#> ## PSTR 1.2.3 'Orange Panel' from GitHub
+#> ## PSTR 1.2.4 'Orange Panel'
 #> ###########################################################################
 #> ***************************************************************************
 #> A linear panel regression with fixed effects is estimated.

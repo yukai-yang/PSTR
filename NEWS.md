@@ -1,4 +1,10 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+New Features in PSTR 1.2.4 'Orange Panel'
+=========================================
+
+-   improve the plotting function "plot\_transition".
+-   add new plotting function.
+
 New Features in PSTR 1.2.3 'Orange Panel'
 =========================================
 

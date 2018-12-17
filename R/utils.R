@@ -10,6 +10,7 @@
 #################################################################################
 
 vnum = "1.2.4"
+packname = "(Orange Panel)"
 
 # simple cat
 cat0 <- function(...)
@@ -29,7 +30,7 @@ cat0 <- function(...)
 #'
 #' @export
 version <- function(){
-  cat0("PSTR version ", vnum, " (Orange Panel)")
+  cat0("PSTR version ", vnum, " ",packname)
 }
 
 
@@ -57,7 +58,7 @@ version <- function(){
 print.PSTR <- function(x, mode=c("su","e"), digits=4, ...)
 {
   cat0(paste0(rep("#",getOption("width")),collapse=''))
-  cat0("## PSTR ", vnum, " 'Orange Panel'")
+  cat0("## PSTR ", vnum, " ",packname)
 
   tmp = NULL
   for(iter in 1:length(mode)){

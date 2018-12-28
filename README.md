@@ -77,7 +77,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
                tvars=c('vala'), im=1, iT=14)
 print(pstr)
 #> ###########################################################################
-#> ## PSTR 1.2.4 'Orange Panel'
+#> ## PSTR 1.2.4 (Orange Panel)
 #> ###########################################################################
 #> ***************************************************************************
 #> Summary of the model:
@@ -117,7 +117,7 @@ The following code does linearity tests
 pstr = LinTest(use=pstr) 
 print(pstr, "tests")
 #> ###########################################################################
-#> ## PSTR 1.2.4 'Orange Panel'
+#> ## PSTR 1.2.4 (Orange Panel)
 #> ###########################################################################
 #> ***************************************************************************
 #> Results of the linearity (homogeneity) tests:
@@ -168,7 +168,7 @@ By default, the "optim" method "L-BFGS-B" is used, but you can change the method
 pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
 print(pstr,"estimates")
 #> ###########################################################################
-#> ## PSTR 1.2.4 'Orange Panel'
+#> ## PSTR 1.2.4 (Orange Panel)
 #> ###########################################################################
 #> ***************************************************************************
 #> Results of the PSTR estimation:
@@ -219,7 +219,7 @@ Note that the estimation of a linear panel regression model is also implemented.
 pstr0 = EstPSTR(use=pstr)
 print(pstr0,"estimates")
 #> ###########################################################################
-#> ## PSTR 1.2.4 'Orange Panel'
+#> ## PSTR 1.2.4 (Orange Panel)
 #> ###########################################################################
 #> ***************************************************************************
 #> A linear panel regression with fixed effects is estimated.
@@ -274,7 +274,7 @@ After estimating the PSTR model, you can plot the estimated transition function 
 plot_transition(pstr)
 ```
 
-![](README-plot_trans1-1.png)
+![](rmd_files/README-plot_trans1-1.png)
 
 or a better plot with more arguments
 
@@ -285,7 +285,7 @@ plot_transition(pstr, fill='blue', xlim=c(-2,20), color = "dodgerblue4", size = 
        title="The Title",subtitle="The subtitle",caption="Make a caption here.")
 ```
 
-![](README-plot_trans2-1.png)
+![](rmd_files/README-plot_trans2-1.png)
 
 You can also plot the curves of the coefficients, the standard errors and the p-values against the transition variable.
 
@@ -294,7 +294,7 @@ ret = plot_coefficients(pstr, vars=1:4, length.out=100, color="dodgerblue4", siz
 ret[[1]]
 ```
 
-![](README-plot_coef-1.png)
+![](rmd_files/README-plot_coef-1.png)
 
 The plotting function `plot_response`, which depicts the relationship between
 which I called response, some explanatory variable *x*<sub>*i**t*</sub> and the transition variable *q*<sub>*i**t*</sub> in the PSTR model.
@@ -334,7 +334,7 @@ Yes, but they are now plottable objects in the sense that you can simply plot th
 ret$vala
 ```
 
-![](README-vala-1.png)
+![](rmd_files/README-vala-1.png)
 
 The numbers on the x-axis look not so good as it is difficult to find where the turning-point is.
 
@@ -345,7 +345,7 @@ ret$vala + ggplot2::scale_x_log10(breaks=c(.02,.05,.1,.2,.5,1,2,5,10,20)) +
     ggplot2::labs(x="Tobin's Q")
 ```
 
-![](README-vala2-1.png)
+![](rmd_files/README-vala2-1.png)
 
 Now we see very clearly that the turning-point approximately 0.5 cut the curve into two regimes, and the two regimes behave so differently. This graph is about the lagged Tobin's Q's contribution to the expected investment. Low Q firms (whose potentials are evaluated to be low by the financial market) look rather reluctant to change their future investment plan, or maybe get changed.
 

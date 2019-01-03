@@ -2,7 +2,7 @@
 PSTR version 1.2.4 (Orange Panel)
 =================================
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR?color=green)](https://cran.r-project.org/package=PSTR) ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version-ago/PSTR)](https://cran.r-project.org/package=PSTR) ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/PSTR?color=green) ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR?color=green)
 
 The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling. You can find the package on CRAN, see
 

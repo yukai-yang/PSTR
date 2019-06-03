@@ -142,8 +142,8 @@ NULL
 #' @export
 NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, im=1, iT)
 {
-  ret = list(); class(ret) = "PSTR"
   if(!is_tibble(data)) stop(simpleError("data should be a tibble!"))
+  ret = list(); class(ret) = "PSTR"
 
   ret$iT = iT
   iNN = dim(data)[1]/iT

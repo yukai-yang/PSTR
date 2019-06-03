@@ -11,7 +11,7 @@ PSTR version 1.2.4 (Orange Panel)
 The PSTR package implements the Panel Smooth Transition Regression
 (PSTR) modelling. You can find the package on CRAN, see
 
-[PSTR@CRAN](https://cran.r-project.org/web/packages/PSTR)
+[PSTR@CRAN](https://CRAN.R-project.org/package=PSTR)
 
 The modelling procedure consists of three stages: Specification,
 Estimation and Evaluation. The package offers tools helping the users to
@@ -65,7 +65,7 @@ running
 
 ``` r
 version()
-#> PSTR version 1.2.5 (Orange Panel)
+#> PSTR version 1.2.4 (Orange Panel)
 ```
 
 Then you can take a look at all the available functions and data in the
@@ -98,7 +98,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
                tvars=c('vala'), im=1, iT=14)
 print(pstr)
 #> ###########################################################################
-#> ## PSTR 1.2.5 (Orange Panel)
+#> ## PSTR 1.2.4 (Orange Panel)
 #> ###########################################################################
 #> ***************************************************************************
 #> Summary of the model:
@@ -147,7 +147,7 @@ The following code does linearity tests
 pstr = LinTest(use=pstr) 
 print(pstr, "tests")
 #> ###########################################################################
-#> ## PSTR 1.2.5 (Orange Panel)
+#> ## PSTR 1.2.4 (Orange Panel)
 #> ###########################################################################
 #> ***************************************************************************
 #> Results of the linearity (homogeneity) tests:
@@ -212,7 +212,7 @@ the method for estimation by doing
 pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
 print(pstr,"estimates")
 #> ###########################################################################
-#> ## PSTR 1.2.5 (Orange Panel)
+#> ## PSTR 1.2.4 (Orange Panel)
 #> ###########################################################################
 #> ***************************************************************************
 #> Results of the PSTR estimation:
@@ -270,7 +270,7 @@ implemented. The user can do it by simply running
 pstr0 = EstPSTR(use=pstr)
 print(pstr0,"estimates")
 #> ###########################################################################
-#> ## PSTR 1.2.5 (Orange Panel)
+#> ## PSTR 1.2.4 (Orange Panel)
 #> ###########################################################################
 #> ***************************************************************************
 #> A linear panel regression with fixed effects is estimated.

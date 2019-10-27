@@ -1,5 +1,11 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+New Features in PSTR 1.2.5 ‘Orange Panel’
+=========================================
+
+-   fix the bug in the function “plot\_transition”.
+-   fix the bug in the function “plot\_coefficients”.
+
 New Features in PSTR 1.2.4 ‘Orange Panel’
 =========================================
 

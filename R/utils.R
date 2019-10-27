@@ -9,7 +9,7 @@
 ## utility functions
 #################################################################################
 
-vnum = "1.2.4"
+vnum = "1.2.5"
 packname = "(Orange Panel)"
 
 # simple cat
@@ -375,7 +375,8 @@ plot_transition <- function(obj, size=1.5, color="blue", xlim=NULL, ylim=NULL, f
   if(is.null(alpha)) alpha = .2
   
   vx = seq(xlim[1],xlim[2],length.out=1001)
-  vy = 1/(1+exp(-obj$gamma*(vx-obj$c)))
+  mx = t(matrix(vx,length(vx),obj$imm))
+  vy = fTF(mx, obj$gamma, obj$c)
   
   ret = ggplot() + ggplot2::xlim(xlim) + ggplot2::ylim(ylim)
   if(!is.null(fill)) ret = ret + geom_rect(aes(xmin=min(qq),ymin=0,xmax=max(qq),ymax=1), alpha=alpha/2, fill=fill) 
@@ -680,7 +681,8 @@ plot_coefficients <- function(obj, vars, length.out=100, color="blue", size=1.5)
   tvarname = obj$mQ_name[obj$iq]
   
   pp = seq(from=min(tvar), to=max(tvar), length.out=length.out)
-  ratio = 1/(1 + exp(-obj$gamma * (pp - obj$c)))
+  mx = t(matrix(pp,length(pp),obj$imm))
+  ratio = fTF(mx, obj$gamma, obj$c)
   
   tnames = names(obj$est)
   

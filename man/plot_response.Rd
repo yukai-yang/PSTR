@@ -4,8 +4,14 @@
 \alias{plot_response}
 \title{Curve or surfaces of the expected reponse agaist the corresponding variable.}
 \usage{
-plot_response(obj, vars, log_scale = FALSE, length.out = 20,
-  color = "blue", size = 1.5)
+plot_response(
+  obj,
+  vars,
+  log_scale = FALSE,
+  length.out = 20,
+  color = "blue",
+  size = 1.5
+)
 }
 \arguments{
 \item{obj}{an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.}

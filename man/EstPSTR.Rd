@@ -4,8 +4,16 @@
 \alias{EstPSTR}
 \title{Estimate the PSTR model.}
 \usage{
-EstPSTR(use, im = 1, iq = NULL, par = NULL, useDelta = FALSE,
-  vLower = 2, vUpper = 2, method = "L-BFGS-B")
+EstPSTR(
+  use,
+  im = 1,
+  iq = NULL,
+  par = NULL,
+  useDelta = FALSE,
+  vLower = 2,
+  vUpper = 2,
+  method = "L-BFGS-B"
+)
 }
 \arguments{
 \item{use}{an object of the class PSTR, created by \code{\link{NewPSTR}} function.}

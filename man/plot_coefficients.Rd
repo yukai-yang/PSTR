@@ -4,8 +4,7 @@
 \alias{plot_coefficients}
 \title{Plot the coefficients, the standard errors and the p-values against the transition variable.}
 \usage{
-plot_coefficients(obj, vars, length.out = 100, color = "blue",
-  size = 1.5)
+plot_coefficients(obj, vars, length.out = 100, color = "blue", size = 1.5)
 }
 \arguments{
 \item{obj}{an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.}

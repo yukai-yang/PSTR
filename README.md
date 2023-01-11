@@ -1,9 +1,8 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-PSTR version 1.2.5 (Orange Panel)
-=================================
+# PSTR version 1.3.0 (Yellow Panel)
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PSTR)](https://cran.r-project.org/package=PSTR)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PSTR)](https://cran.r-project.org/package=PSTR)
 ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR)
 ![](http://cranlogs.r-pkg.org/badges/PSTR)
 ![](http://cranlogs.r-pkg.org/badges/last-week/PSTR)
@@ -28,8 +27,7 @@ Parallel computation (as an option) is implemented in some functions,
 especially the bootstrap tests. Therefore, the package suits tasks
 running many cores on super-computation servers.
 
-How to install
---------------
+## How to install
 
 You can either install the stable version from CRAN
 
@@ -45,8 +43,7 @@ devtools::install_github("yukai-yang/PSTR")
 
 provided that the package “devtools” has been installed beforehand.
 
-Example
--------
+## Example
 
 After installing the package, you need to load (attach better say) it by
 running the code
@@ -60,7 +57,7 @@ running
 
 ``` r
 version()
-#> PSTR version 1.2.5 (Orange Panel)
+#> PSTR version 1.3.0 (Yellow Panel)
 ```
 
 Then you can take a look at all the available functions and data in the
@@ -92,38 +89,38 @@ You can create a new object of the class PSTR by doing
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
                tvars=c('vala'), im=1, iT=14)
 print(pstr)
-#> ###########################################################################
-#> ## PSTR 1.2.5 (Orange Panel)
-#> ###########################################################################
-#> ***************************************************************************
+#> ################################################################################
+#> ## PSTR 1.3.0 (Yellow Panel)
+#> ################################################################################
+#> ********************************************************************************
 #> Summary of the model:
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #>   time horizon sample size = 14,  number of individuals = 560
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Dependent variable:  inva
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Explanatory variables in the linear part:
 #>   dt_75 dt_76 dt_77 dt_78 dt_79 dt_80 dt_81 dt_82 dt_83 dt_84 dt_85 dt_86 dt_87 vala debta cfa sales
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Explanatory variables in the non-linear part:
 #>   vala debta cfa sales
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Potential transition variable(s) to be tested:
 #>   vala
-#> ###########################################################################
-#> ***************************************************************************
+#> ################################################################################
+#> ********************************************************************************
 #> Results of the linearity (homogeneity) tests:
-#> ***************************************************************************
+#> ********************************************************************************
 #> Sequence of homogeneity tests for selecting number of switches 'm':
-#> ***************************************************************************
-#> ###########################################################################
+#> ********************************************************************************
+#> ################################################################################
 ```
 
 It says that the data set “Hansen99” is used, the dependent variable is
 “inva”, the variables in the data from column 4 to 20 are the
 explanatory variables in the linear part (though you can write down the
 names of them), the explanatory variables in the nonlinear part are the
-four ones in “indep\_k”, and the potential transition variable is “vala”
+four ones in “indep_k”, and the potential transition variable is “vala”
 (Tobin’s Q).
 
 Now you can see that the “NewPSTR” is basically defining the settings of
@@ -141,23 +138,23 @@ The following code does linearity tests
 ``` r
 pstr = LinTest(use=pstr) 
 print(pstr, "tests")
-#> ###########################################################################
-#> ## PSTR 1.2.5 (Orange Panel)
-#> ###########################################################################
-#> ***************************************************************************
+#> ################################################################################
+#> ## PSTR 1.3.0 (Yellow Panel)
+#> ################################################################################
+#> ********************************************************************************
 #> Results of the linearity (homogeneity) tests:
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> LM tests based on transition variable 'vala'
 #>   m  LM_X PV  LM_F PV HAC_X        PV HAC_F        PV
 #>   1 125.3  0 28.99  0 30.03 4.819e-06 6.952 1.396e-05
-#> ***************************************************************************
+#> ********************************************************************************
 #> Sequence of homogeneity tests for selecting number of switches 'm':
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> LM tests based on transition variable 'vala'
 #>   m  LM_X PV  LM_F PV HAC_X        PV HAC_F        PV
 #>   1 125.3  0 28.99  0 30.03 4.819e-06 6.952 1.396e-05
-#> ***************************************************************************
-#> ###########################################################################
+#> ********************************************************************************
+#> ################################################################################
 ```
 
 You can see that the function “LinTest” takes the PSTR object “pstr” and
@@ -206,14 +203,14 @@ the method for estimation by doing
 ``` r
 pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
 print(pstr,"estimates")
-#> ###########################################################################
-#> ## PSTR 1.2.5 (Orange Panel)
-#> ###########################################################################
-#> ***************************************************************************
+#> ################################################################################
+#> ## PSTR 1.3.0 (Yellow Panel)
+#> ################################################################################
+#> ********************************************************************************
 #> Results of the PSTR estimation:
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Transition variable 'vala' is used in the estimation.
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Parameter estimates in the linear part (first extreme regime) are
 #>        dt_75_0   dt_76_0   dt_77_0   dt_78_0  dt_79_0  dt_80_0   dt_81_0
 #> Est  -0.002827 -0.007512 -0.005812 0.0003951 0.002464 0.006085 0.0004164
@@ -224,25 +221,25 @@ print(pstr,"estimates")
 #>       debta_0   cfa_0  sales_0
 #> Est  -0.03392 0.10980 0.002978
 #> s.e.  0.03319 0.04458 0.008221
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Parameter estimates in the non-linear part are
 #>        vala_1 debta_1    cfa_1  sales_1
 #> Est  -0.10370 0.02892 -0.08801 0.005945
 #> s.e.  0.03981 0.04891  0.05672 0.012140
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Parameter estimates in the second extreme regime are
 #>      vala_{0+1} debta_{0+1} cfa_{0+1} sales_{0+1}
 #> Est    0.011300    -0.00500   0.02183    0.008923
 #> s.e.   0.001976     0.01739   0.01885    0.004957
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Non-linear parameter estimates are
 #>       gamma        c_1
 #> Est  0.6299 -0.0002008
 #> s.e. 0.1032  0.7252000
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Estimated standard deviation of the residuals is 0.04301
-#> ***************************************************************************
-#> ###########################################################################
+#> ********************************************************************************
+#> ################################################################################
 ```
 
 The argument “useDelta” determines the type of the initial value for the
@@ -264,12 +261,12 @@ implemented. The user can do it by simply running
 ``` r
 pstr0 = EstPSTR(use=pstr)
 print(pstr0,"estimates")
-#> ###########################################################################
-#> ## PSTR 1.2.5 (Orange Panel)
-#> ###########################################################################
-#> ***************************************************************************
+#> ################################################################################
+#> ## PSTR 1.3.0 (Yellow Panel)
+#> ################################################################################
+#> ********************************************************************************
 #> A linear panel regression with fixed effects is estimated.
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Parameter estimates are
 #>          dt_75     dt_76     dt_77    dt_78    dt_79    dt_80    dt_81
 #> Est  -0.007759 -0.008248 -0.004296 0.002356 0.004370 0.008246 0.004164
@@ -280,10 +277,10 @@ print(pstr0,"estimates")
 #>          debta     cfa    sales
 #> Est  -0.016380 0.06506 0.007957
 #> s.e.  0.005725 0.01079 0.002412
-#> ---------------------------------------------------------------------------
+#> --------------------------------------------------------------------------------
 #> Estimated standard deviation of the residuals is 0.04375
-#> ***************************************************************************
-#> ###########################################################################
+#> ********************************************************************************
+#> ################################################################################
 ```
 
 ### Evaluation
@@ -359,7 +356,7 @@ between which I called response, some explanatory variable
 the PSTR model.
 
 The response
-\[*ϕ*<sub>0</sub> + *ϕ*<sub>1</sub>*g*<sub>*i**t*</sub>(*q*<sub>*i**t*</sub>; *γ*, *c*)\]*x*<sub>*i**t*</sub>
+\[*ϕ*<sub>0</sub>+*ϕ*<sub>1</sub>*g*<sub>*i**t*</sub>(*q*<sub>*i**t*</sub>;*γ*,*c*)\]*x*<sub>*i**t*</sub>
 is actually the contribution that the varabile *x*<sub>*i**t*</sub>
 makes to the conditional expectation of the dependent
 *y*<sub>*i**t*</sub> through the smooth transition mechanism.
@@ -445,7 +442,7 @@ ret$debta
 ```
 
 The graph is “living” and you can scracth on it by using your mouse.
-“vala\_y” shows that the y-axis is the Q, and “debta\_x” shows that the
+“vala_y” shows that the y-axis is the Q, and “debta_x” shows that the
 x-axis is the debt. The tool bar on up-right helps you to rotate, pan,
 zoom and save the graph.
 

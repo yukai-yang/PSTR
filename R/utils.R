@@ -9,8 +9,8 @@
 ## utility functions
 #################################################################################
 
-vnum = "1.2.5"
-packname = "(Orange Panel)"
+vnum = "1.3.0"
+packname = "(Yellow Panel)"
 
 # simple cat
 cat0 <- function(...)
@@ -352,7 +352,7 @@ print_evaluation <- function(obj,digits)
 #' @export
 plot_transition <- function(obj, size=1.5, color="blue", xlim=NULL, ylim=NULL, fill=NULL, alpha=NULL)
 {
-  if(class(obj)!="PSTR")
+  if(!inherits(obj, 'PSTR'))
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'."))
   if(is.null(obj$vg)) stop(simpleError("The PSTR model is not estimated yet."))
   
@@ -450,7 +450,7 @@ plot_transition <- function(obj, size=1.5, color="blue", xlim=NULL, ylim=NULL, f
 #' @export
 plot_response <- function(obj, vars, log_scale=FALSE, length.out=20, color="blue", size=1.5)
 {
-  if(class(obj)!="PSTR")
+  if(!inherits(obj, 'PSTR'))
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
   if(is.null(obj$vg)) stop(simpleError("The PSTR model is not estimated yet."))
 
@@ -471,8 +471,8 @@ plot_response <- function(obj, vars, log_scale=FALSE, length.out=20, color="blue
   ret = list()
   for(vter in vars){
     vK = try(obj$mK[,vter],silent=T)
-    if(class(vK)=='try-error' || length(vK)==0) next
-
+    if(inherits(vK, 'try-error') || length(vK)==0) next
+    
     varname = obj$mK_name[vter]
     phi0 = obj$beta[paste0(varname,'_0')]
     phi1 = obj$beta[paste0(varname,'_1')]
@@ -564,7 +564,7 @@ plot_response <- function(obj, vars, log_scale=FALSE, length.out=20, color="blue
 #' @export
 plot_target <- function(obj,im=1,iq=NULL,par=NULL,basedon=c(1,2),from,to,length.out=40)
 {
-  if(class(obj)!="PSTR")
+  if(!inherits(obj, 'PSTR'))
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
   ret = NULL
   iT = obj$iT; iN = obj$iN
@@ -673,7 +673,7 @@ plot_target <- function(obj,im=1,iq=NULL,par=NULL,basedon=c(1,2),from,to,length.
 #' @export
 plot_coefficients <- function(obj, vars, length.out=100, color="blue", size=1.5)
 {
-  if(class(obj)!="PSTR")
+  if(!inherits(obj, 'PSTR'))
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
   if(is.null(obj$vg)) stop(simpleError("The PSTR model is not estimated yet."))
   
@@ -689,7 +689,7 @@ plot_coefficients <- function(obj, vars, length.out=100, color="blue", size=1.5)
   ret = list()
   for(vter in vars){
     vK = try(obj$mK[,vter],silent=T)
-    if(class(vK)=='try-error' || length(vK)==0) next
+    if(inherits(vK, 'try-error') || length(vK)==0) next
     
     if(is.numeric(vter)) tchar = obj$mK_name[vter]
     else tchar = vter

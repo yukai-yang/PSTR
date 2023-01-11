@@ -4,8 +4,16 @@
 \alias{plot_target}
 \title{Plot the surface of the target function for the nonlinear least square estimation.}
 \usage{
-plot_target(obj, im = 1, iq = NULL, par = NULL, basedon = c(1, 2),
-  from, to, length.out = 40)
+plot_target(
+  obj,
+  im = 1,
+  iq = NULL,
+  par = NULL,
+  basedon = c(1, 2),
+  from,
+  to,
+  length.out = 40
+)
 }
 \arguments{
 \item{obj}{an object of the class PSTR returned from some functions in the package.}

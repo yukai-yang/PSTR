@@ -1,38 +1,36 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-New Features in PSTR 1.2.5 ‘Orange Panel’
-=========================================
+# New Features in PSTR 1.3.0 ‘Yellow Panel’
 
--   fix the bug in the function “plot\_transition”.
--   fix the bug in the function “plot\_coefficients”.
-
-New Features in PSTR 1.2.4 ‘Orange Panel’
-=========================================
-
--   improve the plotting function “plot\_transition” and
-    “plot\_response”.
--   add new plotting function “plot\_coefficients”.
+-   fix the errors in R version 4.
 -   change documentation.
 
-New Features in PSTR 1.2.3 ‘Orange Panel’
-=========================================
+# New Features in PSTR 1.2.5 ‘Orange Panel’
+
+-   fix the bug in the function “plot_transition”.
+-   fix the bug in the function “plot_coefficients”.
+
+# New Features in PSTR 1.2.4 ‘Orange Panel’
+
+-   improve the plotting function “plot_transition” and “plot_response”.
+-   add new plotting function “plot_coefficients”.
+-   change documentation.
+
+# New Features in PSTR 1.2.3 ‘Orange Panel’
 
 -   fix some bugs found in the previous version.
 
-New Features in PSTR 1.2.2 ‘Orange Panel’
-=========================================
+# New Features in PSTR 1.2.2 ‘Orange Panel’
 
 -   fix some bugs found in the previous version.
 
-New Features in PSTR 1.2.1 ‘Orange Panel’
-=========================================
+# New Features in PSTR 1.2.1 ‘Orange Panel’
 
 -   Link to the working paper.
 
-New Features in PSTR 1.2.0 ‘Orange Panel’
-=========================================
+# New Features in PSTR 1.2.0 ‘Orange Panel’
 
--   New function “plot\_response” which use the ggplot2 and plotly
+-   New function “plot_response” which use the ggplot2 and plotly
     packages to plot the curve or surface of the expected response
     (contribution) against some variable and the transition variable.
 -   The estimation function “EstPSTR” will return the estimated
@@ -41,8 +39,7 @@ New Features in PSTR 1.2.0 ‘Orange Panel’
     itself automatically to fit the width of the console.
 -   Rewrite the “version” function.
 
-New Features in PSTR 1.1.0 ‘Red Panel’
-======================================
+# New Features in PSTR 1.1.0 ‘Red Panel’
 
 -   Better documentation.
 -   In the function “EstPSTR”, now the initial value for “gamma” is
@@ -51,14 +48,13 @@ New Features in PSTR 1.1.0 ‘Red Panel’
 -   Estimation of a linear panel regression model with fixed effects.
 -   The initial values can now be chosen automatically and will be
     returned after estimation.
--   New function “plot\_transition” which use the ggplot2 package to
-    plot the estimated transition function.
+-   New function “plot_transition” which use the ggplot2 package to plot
+    the estimated transition function.
 -   The package ggplot2 imported.
 -   A new data set “sunspot” included.
 -   Some bugs fixed.
 
-New Featurs in PSTR 1.0.1
-=========================
+# New Featurs in PSTR 1.0.1
 
 -   All the functions
 -   Documetation including README, LICENSE and etc.

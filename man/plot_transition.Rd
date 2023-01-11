@@ -4,8 +4,15 @@
 \alias{plot_transition}
 \title{Plot the transition function of the estimated PSTR model.}
 \usage{
-plot_transition(obj, size = 1.5, color = "blue", xlim = NULL,
-  ylim = NULL, fill = NULL, alpha = NULL)
+plot_transition(
+  obj,
+  size = 1.5,
+  color = "blue",
+  xlim = NULL,
+  ylim = NULL,
+  fill = NULL,
+  alpha = NULL
+)
 }
 \arguments{
 \item{obj}{an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.}

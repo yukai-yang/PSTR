@@ -146,7 +146,7 @@ Der2GFunc <- function(vg,vs,vp)
 #' @export
 EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpper=2, method='L-BFGS-B')
 {
-  if(class(use)!="PSTR")
+  if(!inherits(use, 'PSTR'))
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   ret = use
   iT = use$iT; iN = use$iN
@@ -257,7 +257,7 @@ EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpp
     for(iter in 1:(iT*iN))
       invA = invA + (dedp[iter,]%*%t(dedp[iter,]) + d2edp2[iter,,]*ret$vU[iter])*2
     ttmp = try(solve(invA), silent=T)
-    if(class(ttmp)=='try-error'){
+    if(inherits(ttmp, 'try-error')){
       ttmp = svd(invA); invA = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
     }else invA = ttmp
     # done
@@ -315,7 +315,7 @@ EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpp
     for(iter in 1:(iT*iN))
       invA = invA + dedp[iter,]%*%t(dedp[iter,])*2
     ttmp = try(solve(invA), silent=T)
-    if(class(ttmp)=='try-error'){
+    if(inherits(ttmp, 'try-error')){
       ttmp = svd(invA); invA = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
     }else invA = ttmp
     # done

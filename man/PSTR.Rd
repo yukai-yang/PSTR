@@ -3,7 +3,6 @@
 \docType{package}
 \name{PSTR}
 \alias{PSTR}
-\alias{PSTR-package}
 \title{PSTR: A package implementing the Panel Smooth Transition Regression (PSTR) modelling.}
 \description{
 The package implements the Panel Smooth Transition Regression (PSTR) modelling.

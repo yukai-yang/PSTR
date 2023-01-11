@@ -94,7 +94,7 @@ NULL
 #' @export
 EvalTest <- function(use, type=c("time-varying","heterogeneity"), vq=NULL)
 {
-  if(class(use)!="PSTR")
+  if(!inherits(use, 'PSTR'))
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   if(is.null(use$iq))
     stop(simpleError("Estimate the PSTR model first!"))
@@ -141,7 +141,7 @@ EvalTest <- function(use, type=c("time-varying","heterogeneity"), vq=NULL)
 #' @export
 WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
 {
-  if(class(use)!="PSTR")
+  if(!inherits(use, 'PSTR'))
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   if(is.null(use$iq))
     stop(simpleError("Estimate the PSTR model first!"))
@@ -213,7 +213,7 @@ WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
 #' @export
 WCB_HETest <- function(use, vq, iB=100, parallel=F, cpus=4)
 {
-  if(class(use)!="PSTR")
+  if(!inherits(use, 'PSTR'))
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   if(is.null(use$iq))
     stop(simpleError("Estimate the PSTR model first!"))

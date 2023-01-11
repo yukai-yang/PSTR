@@ -36,7 +36,7 @@ LMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
   mXW2 = crossprod(mX2, mW2)
   S1 = ( crossprod(mW2) - t(mXW2) %*% invXX %*% mXW2 ) * s2
   invS1 = try(chol2inv(chol(S1)),silent=T)
-  if(class(invS1)=='try-error'){
+  if(inherits(invS1,'try-error')){
     ttmp = svd(S1);	invS1 = ttmp$u %*% diag(1/ttmp$d, length(ttmp$d)) %*% t(ttmp$u)
   }
   
@@ -56,7 +56,7 @@ LMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
   tmp = cbind( -crossprod(mXW2, invXX), diag(1, df1) )
   S2 = tmp %*% Delta %*% t(tmp)
   invS2 = try(chol2inv(chol(S2)),silent=T)
-  if(class(invS2)=='try-error'){
+  if(inherits(invS2, 'try-error')){
     ttmp = svd(S2); invS2 = ttmp$u %*% diag(1/ttmp$d, length(ttmp$d)) %*% t(ttmp$u)
   }
   
@@ -83,7 +83,7 @@ sLMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
   
   S1 = ( crossprod(mW2) - t(mXW2) %*% invXX %*% mXW2 ) * s2
   invS1 = try(chol2inv(chol(S1)),silent=T)
-  if(class(invS1)=='try-error'){
+  if(inherits(invS1, 'try-error')){
     ttmp = svd(S1); invS1 = ttmp$u %*% diag(1/ttmp$d, length(ttmp$d)) %*% t(ttmp$u)
   }
   
@@ -172,7 +172,7 @@ NULL
 #' @export
 LinTest <- function(use)
 {
-  if(class(use)!="PSTR")
+  if(!inherits(use, 'PSTR'))
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   ret = use
   iT = use$iT; iN = use$iN
@@ -236,7 +236,7 @@ LinTest <- function(use)
 #' @export
 WCB_LinTest <- function(use, iB=100, parallel=F, cpus=4)
 {
-  if(class(use)!="PSTR")
+  if(!inherits(use, 'PSTR'))
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
   ret = use
   iT = use$iT; iN = use$iN

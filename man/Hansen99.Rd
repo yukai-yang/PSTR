@@ -4,7 +4,8 @@
 \name{Hansen99}
 \alias{Hansen99}
 \title{A balanced panel of 565 US firms observed for the years 1973–1987}
-\format{A tibble with 7840 rows and 20 variables:
+\format{
+A tibble with 7840 rows and 20 variables:
 \describe{
   \item{cusip}{Committee on Uniform Security Identication Procedures firm code number, the first 6 digits (CNUM)}
   \item{year}{2-digit year of the data}
@@ -26,7 +27,8 @@
   \item{debta}{lagged long term debt to assets ratio}
   \item{cfa}{lagged cash flow to assets ratio}
   \item{sales}{lagged sales during the year (million USD)}
-}}
+}
+}
 \source{
 \url{http://www.ssc.wisc.edu/~bhansen/progs/joe_99.html}
 }

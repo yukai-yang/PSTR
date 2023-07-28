@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-.Rbuildignore
 
 cran-comments.md
 

@@ -9,8 +9,8 @@
 ## utility functions
 #################################################################################
 
-vnum = "1.3.0"
-packname = "(Yellow Panel)"
+vnum = "1.4.0"
+packname = "(Green Panel)"
 
 # simple cat
 cat0 <- function(...)

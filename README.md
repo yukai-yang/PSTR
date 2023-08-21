@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# PSTR version 1.3.0 (Yellow Panel)
+# PSTR version 1.4.0 (Green Panel)
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PSTR)](https://cran.r-project.org/package=PSTR)
 ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR)

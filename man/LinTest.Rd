@@ -5,8 +5,6 @@
 \alias{WCB_LinTest}
 \title{Conduct the linearity tests.}
 \usage{
-LinTest(use)
-
 WCB_LinTest(use, iB = 100, parallel = F, cpus = 4)
 }
 \arguments{
@@ -63,7 +61,7 @@ The two functions never change the existing values in the input PSTR object. The
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
     tvars=c('vala'), iT=14) # create a new PSTR object
 
-pstr = LinTest(pstr)
+pstr$LinTest()
 
 print(pstr, "tests")
 

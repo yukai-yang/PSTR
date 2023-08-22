@@ -2,7 +2,7 @@
 ## package name: PSTR
 ## author: Yukai Yang
 ## Statistiska Inst., Uppsala Universitet
-## Jan 2023
+## Aug 2023
 #################################################################################
 
 
@@ -44,7 +44,7 @@
 #' \code{\link{NewPSTR}} initialize the modelling by creating an object of the class PSTR.
 #'
 #' @section Functions for Model Specification:
-#' \code{\link{LinTest}} implements the linearity tests.
+#' \code{PSTR$LinTest} implements the linearity tests.
 #'
 #' \code{\link{WCB_LinTest}} implements the wild bootstrap (WB) and the wild cluster bootstrap (WCB) linearity tests.
 #'
@@ -82,6 +82,12 @@ NULL
 #' @importFrom stats optim pchisq pf quantile
 NULL
 
+#' @importFrom R6 R6Class
+NULL
+
+#' @importFrom knitr kable
+NULL
+
 #' @importFrom magrittr %>%
 NULL
 
@@ -100,7 +106,7 @@ NULL
 
 #' Create an object of the class PSTR.
 #'
-#' Create an object of the S3 class PSTR for later usage. This function should be run prior to the other functions in the package. It will return an object which you will use as an input for the other functions. It builds up the basic settings for the Panel Smooth Transition Regression (PSTR) Modelling.
+#' Create an object of the R6 class PSTR for later usage. This function should be run prior to the other functions in the package. It will return an object which you will use as an input for the other functions. It builds up the basic settings for the Panel Smooth Transition Regression (PSTR) Modelling.
 #'
 #' Potential transition variables in \code{tvars} will be tested one by one in, for example, \code{LinTest} function.
 #'
@@ -142,48 +148,67 @@ NULL
 #' @export
 NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, im=1, iT)
 {
+  # checking
   if(!is_tibble(data)) stop(simpleError("data should be a tibble!"))
-  ret = list(); class(ret) = "PSTR"
-
-  ret$iT = iT
-  iNN = dim(data)[1]/iT
-  coln = c(t(matrix(1:iNN, iNN, iT)))
-  
   if(length(dep)>1) stop(simpleError("Only one dependent variable!"))
-  vY = data[,dep]; ret$vY_name =  names(data[,dep])
-  
   if(length(indep)<1) stop(simpleError("There is no independent variable!"))
-  mX = data[,indep]; ret$mX_name = names(data[,indep])
-  
-  if(is.null(indep_k)){
-    mK = mX; ret$mK_name = ret$mX_name
-  }else{
-    mK = data[,indep_k]; ret$mK_name = names(data[,indep_k])
-  }
-  
   if(length(tvars)<1) stop(simpleError("Please specify the candidates of the transition variables 'tvars'."))
-  mQ = data[,tvars]; ret$mQ_name = names(data[,tvars])
-
-  ## remove the NAs
-  tmp = is.na(vY) | apply(is.na(mX), 1, any) | apply(is.na(mK), 1, any) | apply(is.na(mQ), 1, any)
-  tmp = is.na(match(coln,coln[tmp]))
-  vY = vY[tmp,]; mX = mX[tmp,]; mK = mK[tmp,]; mQ = mQ[tmp,]
-  ret$vY = c(as.matrix(vY))
-  ret$mX = as.matrix(mX)
-  ret$mK = as.matrix(mK)
-  ret$mQ = as.matrix(mQ)
-  ret$im = im
-
-  iN = sum(tmp)/iT; ret$iN = iN
-
-  coln = c(t(matrix(1:iN, iN, iT)))
-  vYb = NULL; mXb = NULL
-  for(nter in 1:iN){
-    tmp = coln==nter
-    vYb = c(vYb, ret$vY[tmp] - mean(ret$vY[tmp]))
-    mXb = rbind(mXb, t(t(mX[tmp,])-apply(t(mX[tmp,]),1,mean)))
-  }
-  ret$vYb = vYb; ret$mXb = mXb
-
-  return(ret)
+  
+  #data, dep, indep, indep_k, tvars, im, iT
+  return(PSTR$new(data=data, dep=dep, indep=indep, indep_k=indep_k, tvars=tvars, im=im, iT=iT))
 }
+
+
+# make the PSTR R6 class
+PSTR <- R6::R6Class(
+  "PSTR",
+  public = list(
+    initialize = function(data, dep, indep, indep_k, tvars, im, iT) {
+      private$iT = iT
+      
+      iNN = nrow(data)/iT; coln = c(t(matrix(1:iNN, iNN, iT)))
+      
+      vY = data[,dep]; private$vY_name =  names(data[,dep])
+      mX = data[,indep]; private$mX_name = names(data[,indep])
+      
+      if(is.null(indep_k)){
+        mK = mX; private$mK_name = private$mX_name
+      }else{
+        mK = data[,indep_k]; private$mK_name = names(data[,indep_k])
+      }
+      
+      mQ = data[,tvars]; private$mQ_name = names(data[,tvars])
+      
+      # remove the NAs
+      tmp = is.na(vY) | apply(is.na(mX), 1, any) | apply(is.na(mK), 1, any) | apply(is.na(mQ), 1, any)
+      tmp = is.na(match(coln,coln[tmp]))
+      vY = vY[tmp,]; mX = mX[tmp,]; mK = mK[tmp,]; mQ = mQ[tmp,]
+      private$vY = c(as.matrix(vY))
+      private$mX = as.matrix(mX)
+      private$mK = as.matrix(mK)
+      private$mQ = as.matrix(mQ)
+      private$im = im
+      
+      iN = sum(tmp)/iT; private$iN = iN
+      
+      coln = c(t(matrix(1:iN, iN, iT)))
+      vYb = NULL; mXb = NULL
+      for(nter in 1:iN){
+        tmp = coln==nter
+        vYb = c(vYb, private$vY[tmp] - mean(private$vY[tmp]))
+        mXb = rbind(mXb, t(t(mX[tmp,])-apply(t(mX[tmp,]),1,mean)))
+      }
+      
+      private$vYb = vYb; private$mXb = mXb
+    },
+    getTest = function(){private$test},
+    getSqTest = function(){private$sqtest}
+  ),
+  private = list(
+    iT=NULL, vY_name=NULL, mX_name=NULL, mK_name=NULL, mQ_name=NULL,
+    vY=NULL, mX=NULL, mK=NULL, mQ=NULL, im=NULL, iN=NULL,
+    vYb=NULL, mXb=NULL,
+    # assigned by LinTest
+    test=list(), sqtest=list()
+  )
+)

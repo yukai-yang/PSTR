@@ -48,7 +48,7 @@ González, A., Teräsvirta, T., van Dijk, D. and Yang, Y. (2005) "\href{http://s
 
 \section{Functions for Model Specification}{
 
-\code{\link{LinTest}} implements the linearity tests.
+\code{PSTR$LinTest} implements the linearity tests.
 
 \code{\link{WCB_LinTest}} implements the wild bootstrap (WB) and the wild cluster bootstrap (WCB) linearity tests.
 }

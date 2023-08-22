@@ -2,6 +2,9 @@
 
 # New Features in PSTR 1.4.0 ‘Green Panel’
 
+-   In this version, the PSTR class follows the R6 type class with
+    reference semantics.
+
 # New Features in PSTR 1.3.0 ‘Yellow Panel’
 
 -   fix the errors in R version 4.

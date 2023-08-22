@@ -34,7 +34,7 @@ The object is a list containing the following components:
 \item{im}{the maximal number of switches used in the linearity test}
 }
 \description{
-Create an object of the S3 class PSTR for later usage. This function should be run prior to the other functions in the package. It will return an object which you will use as an input for the other functions. It builds up the basic settings for the Panel Smooth Transition Regression (PSTR) Modelling.
+Create an object of the R6 class PSTR for later usage. This function should be run prior to the other functions in the package. It will return an object which you will use as an input for the other functions. It builds up the basic settings for the Panel Smooth Transition Regression (PSTR) Modelling.
 }
 \details{
 Potential transition variables in \code{tvars} will be tested one by one in, for example, \code{LinTest} function.

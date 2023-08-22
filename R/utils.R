@@ -20,7 +20,6 @@ cat0 <- function(...)
   cat("\n")
 }
 
-
 #' Show the version number of some information.
 #'
 #' This function shows the version number and some information of the package.
@@ -32,6 +31,39 @@ cat0 <- function(...)
 version <- function(){
   cat0("PSTR version ", vnum, " ",packname)
 }
+
+
+PSTR$set("public", "print", function(format="simple", ...){
+  cat(paste0("R package PSTR ", vnum, " ",packname,"\n"))
+  
+  summ = matrix(paste0("time horizon sample size = ",private$iT,
+                     ",  number of individuals = ",private$iN), 1,1)
+  summ = rbind(summ, paste0("Dependent variable:  ",private$vY_name))
+  
+  tmp = length(private$mX_name)
+  if(tmp == 1)
+    summ = rbind(summ, paste0("Explanatory variable in the linear part:"))
+  if(tmp > 1)
+    summ = rbind(summ, paste0("Explanatory variables (",tmp,") in the linear part:"))
+  summ = rbind(summ, paste0(private$mX_name,collapse=" "))
+  
+  tmp = length(private$mK_name)
+  if(tmp == 1)
+    summ = rbind(summ, paste0("Explanatory variable in the non-linear part:"))
+  if(tmp > 1)
+    summ = rbind(summ, paste0("Explanatory variables (",tmp,") in the non-linear part:"))
+  summ = rbind(summ, paste0(private$mK_name,collapse=" "))
+  
+  tmp = length(private$mQ_name)
+  if(tmp == 1)
+    summ = rbind(summ, paste0("Potential transition variable to be tested:"))
+  if(tmp > 1)
+    summ = rbind(summ, paste0("Potential transition variables (",tmp,") to be tested:"))
+  summ = rbind(summ, paste0(private$mQ_name,collapse=" "))
+  
+  colnames(summ) = "Summary of the model:"
+  print(knitr::kable(summ, format=format, ...))
+})
 
 
 #' Print the object of the class PSTR.
@@ -54,7 +86,6 @@ version <- function(){
 #'     tvars=c('vala','debta','cfa','sales'), iT=14)
 #' print(pstr)
 #' print(pstr, mode='summary',digits=2)
-#' @export
 print.PSTR <- function(x, mode=c("su","e"), digits=4, ...)
 {
   cat0(paste0(rep("#",getOption("width")),collapse=''))

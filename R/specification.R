@@ -2,7 +2,7 @@
 ## package name: PSTR
 ## author: Yukai Yang
 ## Statistiska Inst., Uppsala Universitet
-## Sep 2017
+## Aug 2023
 #################################################################################
 
 
@@ -147,7 +147,7 @@ sLMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
 #' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
 #'     tvars=c('vala'), iT=14) # create a new PSTR object
 #'
-#' pstr = LinTest(pstr)
+#' pstr$LinTest()
 #'
 #' print(pstr, "tests")
 #'
@@ -168,23 +168,18 @@ sLMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
 NULL
 
 
-#' @rdname LinTest
-#' @export
-LinTest <- function(use)
-{
-  if(!inherits(use, 'PSTR'))
-    stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
-  ret = use
-  iT = use$iT; iN = use$iN
-  im = use$im
+#PSTR$set("public", "LinTest", function(WCB=FALSE, iB=100, parallel=F, cpus=4){
+PSTR$set("public", "LinTest", function(){
+  iT = private$iT; iN = private$iN
+  im = private$im
   
   # get the data here
-  vY = use$vY; vYb = use$vYb
-  mX = use$mX; mXb = use$mXb
-  mK = use$mK
+  vY = private$vY; vYb = private$vYb
+  mX = private$mX; mXb = private$mXb
+  mK = private$mK
   
-  ret$test = list(); length(ret$test) = ncol(use$mQ)
-  ret$sqtest = list(); length(ret$sqtest) = ncol(use$mQ)
+  private$test = list(); length(private$test) = ncol(private$mQ)
+  private$sqtest = list(); length(private$sqtest) = ncol(private$mQ)
   
   mD = diag(1,iN) %x% rep(1,iT)
   mM = diag(1, iN*iT) - tcrossprod(mD)/iT
@@ -197,16 +192,15 @@ LinTest <- function(use)
   
   coln = c(t(matrix(1:iN, iN, iT)))
   
-  for(qter in 1:ncol(use$mQ)){
-    vQ = use$mQ[,qter]
+  for(qter in 1:ncol(private$mQ)){
+    vQ = private$mQ[,qter]
     
-    ret$test[[qter]] = list(); length(ret$test[[qter]]) = im
-    ret$sqtest[[qter]] = list(); length(ret$sqtest[[qter]]) = im
+    private$test[[qter]] = list(); length(private$test[[qter]]) = im
+    private$sqtest[[qter]] = list(); length(private$sqtest[[qter]]) = im
     
     mW = mK*vQ
-    ret$test[[qter]][[1]] = LMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
-    ret$sqtest[[qter]][[1]] = ret$test[[qter]][[1]]
-    
+    private$test[[qter]][[1]] = LMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
+    private$sqtest[[qter]][[1]] = private$test[[qter]][[1]]
     
     if(im>1) for(mter in 2:im){
       mXK = cbind(mX,mW); mX2K = mM %*% mXK; invXK = chol2inv(chol(crossprod(mX2K)))
@@ -220,16 +214,15 @@ LinTest <- function(use)
       s2K = sum((vUK-mean(vUK))**2)/(iT*iN) # sigma^2
       mWK = mK*(vQ**mter)
       
-      ret$sqtest[[qter]][[mter]] = LMTEST(iT=iT,iN=iN,vU=vUK,mX=mXK,mW=mWK,mM=mM,s2=s2K,mX2=mX2K,invXX=invXK)
+      private$sqtest[[qter]][[mter]] = LMTEST(iT=iT,iN=iN,vU=vUK,mX=mXK,mW=mWK,mM=mM,s2=s2K,mX2=mX2K,invXX=invXK)
       
       mW = cbind(mW, mWK)
-      ret$test[[qter]][[mter]] = LMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
+      private$test[[qter]][[mter]] = LMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
     }
   }
   
-  return(ret)
-  
-}
+  invisible(self)
+} )
 
 
 #' @rdname LinTest

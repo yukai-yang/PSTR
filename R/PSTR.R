@@ -88,6 +88,9 @@ NULL
 #' @importFrom knitr kable
 NULL
 
+#' @importFrom cli cli_alert_success cli_h1 cli_h2 cli_h3 cli_alert_info
+NULL
+
 #' @importFrom magrittr %>%
 NULL
 
@@ -155,7 +158,9 @@ NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, im=1, iT)
   if(length(tvars)<1) stop(simpleError("Please specify the candidates of the transition variables 'tvars'."))
   
   #data, dep, indep, indep_k, tvars, im, iT
-  return(PSTR$new(data=data, dep=dep, indep=indep, indep_k=indep_k, tvars=tvars, im=im, iT=iT))
+  ret = PSTR$new(data=data, dep=dep, indep=indep, indep_k=indep_k, tvars=tvars, im=im, iT=iT)
+  cli::cli_alert_success("The PSTR model is ready.")
+  return(ret)
 }
 
 

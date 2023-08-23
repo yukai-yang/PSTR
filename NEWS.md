@@ -5,6 +5,7 @@
 -   In this version, the PSTR class follows the R6 type class with
     reference semantics.
 -   The print uses knitr::kable and has a new-look.
+-   The “cli” package is used to decorate the command line output.
 
 # New Features in PSTR 1.3.0 ‘Yellow Panel’
 

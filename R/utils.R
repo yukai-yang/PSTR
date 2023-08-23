@@ -33,12 +33,63 @@ version <- function(){
 }
 
 
-PSTR$set("public", "print", function(format="simple", ...){
-  cat(paste0("R package PSTR ", vnum, " ",packname,"\n"))
+# Print the object of the class PSTR.
+#
+# This function prints the object of the class PSTR.
+#
+# @param format argument passed to knitr::kable.
+# @param mode a vector of character strings specifying which results to print. It takes the values c('summary', 'tests', 'estimates', 'evaluation'). By default 'su' and 'e' which means all.
+# @param digits integer indicating the number of decimal places (for the \code{round} function inside) to be used. Negative values are allowed (see \code{round}).
+# @param ... further arguments passed to knitr::kable.
+#
+# @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
+# @seealso Functions which return an object of the class PSTR:
+#
+# \code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}}, \code{\link{EstPSTR}}, \code{\link{EvalTest}}, \code{\link{WCB_TVTest}} and \code{\link{WCB_HETest}}
+# @keywords utils
+#
+# @examples
+# pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
+#     tvars=c('vala','debta','cfa','sales'), iT=14)
+#
+# pstr
+# print(pstr, mode="tests", format="simple")
+# print(pstr, mode="tests", format="pipe",caption="The test results")
+# print(pstr, mode="tests", format = "latex", caption = "The test results")
+#
+PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=4, ...){
+  cli::cli_h1(paste0("R package PSTR ", vnum, " ",packname))
   
-  summ = matrix(paste0("time horizon sample size = ",private$iT,
-                     ",  number of individuals = ",private$iN), 1,1)
-  summ = rbind(summ, paste0("Dependent variable:  ",private$vY_name))
+  tmp = NULL
+  for(iter in 1:length(mode)){
+    tmp = c(tmp, grep(mode[iter], c("summary","tests","estimates","evaluation")))
+  }
+  tmp = unique(tmp)
+  
+  if(1 %in% tmp) private$print_summary(format, ...)
+  
+  if(2 %in% tmp) private$print_tests(format, digits, ...)
+  
+  if(3 %in% tmp) print_estimates(x,digits)
+  
+  if(4 %in% tmp) print_evaluation(x,digits)
+  
+  if(length(tmp)==0){
+    cli::cli_alert_info("The argument 'mode' only accepts the values:")
+    cat0("  'summary', 'tests', 'estimates' or 'evaluation'.")
+    cat0("  Incomplete words, such as 'su' or 'mm' for 'summary', are allowed.")
+  }else{
+    cli::cli_alert_success("Done!")
+  }
+  
+})
+
+
+PSTR$set("private", "print_summary", function(format, ...) {
+  cli::cli_h2("Summary of the model")
+  
+  summ = matrix(paste0("Dependent variable:"),1,1)
+  summ = rbind(summ, private$vY_name)
   
   tmp = length(private$mX_name)
   if(tmp == 1)
@@ -61,162 +112,86 @@ PSTR$set("public", "print", function(format="simple", ...){
     summ = rbind(summ, paste0("Potential transition variables (",tmp,") to be tested:"))
   summ = rbind(summ, paste0(private$mQ_name,collapse=" "))
   
-  colnames(summ) = "Summary of the model:"
+  colnames(summ) = paste0("The long format panel is ",private$iT,
+                          " × ",private$iN, " (time × individual).")
+  
   print(knitr::kable(summ, format=format, ...))
 })
 
 
-#' Print the object of the class PSTR.
-#'
-#' This function prints the object of the class PSTR.
-#'
-#' @param x an object of the class PSTR returned from some functions in the package. See below "See Also" for a list of these functions.
-#' @param mode a vector of character strings specifying which results to print. It takes the values c('summary', 'tests', 'estimates', 'evaluation'). By default 'su' and 'e' which means all.
-#' @param digits integer indicating the number of decimal places (for the \code{round} function inside) to be used. Negative values are allowed (see \code{round}).
-#' @param ... further arguments passed to or from other methods. Ignored here.
-#'
-#' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
-#' @seealso Functions which return an object of the class PSTR:
-#'
-#' \code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}}, \code{\link{EstPSTR}}, \code{\link{EvalTest}}, \code{\link{WCB_TVTest}} and \code{\link{WCB_HETest}}
-#' @keywords utils
-#'
-#' @examples
-#' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-#'     tvars=c('vala','debta','cfa','sales'), iT=14)
-#' print(pstr)
-#' print(pstr, mode='summary',digits=2)
-print.PSTR <- function(x, mode=c("su","e"), digits=4, ...)
-{
-  cat0(paste0(rep("#",getOption("width")),collapse=''))
-  cat0("## PSTR ", vnum, " ",packname)
+PSTR$set("private", "print_tests", function(format, digits, ...) {
+  cli::cli_h2("Results of the linearity (homogeneity) tests:")
+  
+  im = private$im
+  
+  if(!is.null(private$test)){
+    for(iter in 1:length(private$test)){
 
-  tmp = NULL
-  for(iter in 1:length(mode)){
-    tmp = c(tmp, grep(mode[iter], c("summary","tests","estimates","evaluation")))
-  }
-  tmp = unique(tmp)
-
-  if(1 %in% tmp) print_summary(x)
-
-  if(2 %in% tmp) print_tests(x,digits)
-
-  if(3 %in% tmp) print_estimates(x,digits)
-
-  if(4 %in% tmp) print_evaluation(x,digits)
-
-  if(length(tmp)==0){
-    cat0(paste0(rep("*",getOption("width")),collapse=''))
-    cat0("The argument 'mode' only accepts the values:")
-    cat0("  'summary', 'tests', 'estimates' or 'evaluation'.")
-    cat0("Incomplete words, such as 'su' or 'mm' for 'summary', are allowed.")
-  }
-
-  cat0(paste0(rep("*",getOption("width")),collapse=''))
-  cat0(paste0(rep("#",getOption("width")),collapse=''))
-}
-
-
-print_summary <- function(obj)
-{
-  cat0(paste0(rep("#",getOption("width")),collapse=''))
-  cat0(paste0(rep("*",getOption("width")),collapse=''))
-  cat0("Summary of the model:")
-
-  cat0(paste0(rep("-",getOption("width")),collapse=''))
-  cat0("  time horizon sample size = ",obj$iT,",  number of individuals = ",obj$iN)
-
-  cat0(paste0(rep("-",getOption("width")),collapse=''))
-  cat0("Dependent variable:  ",obj$vY_name)
-  cat0(paste0(rep("-",getOption("width")),collapse=''))
-  cat0("Explanatory variables in the linear part:")
-  cat0("  ",obj$mX_name)
-  cat0(paste0(rep("-",getOption("width")),collapse=''))
-  cat0("Explanatory variables in the non-linear part:")
-  cat0("  ",obj$mK_name)
-  cat0(paste0(rep("-",getOption("width")),collapse=''))
-  cat0("Potential transition variable(s) to be tested:")
-  cat0("  ",obj$mQ_name)
-}
-
-
-print_tests <- function(obj,digits)
-{
-  cat0(paste0(rep("#",getOption("width")),collapse=''))
-  cat0(paste0(rep("*",getOption("width")),collapse=''))
-  cat0("Results of the linearity (homogeneity) tests:")
-
-  im = obj$im
-
-  if(!is.null(obj$test)){
-    for(iter in 1:length(obj$test)){
-
-      cat0(paste0(rep("-",getOption("width")),collapse=''))
-      cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
+      cli::cli_h3(paste0("LM tests based on transition variable '",private$mQ_name[iter],"'"))
 
       tmp = NULL
       for(jter in 1:im){
-        ttmp = obj$test[[iter]][[jter]]
+        ttmp = private$test[[iter]][[jter]]
         tmp = rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
                            ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
       }
       tmp = matrix(tmp, nrow=im)
-      rownames(tmp) = rep(" ",im)
+      #rownames(tmp) = rep(" ",im)
       colnames(tmp) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
 
-      if(!is.null(obj$wcb_test)){
-        ttmp = obj$wcb_test[[iter]][,2:3,drop=F]
+      if(!is.null(private$wcb_test)){
+        ttmp = private$wcb_test[[iter]][,2:3,drop=F]
         colnames(ttmp) = c("WB_PV", "WCB_PV")
         tmp = cbind(tmp, ttmp)
       }
 
-      print(signif(tmp,digits))
+      #print(signif(tmp,digits))
+      print(knitr::kable(tmp, format=format, digits=digits, ...))
     }
   }else{
-    if(!is.null(obj$wcb_test)){
-      for(iter in 1:length(obj$wcb_test)){
+    if(!is.null(private$wcb_test)){
+      for(iter in 1:length(private$wcb_test)){
 
-        cat0(paste0(rep("-",getOption("width")),collapse=''))
-        cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
+        cli::cli_h3(paste0("LM tests based on transition variable '",private$mQ_name[iter],"'"))
 
-        ttmp = cbind(1:im, obj$wcb_test[[iter]][,2:3,drop=F])
-        rownames(ttmp) = rep(" ",im)
+        ttmp = cbind(1:im, private$wcb_test[[iter]][,2:3,drop=F])
+        #rownames(ttmp) = rep(" ",im)
         colnames(ttmp) = c("m","WB_PV", "WCB_PV")
       }
 
-      print(signif(ttmp,digits))
+      #print(signif(ttmp,digits))
+      print(knitr::kable(ttmp, format=format, digits=digits, ...))
     }
   }
 
-  cat0(paste0(rep("*",getOption("width")),collapse=''))
-  cat0("Sequence of homogeneity tests for selecting number of switches 'm':")
+  cli::cli_h2("Sequence of homogeneity tests for selecting number of switches 'm':")
 
-  if(!is.null(obj$sqtest)){
-    for(iter in 1:length(obj$sqtest)){
+  if(!is.null(private$sqtest)){
+    for(iter in 1:length(private$sqtest)){
 
-      cat0(paste0(rep("-",getOption("width")),collapse=''))
-      cat0("LM tests based on transition variable '",obj$mQ_name[iter],"'")
+      cli::cli_h3(paste0("LM tests based on transition variable '",private$mQ_name[iter],"'"))
 
       tmp = NULL
       for(jter in 1:im){
-        ttmp = obj$sqtest[[iter]][[jter]]
+        ttmp = private$sqtest[[iter]][[jter]]
         tmp = rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
                            ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
       }
       tmp = matrix(tmp, nrow=im)
-      rownames(tmp) = rep(" ",im)
+      #rownames(tmp) = rep(" ",im)
       colnames(tmp) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
 
-      if(!is.null(obj$wcb_sqtest)){
-        ttmp = obj$wcb_sqtest[[iter]][,2:3,drop=F]
+      if(!is.null(private$wcb_sqtest)){
+        ttmp = private$wcb_sqtest[[iter]][,2:3,drop=F]
         colnames(ttmp) = c("WB_PV", "WCB_PV")
         tmp = cbind(tmp, ttmp)
       }
 
-      print(signif(tmp,digits))
+      #print(signif(tmp,digits))
+      print(knitr::kable(tmp, format=format, digits=digits, ...))
     }
   }
-}
+})
 
 
 print_estimates <- function(obj,digits)

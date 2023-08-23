@@ -221,6 +221,8 @@ PSTR$set("public", "LinTest", function(){
     }
   }
   
+  cli::cli_alert_success("The test results are ready!")
+  
   invisible(self)
 } )
 

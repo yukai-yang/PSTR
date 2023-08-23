@@ -88,7 +88,7 @@ NULL
 #' @importFrom knitr kable
 NULL
 
-#' @importFrom cli cli_alert_success cli_h1 cli_h2 cli_h3 cli_alert_info
+#' @importFrom cli cli_alert_success cli_h1 cli_h2 cli_h3 cli_alert_info cli_alert_warning cli_alert_danger
 NULL
 
 #' @importFrom magrittr %>%
@@ -152,10 +152,10 @@ NULL
 NewPSTR <- function(data, dep, indep, indep_k=NULL, tvars, im=1, iT)
 {
   # checking
-  if(!is_tibble(data)) stop(simpleError("data should be a tibble!"))
-  if(length(dep)>1) stop(simpleError("Only one dependent variable!"))
-  if(length(indep)<1) stop(simpleError("There is no independent variable!"))
-  if(length(tvars)<1) stop(simpleError("Please specify the candidates of the transition variables 'tvars'."))
+  if(!is_tibble(data)){cli::cli_alert_danger("data should be a tibble!"); return(0)}
+  if(length(dep)>1){cli::cli_alert_danger("Only one dependent variable!"); return(0)}
+  if(length(indep)<1){cli::cli_alert_danger("There is no independent variable!"); return(0)}
+  if(length(tvars)<1){cli::cli_alert_danger("Please specify the candidates of the transition variables 'tvars'."); return(0)}
   
   #data, dep, indep, indep_k, tvars, im, iT
   ret = PSTR$new(data=data, dep=dep, indep=indep, indep_k=indep_k, tvars=tvars, im=im, iT=iT)
@@ -205,15 +205,15 @@ PSTR <- R6::R6Class(
       }
       
       private$vYb = vYb; private$mXb = mXb
-    },
-    getTest = function(){private$test},
-    getSqTest = function(){private$sqtest}
+    }
   ),
   private = list(
     iT=NULL, vY_name=NULL, mX_name=NULL, mK_name=NULL, mQ_name=NULL,
     vY=NULL, mX=NULL, mK=NULL, mQ=NULL, im=NULL, iN=NULL,
     vYb=NULL, mXb=NULL,
     # assigned by LinTest
-    test=list(), sqtest=list()
+    test=NULL, sqtest=NULL,
+    # assigned by WCB_LinTest
+    wcb_test=NULL, wcb_sqtest=NULL
   )
 )

@@ -5,7 +5,9 @@
 \alias{WCB_LinTest}
 \title{Conduct the linearity tests.}
 \usage{
-WCB_LinTest(use, iB = 100, parallel = F, cpus = 4)
+LinTest(use)
+
+WCB_LinTest(use, iB = 100, parallel = FALSE, cpus = 2)
 }
 \arguments{
 \item{use}{an object of the class PSTR, created by \code{\link{NewPSTR}} function.}
@@ -17,19 +19,13 @@ WCB_LinTest(use, iB = 100, parallel = F, cpus = 4)
 \item{cpus}{number of cores used in the parallel computation. The value will be ignored if \code{parallel=F}.}
 }
 \value{
-a new object of the class PSTR containing the results from the linearity tests.
-
-The object is a list containing the components made in \code{\link{NewPSTR}} and the following new components:
-\item{test}{a list of the linearity test results. The length is the number of potential transition variables specified when creating the object of the class PSTR by calling \code{NewPSTR}. See argument \code{tvars} in \code{\link{NewPSTR}}. Each element of the list corresponds to the linearity test results based on the corresponding transition variable, and the element is also a list whose elements correspond to different numbers of switches.}
-\item{sqtest}{a list of the linearity test results for selecting number of switches. It has the same length as \code{test}. Each element of the list corresponds to the linearity test results based on the corresponding transition variable, and the element is also a list whose elements correspond to different numbers of switches.}
-\item{wcb_test}{a list of the linearity test results. The length is the number of potential transition variables specified when creating the object of the class PSTR by calling \code{NewPSTR}. See argument \code{tvars} in \code{\link{NewPSTR}}. Each element of the list is a matrix containing the linearity test results (p-values) based on the corresponding transition variable. The rows are different numbers of switches, and two columns from WB to WCB.}
-\item{wcb_sqtest}{a list of the linearity test results for selecting number of switches. It has the same length as \code{test}. Each element of the list is a matrix containing the linearity test results based on the corresponding transition variable. The rows are different numbers of switches, and two columns from WB to WCB.}
+an object of the class PSTR containing the results from the linearity tests.
 }
 \description{
 These functions conduct the linearity tests against the alternative of a logistic smooth transition nonlinear component.
 }
 \details{
-\code{LinTest} implements the linearity tests.
+\code{LinTest} and \code{obj$LinTest} implements the linearity tests, where \code{obj} is an object of the PSTR class, see \code{\link{NewPSTR}}.
 
 \code{WCB_LinTest} implements the wild bootstrap (WB) and the wild cluster bootstrap (WCB) linearity tests.
 
@@ -56,24 +52,30 @@ The results of the linearity tests include four kinds of tests
 The wild bootstrap (WB) tests are heteroskedasticity robust, while the wild cluster bootstrap (WCB) ones are both cluster-dependency and heteroskedasticity robust. Cluster-dependency implies that there can be dependency (autocorrelation) within individual, but no correlation across individuals. The WB and WCB tests may take quite a long time to run which depends on the model specification and the number of repetitions \code{iB}. It is strongly recommended to use super-computation server with many cores to run the code instead of a personal computer. The user may first try a small number of repetitions \code{iB} and estimate the time consumed for a larger number of \code{iB}.
 
 The two functions never change the existing values in the input PSTR object. They add more values (attributes) into the input object and return.
+
+\code{LinTest} and \code{WCB_LinTest} are wrappers of \code{obj$LinTest} and \code{obj$WCB_LinTest}, respectively.
 }
 \examples{
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
     tvars=c('vala'), iT=14) # create a new PSTR object
 
 pstr$LinTest()
+# or
+pstr = LinTest(pstr)
 
+# show the results
 print(pstr, "tests")
 
 \donttest{
 # Don't forget to attach the package for the parallel computation.
 library(snowfall)
 
-# you should not run this on personal computer!
-# pstr = WCB_LinTest(use=pstr, iB=5000, parallel=TRUE, cpus=50)
+# WCB_LinTest(pstr, iB=5000, parallel=TRUE, cpus=50)
 
 # a light version for checking on your personal computer.
-pstr = WCB_LinTest(use=pstr, iB=4, parallel=TRUE, cpus=2)
+pstr$WCB_LinTest(iB=4, parallel=TRUE, cpus=2)
+# or
+WCB_LinTest(use=pstr, iB=4, parallel=TRUE, cpus=2)
 
 print(pstr, "tests")
 }

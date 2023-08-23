@@ -66,20 +66,26 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
   }
   tmp = unique(tmp)
   
-  if(1 %in% tmp) private$print_summary(format, ...)
+  if(1 %in% tmp){ private$print_summary(format, ...); cat("\n")}
   
-  if(2 %in% tmp) private$print_tests(format, digits, ...)
+  if(2 %in% tmp){
+    private$print_tests(format, digits, ...); cat("\n")
+  }else{
+    if(!is.null(private$test) | !is.null(private$wcb_test)){
+      code = '`print(obj, mode="tests")`'
+      cli::cli_alert_info("The results of the linearity tests are ready, run {code} to show the results."); cat("\n")
+    }
+  }
   
-  if(3 %in% tmp) print_estimates(x,digits)
+  if(3 %in% tmp){ print_estimates(x,digits); cat("\n")}
   
-  if(4 %in% tmp) print_evaluation(x,digits)
+  if(4 %in% tmp){ print_evaluation(x,digits); cat("\n")}
   
   if(length(tmp)==0){
     cli::cli_alert_info("The argument 'mode' only accepts the values:")
     cat0("  'summary', 'tests', 'estimates' or 'evaluation'.")
     cat0("  Incomplete words, such as 'su' or 'mm' for 'summary', are allowed.")
   }else{
-    cli::cli_alert_success("Done!")
   }
   
 })
@@ -120,82 +126,83 @@ PSTR$set("private", "print_summary", function(format, ...) {
 
 
 PSTR$set("private", "print_tests", function(format, digits, ...) {
-  cli::cli_h2("Results of the linearity (homogeneity) tests:")
-  
   im = private$im
   
-  if(!is.null(private$test)){
-    for(iter in 1:length(private$test)){
-
-      cli::cli_h3(paste0("LM tests based on transition variable '",private$mQ_name[iter],"'"))
-
-      tmp = NULL
-      for(jter in 1:im){
-        ttmp = private$test[[iter]][[jter]]
-        tmp = rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
-                           ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
+  if(!is.null(private$test) | !is.null(private$wcb_test)){
+    cli::cli_h2("Results of the linearity (homogeneity) tests:")
+    
+    tmp = list()
+    if(!is.null(private$test)){
+      length(tmp) = length(private$test)
+      for(iter in 1:length(private$test)){
+        for(jter in 1:im){
+          ttmp = private$test[[iter]][[jter]]
+          tmp[[iter]] = rbind(tmp[[iter]], c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
+                             ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
+        }
+        tmp[[iter]] = matrix(tmp[[iter]], nrow=im)
+        colnames(tmp[[iter]]) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
       }
-      tmp = matrix(tmp, nrow=im)
-      #rownames(tmp) = rep(" ",im)
-      colnames(tmp) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
-
-      if(!is.null(private$wcb_test)){
-        ttmp = private$wcb_test[[iter]][,2:3,drop=F]
-        colnames(ttmp) = c("WB_PV", "WCB_PV")
-        tmp = cbind(tmp, ttmp)
-      }
-
-      #print(signif(tmp,digits))
-      print(knitr::kable(tmp, format=format, digits=digits, ...))
     }
-  }else{
+    
     if(!is.null(private$wcb_test)){
+      if(length(tmp) == 0) length(tmp) = length(private$wcb_test)
       for(iter in 1:length(private$wcb_test)){
-
-        cli::cli_h3(paste0("LM tests based on transition variable '",private$mQ_name[iter],"'"))
-
-        ttmp = cbind(1:im, private$wcb_test[[iter]][,2:3,drop=F])
-        #rownames(ttmp) = rep(" ",im)
-        colnames(ttmp) = c("m","WB_PV", "WCB_PV")
+        ttmp = private$wcb_test[[iter]][,2:3,drop=F]
+        colnames(ttmp) = c("WB_PV","WCB_PV")
+        tmp[[iter]] = cbind(tmp[[iter]], ttmp)
       }
-
-      #print(signif(ttmp,digits))
-      print(knitr::kable(ttmp, format=format, digits=digits, ...))
     }
-  }
-
-  cli::cli_h2("Sequence of homogeneity tests for selecting number of switches 'm':")
-
-  if(!is.null(private$sqtest)){
-    for(iter in 1:length(private$sqtest)){
-
+    
+    for(iter in seq_along(tmp)){
       cli::cli_h3(paste0("LM tests based on transition variable '",private$mQ_name[iter],"'"))
-
-      tmp = NULL
-      for(jter in 1:im){
-        ttmp = private$sqtest[[iter]][[jter]]
-        tmp = rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
-                           ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
-      }
-      tmp = matrix(tmp, nrow=im)
-      #rownames(tmp) = rep(" ",im)
-      colnames(tmp) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
-
-      if(!is.null(private$wcb_sqtest)){
-        ttmp = private$wcb_sqtest[[iter]][,2:3,drop=F]
-        colnames(ttmp) = c("WB_PV", "WCB_PV")
-        tmp = cbind(tmp, ttmp)
-      }
-
-      #print(signif(tmp,digits))
-      print(knitr::kable(tmp, format=format, digits=digits, ...))
+      print(knitr::kable(tmp[[iter]], format=format, digits=digits, ...))
     }
   }
+  
+  if(!is.null(private$sqtest) | !is.null(private$wcb_sqtest)){
+    cli::cli_h2("Sequence of homogeneity tests for selecting number of switches 'm':")
+    
+    tmp = list()
+    if(!is.null(private$sqtest)){
+      length(tmp) = length(private$sqtest)
+      for(iter in 1:length(private$sqtest)){
+        for(jter in 1:im){
+          ttmp = private$sqtest[[iter]][[jter]]
+          tmp[[iter]] = rbind(tmp[[iter]], c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
+                                             ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
+        }
+        tmp[[iter]] = matrix(tmp[[iter]], nrow=im)
+        colnames(tmp[[iter]]) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
+      }
+    }
+    
+    if(!is.null(private$wcb_sqtest)){
+      if(length(tmp) == 0) length(tmp) = length(private$wcb_sqtest)
+      for(iter in 1:length(private$wcb_sqtest)){
+        ttmp = private$wcb_sqtest[[iter]][,2:3,drop=F]
+        colnames(ttmp) = c("WB_PV","WCB_PV")
+        tmp[[iter]] = cbind(tmp[[iter]], ttmp)
+      }
+    }
+    
+    for(iter in seq_along(tmp)){
+      cli::cli_h3(paste0("LM tests based on transition variable '",private$mQ_name[iter],"'"))
+      print(knitr::kable(tmp[[iter]], format=format, digits=digits, ...))
+    }
+  }
+  
+  if(is.null(private$test) & is.null(private$wcb_test) &
+     is.null(private$sqtest) & is.null(private$wcb_sqtest)){
+    code = "`PSTR::LinTest()`"
+    cli::cli_alert_warning("The linearity tests have not been conducted yet, run {code}.")
+  }
+      
 })
 
 
-print_estimates <- function(obj,digits)
-{
+PSTR$set("private", "print_estimates", function(format, digits, ...) {
+  
   if(!is.null(obj$iq)){
     cat0(paste0(rep("#",getOption("width")),collapse=''))
     cat0(paste0(rep("*",getOption("width")),collapse=''))
@@ -239,7 +246,7 @@ print_estimates <- function(obj,digits)
       cat0("Estimated standard deviation of the residuals is ",signif(sqrt(obj$s2),digits))
     }
   }
-}
+})
 
 
 print_evaluation <- function(obj,digits)

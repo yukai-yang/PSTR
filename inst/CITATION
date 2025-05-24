@@ -1,0 +1,31 @@
+citHeader("To cite the PSTR package or its underlying methodology, please use the following references:")
+
+# software
+bibentry(
+  bibtype = "Manual",
+  title = "PSTR: Panel Smooth Transition Regression Modelling",
+  author = person(given = "Yukai", family = "Yang",
+                  email = "yukai.yang@statistik.uu.se",
+                  role = c("aut", "cre"),
+                  comment = c(ORCID = "0000-0002-2623-8549")),
+  year = "2017",
+  url = "https://github.com/yukai-yang/PSTR"
+)
+
+# working paper
+bibentry(
+  bibtype = "TechReport",
+  title = "Panel Smooth Transition Regression Models",
+  author = c(
+    person("Andrés", "González"),
+    person("Timo", "Teräsvirta"),
+    person("Dick", "van Dijk"),
+    person("Yukai", "Yang")
+  ),
+  institution = "Stockholm School of Economics, SSE",
+  series = "EFI Working Paper Series in Economics and Finance",
+  number = "604",
+  year = "2005",
+  note = "Revised October 2017",
+  url = "https://swopec.hhs.se/hastef/papers/hastef0604.pdf"
+)

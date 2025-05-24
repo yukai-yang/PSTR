@@ -42,8 +42,7 @@ Der2GFunc <- function(vg,vs,vp)
 {
   gamma = vp[1]; cc = vp[2:length(vp)]
   tmp1 = vg * (1-vg) # g^2 * zeta
-  tmp2 = matrix(vs, length(vs), length(cc))
-  tmp2 = t(tmp2) - cc # s - c
+  tmp2 = t(matrix(vs, length(vs), length(cc))) - cc # s - c
   tmp3 = apply(tmp2,2,prod) # prod all
   
   de1 = tmp1 * tmp3
@@ -53,13 +52,14 @@ Der2GFunc <- function(vg,vs,vp)
     return(apply(tmp,2,prod))
   }
   tmp4 = sapply(1:length(cc),ftmp) # prod without k
+  tmp4c = c(tmp4) # vector version of tmp4
   
-  de1 = cbind(de1, - tmp1 * tmp4 * gamma) # columns are the parameters
+  de1 = cbind(de1, - tmp1 * tmp4c * gamma) # columns are the parameters
   
   de2 = de1[,1] * (1-2*vg) * tmp3 # d^2 g / d gamma^2
   
   # d^2 g / d gamma d c
-  de2 = cbind(de2, 2*(1-vg) * de1[,2:ncol(de1)] * tmp3 + tmp1 * tmp3 * gamma * tmp4 - tmp1 * tmp4)
+  de2 = cbind(de2, 2*(1-vg) * de1[,2:ncol(de1)] * tmp3 + tmp1 * tmp3 * gamma * tmp4c - tmp1 * tmp4c)
   
   # d^2 g / dc dc' vec half
   for(iter in 2:ncol(de1)){

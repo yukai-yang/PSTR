@@ -44,7 +44,7 @@
 #' \code{\link{NewPSTR}} initialize the modelling by creating an object of the class PSTR.
 #'
 #' @section Functions for Model Specification:
-#' \code{PSTR$LinTest} implements the linearity tests.
+#' \code{\link{LinTest}} implements the linearity tests.
 #'
 #' \code{\link{WCB_LinTest}} implements the wild bootstrap (WB) and the wild cluster bootstrap (WCB) linearity tests.
 #'
@@ -74,9 +74,8 @@
 #'
 #' \code{\link{sunspot}} transformed Wolf annual sunspot numbers for the years 1710-1979.
 #'
-#' @docType package
-#' @name PSTR
-NULL
+#' @keywords internal
+"_PACKAGE"
 
 
 #' @importFrom stats optim pchisq pf quantile

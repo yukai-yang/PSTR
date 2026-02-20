@@ -143,7 +143,10 @@ Der2GFunc <- function(vg,vs,vp)
 #' print(pstr0,"estimates")
 #' }
 #'
-#' @export
+#' @name EstPSTR
+NULL
+
+
 PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpper=2, method='L-BFGS-B'){
   iT <- private$iT
   iN <- private$iN
@@ -349,6 +352,7 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
   invisible(self)
 })
 
+#' @rdname EstPSTR
 #' @export
 EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpper=2, method='L-BFGS-B')
 {

@@ -89,50 +89,97 @@
 NULL
 
 
+PSTR$set("public", "EvalTest", function(type = c("time-varying", "heterogeneity"), vq = NULL) {
+  
+  type <- match.arg(type, several.ok = TRUE)
+  
+  if (is.null(private$iq)) {
+    stop(simpleError("Estimate the PSTR model first!"))
+  }
+  
+  iT <- private$iT
+  iN <- private$iN
+  im <- private$im
+  
+  # Design matrices for within transformation
+  mD <- diag(1, iN) %x% rep(1, iT)
+  mM <- diag(1, iN * iT) - tcrossprod(mD) / iT
+  
+  # Build V = [Xtilde, D * (K * beta_nonlinear)]
+  beta <- private$beta
+  k0 <- ncol(private$mX) + 1L
+  k1 <- length(beta)
+  
+  tmp <- c(private$mK %*% beta[k0:k1])
+  tmp <- mD * tmp
+  mV <- cbind(private$mXX, tmp)
+  
+  mV2 <- mM %*% mV
+  invVV <- chol2inv(chol(crossprod(mV2)))
+  
+  vU <- private$vU
+  s2 <- private$s2
+  mXX <- private$mXX
+  
+  # Time-varying test
+  if (any(grepl("time-varying", type))) {
+    
+    private$tvtest <- vector("list", im)
+    
+    vt <- rep((1:iT) / iT, times = iN)  # length iT*iN
+    
+    mW <- NULL
+    for (mter in 1:im) {
+      mW <- cbind(mW, mXX * (vt ^ mter))
+      private$tvtest[[mter]] <- LMTEST(
+        iT = iT, iN = iN, vU = vU,
+        mX = mV, mW = mW,
+        mM = mM, s2 = s2,
+        mX2 = mV2, invXX = invVV
+      )
+    }
+  }
+  
+  # Remaining heterogeneity (remaining nonlinearity) test
+  if (any(grepl("heterogeneity", type))) {
+    
+    if (is.null(vq)) {
+      stop(simpleError("Argument 'vq' must be provided for heterogeneity test."))
+    }
+    
+    if (length(vq) == iT) {
+      vq <- rep(vq, times = iN)
+    } else if (length(vq) != iT * iN) {
+      stop(simpleError("Length of 'vq' must be iT or iT*iN."))
+    }
+    
+    private$hetest <- vector("list", im)
+    
+    mW <- NULL
+    for (mter in 1:im) {
+      mW <- cbind(mW, mXX * (vq ^ mter))
+      private$hetest[[mter]] <- LMTEST(
+        iT = iT, iN = iN, vU = vU,
+        mX = mV, mW = mW,
+        mM = mM, s2 = s2,
+        mX2 = mV2, invXX = invVV
+      )
+    }
+  }
+  
+  cli::cli_alert_success("Done!")
+  invisible(self)
+})
+
 
 #' @rdname EvalTest
 #' @export
-EvalTest <- function(use, type=c("time-varying","heterogeneity"), vq=NULL)
-{
-  if(!inherits(use, 'PSTR'))
+EvalTest <- function(use, type = c("time-varying", "heterogeneity"), vq = NULL) {
+  if (!inherits(use, "PSTR")) {
     stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
-  if(is.null(use$iq))
-    stop(simpleError("Estimate the PSTR model first!"))
-  ret = use
-  im = use$im
-  
-  mD = diag(1,use$iN) %x% rep(1,use$iT)
-  mM = diag(1, use$iN*use$iT) - tcrossprod(mD)/use$iT
-  
-  tmp = c(use$mK %*% use$beta[(ncol(use$mX)+1):length(use$beta)])
-  tmp = use$mD * tmp ## pp.14
-  mV = cbind(use$mXX, tmp)
-  mV2 = mM %*% mV
-  invVV = chol2inv(chol(crossprod(mV2)))
-  
-  if(length(grep("time-varying",type))>0){
-    ret$tv = list(); length(ret$tv) = im
-    
-    vt = 1:use$iT/use$iT
-    
-    mW = NULL
-    for(mter in 1:im){
-      mW = cbind(mW, use$mXX*(vt**mter))
-      ret$tv[[mter]] = LMTEST(iT=use$iT,iN=use$iN,vU=use$vU,mX=mV,mW=mW,mM=mM,s2=use$s2,mX2=mV2,invXX=invVV)
-    }
   }
-  
-  if(length(grep("heterogeneity",type))>0){
-    ret$ht = list(); length(ret$ht) = im
-    
-    mW = NULL
-    for(mter in 1:im){
-      mW = cbind(mW, use$mXX*(vq**mter))
-      ret$ht[[mter]] = LMTEST(iT=use$iT,iN=use$iN,vU=use$vU,mX=mV,mW=mW,mM=mM,s2=use$s2,mX2=mV2,invXX=invVV)
-    }
-  }
-  
-  return(ret)
+  use$EvalTest(type = type, vq = vq)
+  invisible(use)
 }
 
 

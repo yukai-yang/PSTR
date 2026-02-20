@@ -211,9 +211,18 @@ PSTR <- R6::R6Class(
     iT=NULL, vY_name=NULL, mX_name=NULL, mK_name=NULL, mQ_name=NULL,
     vY=NULL, mX=NULL, mK=NULL, mQ=NULL, im=NULL, iN=NULL,
     vYb=NULL, mXb=NULL,
+    
     # assigned by LinTest
     test=NULL, sqtest=NULL,
     # assigned by WCB_LinTest
-    wcb_test=NULL, wcb_sqtest=NULL
+    wcb_test=NULL, wcb_sqtest=NULL,
+    
+    # estimation results
+    imm=NULL, iq=NULL, par=NULL,
+    delta=NULL, gamma=NULL, c=NULL, convergence=NULL,
+    vg=NULL, beta=NULL, mXX=NULL,
+    vM=NULL, vU=NULL, s2=NULL,
+    cov=NULL, se=NULL, est=NULL,
+    mbeta=NULL, mse=NULL
   )
 )

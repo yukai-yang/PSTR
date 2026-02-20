@@ -144,190 +144,218 @@ Der2GFunc <- function(vg,vs,vp)
 #' }
 #'
 #' @export
-EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpper=2, method='L-BFGS-B')
-{
-  if(!inherits(use, 'PSTR'))
-    stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
-  ret = use
-  iT = use$iT; iN = use$iN
+PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpper=2, method='L-BFGS-B'){
+  iT <- private$iT
+  iN <- private$iN
   
-  # get the data here
-  vY = use$vY; vYb = use$vYb
-  mX = use$mX; mXb = use$mXb
-  mK = use$mK
-  ik = ncol(mK)
+  # data
+  vY  <- private$vY
+  vYb <- private$vYb
+  mX  <- private$mX
+  mXb <- private$mXb
+  mK  <- private$mK
+  ik  <- ncol(mK)
   
-  ftmp <- function(vx) return(vx - mean(vx))
+  ftmp <- function(vx) vx - mean(vx)
   
-  ret$imm = im # used in estimation
+  # store estimation settings/results in private
+  private$imm <- im
+  private$iq  <- iq
   
-  ret$iq=iq
-  
-  if(!is.null(iq)){ 
+  if(!is.null(iq)){
+    
     if(im < 1) stop(simpleError("The number of switches is invalid."))
     
-    if(!is.numeric(iq)) ret$iq=which(use$mQ_name==iq) 
-    if(length(ret$iq)>1) stop(simpleError("Sorry! We only support the one transition variable case."))
+    # resolve iq if it is a name
+    if(!is.numeric(iq)) private$iq <- which(private$mQ_name == iq)
+    if(length(private$iq) > 1) stop(simpleError("Sorry! We only support the one transition variable case."))
     
-    vQ = use$mQ[,iq]
-    mQ = t(matrix(vQ,iT*iN,im))  
+    # IMPORTANT: use resolved iq
+    vQ <- private$mQ[, private$iq]
+    mQ <- t(matrix(vQ, iT*iN, im))
     
     ResiduleSumSquare <- function(vp){
       # vp[1] = log(gamma) or delta
-      vg = fTF(vx=mQ,gamma=exp(vp[1]),vc=vp[2:length(vp)])
-      mXX = mK * vg
-      aXX = array(c(mXX), dim=c(iT,iN,ik))
-      mXXb = cbind(mXb, matrix(c(apply(aXX,c(2,3),ftmp)), iT*iN, ik))
-      tmp = chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb
-      vE = c(vYb-mXXb%*%tmp)
-      return(sum(vE*vE)/iT/iN)
+      vg <- fTF(vx=mQ, gamma=exp(vp[1]), vc=vp[2:length(vp)])
+      mXX <- mK * vg
+      aXX <- array(c(mXX), dim=c(iT,iN,ik))
+      mXXb <- cbind(mXb, matrix(c(apply(aXX, c(2,3), ftmp)), iT*iN, ik))
+      tmp <- chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb
+      vE <- c(vYb - mXXb %*% tmp)
+      sum(vE*vE) / iT / iN
     }
     
     if(is.null(par)){
-      useDelta = T
-      tmp = unname(quantile(vQ, (1:im) / (im+1)))
-      par = c(log(8/min(diff(c(0,tmp)))), tmp)
+      useDelta <- TRUE
+      tmp <- unname(quantile(vQ, (1:im) / (im+1)))
+      par <- c(log(8/min(diff(c(0,tmp)))), tmp)
     }
     
-    if(!useDelta) par[1] = log(par[1])
+    if(!useDelta) par[1] <- log(par[1])
+    private$par <- par
     
-    ret$par = par
+    if(method == 'L-BFGS-B'){
+      opt <- optim(par=par, fn=ResiduleSumSquare, method="L-BFGS-B",
+                   lower=par-vLower, upper=par+vUpper)
+    } else {
+      opt <- optim(par=par, fn=ResiduleSumSquare, method=method)
+    }
     
-    if(method=='L-BFGS-B') opt = optim(par=par,fn=ResiduleSumSquare,method="L-BFGS-B",lower=par-vLower,upper=par+vUpper)
-    else opt = optim(par=par,fn=ResiduleSumSquare,method=method)
+    # return value (store to private)
+    private$delta <- opt$par[1]
+    private$gamma <- exp(private$delta)
+    private$c <- opt$par[2:length(opt$par)]
+    private$convergence <- opt$convergence
     
-    # return value 
-    ret$delta = opt$par[1]; ret$gamma = exp(ret$delta)
-    ret$c = opt$par[2:length(opt$par)]
-    ret$convergence = opt$convergence
+    vg <- fTF(vx=mQ, gamma=private$gamma, vc=private$c) # g_it
+    private$vg <- vg
     
-    vg = fTF(vx=mQ,gamma=ret$gamma,vc=ret$c) # g_it
-    ret$vg = vg
-    mXX = mK * vg # x_it * g_it 
-    aXX = array(c(mXX), dim=c(iT,iN,ik))
-    mXXb = cbind(mXb, matrix(c(apply(aXX,c(2,3),ftmp)), iT*iN, ik)) # mean adjust
-    tmp = chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb # beta
-    ret$beta = c(tmp); names(ret$beta) = c(paste0(use$mX_name,'_0'), paste0(use$mK_name,'_1'))
+    mXX <- mK * vg
+    aXX <- array(c(mXX), dim=c(iT,iN,ik))
+    mXXb <- cbind(mXb, matrix(c(apply(aXX, c(2,3), ftmp)), iT*iN, ik))
     
-    mXX = cbind(mX, mXX) # (x_it, x_it*g_it)
-    ret$mXX = mXX
+    tmp <- chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb
+    private$beta <- c(tmp)
+    names(private$beta) <- c(paste0(private$mX_name,'_0'),
+                             paste0(private$mK_name,'_1'))
     
-    mtmp = matrix(c(vY-mXX%*%tmp),iT,iN)
-    ret$vM = c(apply(mtmp,2,mean))
-    ret$vU = c(apply(mtmp,2,ftmp))
-    ret$s2 = c(ret$vU %*% ret$vU) / (iT*iN)
+    mXX <- cbind(mX, mXX)
+    private$mXX <- mXX
+    
+    mtmp <- matrix(c(vY - mXX %*% tmp), iT, iN)
+    private$vM <- c(apply(mtmp, 2, mean))
+    private$vU <- c(apply(mtmp, 2, ftmp))
+    private$s2 <- c(private$vU %*% private$vU) / (iT*iN)
     
     # computing standard errors
-    tmp = Der2GFunc(vg=vg,vs=vQ,vp=c(ret$gamma,ret$c))
-    de1 = tmp$de1; de2 = tmp$de2
-    beta1 = ret$beta[(ncol(mX)+1):length(ret$beta)]
+    tg <- Der2GFunc(vg=vg, vs=vQ, vp=c(private$gamma, private$c))
+    de1 <- tg$de1
+    de2 <- tg$de2
     
-    dedp = -mXXb
-    d2edp2 = array(0,dim=c(iT*iN,length(ret$beta)+1+im,length(ret$beta)+1+im))
-    tmp = 1
+    beta1 <- private$beta[(ncol(mX)+1):length(private$beta)]
+    
+    dedp <- -mXXb
+    d2edp2 <- array(0, dim=c(iT*iN, length(private$beta)+1+im, length(private$beta)+1+im))
+    
+    tcnt <- 1
     for(iter in 1:ncol(de1)){
-      mKK = mK * de1[,iter]
-      aKK = array(c(mKK),dim=c(iT,iN,ik))
-      mKK = matrix(c(apply(aKK,c(2,3),ftmp)), iT*iN, ik)
-      dedp = cbind(dedp, -mKK %*% beta1)
+      mKK <- mK * de1[,iter]
+      aKK <- array(c(mKK), dim=c(iT,iN,ik))
+      mKK <- matrix(c(apply(aKK, c(2,3), ftmp)), iT*iN, ik)
       
-      d2edp2[,(ncol(mX)+1):length(ret$beta),length(ret$beta)+iter] = -mKK
-      d2edp2[,length(ret$beta)+iter,(ncol(mX)+1):length(ret$beta)] = -mKK
+      dedp <- cbind(dedp, -mKK %*% beta1)
+      
+      d2edp2[,(ncol(mX)+1):length(private$beta), length(private$beta)+iter] <- -mKK
+      d2edp2[, length(private$beta)+iter, (ncol(mX)+1):length(private$beta)] <- -mKK
       
       for(jter in iter:ncol(de1)){
-        mKK = mK * de2[,tmp]
-        aKK = array(c(mKK),dim=c(iT,iN,ik))
-        mKK = matrix(c(apply(aKK,c(2,3),ftmp)), iT*iN, ik)
+        mKK <- mK * de2[,tcnt]
+        aKK <- array(c(mKK), dim=c(iT,iN,ik))
+        mKK <- matrix(c(apply(aKK, c(2,3), ftmp)), iT*iN, ik)
         
-        d2edp2[,length(ret$beta)+iter,length(ret$beta)+jter] = -mKK %*% beta1
-        d2edp2[,length(ret$beta)+jter,length(ret$beta)+iter] = -mKK %*% beta1
-        tmp = tmp+1
+        d2edp2[, length(private$beta)+iter, length(private$beta)+jter] <- -mKK %*% beta1
+        d2edp2[, length(private$beta)+jter, length(private$beta)+iter] <- -mKK %*% beta1
+        tcnt <- tcnt + 1
       }
     }
     
-    mh = 2*ret$vU*dedp
-    ah = array(c(mh),dim=c(iT,iN,ncol(dedp)))
-    hi = matrix(c(apply(ah,c(2,3),sum)), iN, ncol(dedp))
-    mB = 0
-    for(iter in 1:iN){
-      mB = mB + hi[iter,] %*% t(hi[iter,])
+    mh <- 2 * private$vU * dedp
+    ah <- array(c(mh), dim=c(iT,iN,ncol(dedp)))
+    hi <- matrix(c(apply(ah, c(2,3), sum)), iN, ncol(dedp))
+    
+    mB <- 0
+    for(iter in 1:iN) mB <- mB + hi[iter,] %*% t(hi[iter,])
+    
+    invA <- 0
+    for(iter in 1:(iT*iN))
+      invA <- invA + (dedp[iter,] %*% t(dedp[iter,]) + d2edp2[iter,,] * private$vU[iter]) * 2
+    
+    ttmp <- try(solve(invA), silent=TRUE)
+    if(inherits(ttmp, 'try-error')){
+      s <- svd(invA)
+      invA <- s$u %*% diag(1/s$d) %*% t(s$u)
+    } else {
+      invA <- ttmp
     }
     
-    invA = 0
-    for(iter in 1:(iT*iN))
-      invA = invA + (dedp[iter,]%*%t(dedp[iter,]) + d2edp2[iter,,]*ret$vU[iter])*2
-    ttmp = try(solve(invA), silent=T)
-    if(inherits(ttmp, 'try-error')){
-      ttmp = svd(invA); invA = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
-    }else invA = ttmp
-    # done
+    private$cov <- invA %*% mB %*% t(invA)
+    private$se <- sqrt(diag(private$cov))
+    names(private$se) <- c(names(private$beta), 'gamma', paste0('c_', 1:im))
     
-    ret$cov = invA %*% mB %*% t(invA)
-    ret$se = sqrt(diag(ret$cov))
-    names(ret$se) = c(names(ret$beta),'gamma',paste0('c_',1:im))
+    private$est <- c(private$beta, private$gamma, private$c)
+    names(private$est) <- names(private$se)
     
-    ret$est = c(ret$beta, ret$gamma, ret$c)
-    names(ret$est) = names(ret$se)
+    mM <- NULL
+    mname <- NULL
+    mTmp <- diag(length(private$mX_name))
     
-    mM = NULL; mname = NULL
-    mTmp = diag(length(ret$mX_name))
-    for(iter in 1:length(ret$mX_name)){
-      tmp = ret$mX_name[iter] == ret$mK_name
-      if(any(tmp)){
-        mM = rbind(mM, c(mTmp[iter,], tmp))
-        mname = c(mname, ret$mX_name[iter])
+    for(iter in 1:length(private$mX_name)){
+      idx <- private$mX_name[iter] == private$mK_name
+      if(any(idx)){
+        mM <- rbind(mM, c(mTmp[iter,], idx))
+        mname <- c(mname, private$mX_name[iter])
       }
     }
     
     if(!is.null(mM)){
-      mM = cbind(mM, matrix(0,nrow(mM),1+im))
-      ret$mbeta = c(mM %*% ret$est)
-      names(ret$mbeta) = mname
-      ret$mse = sqrt(diag(mM %*% ret$cov %*% t(mM)))
-      names(ret$mse) = mname
+      mM <- cbind(mM, matrix(0, nrow(mM), 1+im))
+      private$mbeta <- c(mM %*% private$est)
+      names(private$mbeta) <- mname
+      private$mse <- sqrt(diag(mM %*% private$cov %*% t(mM)))
+      names(private$mse) <- mname
     }
- 
-  }else{
     
-    tmp = chol2inv(chol(t(mXb)%*%mXb)) %*% t(mXb) %*% vYb
-    #vE = c(vYb-mXb%*%tmp)
+  } else {
     
-    # return value 
-    ret$beta = c(tmp); names(ret$beta) = use$mX_name
+    tmp <- chol2inv(chol(t(mXb)%*%mXb)) %*% t(mXb) %*% vYb
     
-    mtmp = matrix(c(vY-mX%*%tmp),iT,iN)
-    ret$vM = c(apply(mtmp,2,mean))
-    ret$vU = c(apply(mtmp,2,ftmp))
-    ret$s2 = c(ret$vU %*% ret$vU) / (iT*iN)
+    private$beta <- c(tmp)
+    names(private$beta) <- private$mX_name
+    
+    mtmp <- matrix(c(vY - mX %*% tmp), iT, iN)
+    private$vM <- c(apply(mtmp, 2, mean))
+    private$vU <- c(apply(mtmp, 2, ftmp))
+    private$s2 <- c(private$vU %*% private$vU) / (iT*iN)
     
     # computing standard errors
-    dedp = -mXb
+    dedp <- -mXb
+    mh <- 2 * private$vU * dedp
+    ah <- array(c(mh), dim=c(iT,iN,ncol(dedp)))
+    hi <- matrix(c(apply(ah, c(2,3), sum)), iN, ncol(dedp))
     
-    mh = 2*ret$vU*dedp
-    ah = array(c(mh),dim=c(iT,iN,ncol(dedp)))
-    hi = matrix(c(apply(ah,c(2,3),sum)), iN, ncol(dedp))
-    mB = 0
-    for(iter in 1:iN){
-      mB = mB + hi[iter,] %*% t(hi[iter,])
+    mB <- 0
+    for(iter in 1:iN) mB <- mB + hi[iter,] %*% t(hi[iter,])
+    
+    invA <- 0
+    for(iter in 1:(iT*iN))
+      invA <- invA + dedp[iter,] %*% t(dedp[iter,]) * 2
+    
+    ttmp <- try(solve(invA), silent=TRUE)
+    if(inherits(ttmp, 'try-error')){
+      s <- svd(invA)
+      invA <- s$u %*% diag(1/s$d) %*% t(s$u)
+    } else {
+      invA <- ttmp
     }
     
-    invA = 0
-    for(iter in 1:(iT*iN))
-      invA = invA + dedp[iter,]%*%t(dedp[iter,])*2
-    ttmp = try(solve(invA), silent=T)
-    if(inherits(ttmp, 'try-error')){
-      ttmp = svd(invA); invA = ttmp$u %*% diag(1/ttmp$d) %*% t(ttmp$u)
-    }else invA = ttmp
-    # done
+    private$cov <- invA %*% mB %*% t(invA)
+    private$se <- sqrt(diag(private$cov))
+    names(private$se) <- names(private$beta)
     
-    ret$cov = invA %*% mB %*% t(invA)
-    ret$se = sqrt(diag(ret$cov))
-    names(ret$se) = names(ret$beta)
-    
-    ret$est = ret$beta
-    names(ret$est) = names(ret$se)
-    
+    private$est <- private$beta
+    names(private$est) <- names(private$se)
   }
   
-  return(ret)
+  invisible(self)
+})
+
+#' @export
+EstPSTR <- function(use, im=1, iq=NULL, par=NULL, useDelta=FALSE, vLower=2, vUpper=2, method='L-BFGS-B')
+{
+  if(!inherits(use, 'PSTR'))
+    stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
+  
+  use$EstPSTR(im=im, iq=iq, par=par, useDelta=useDelta, vLower=vLower, vUpper=vUpper, method=method)
+  invisible(use)
 }
+           

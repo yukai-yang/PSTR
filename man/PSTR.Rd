@@ -2,6 +2,7 @@
 % Please edit documentation in R/PSTR.R
 \docType{package}
 \name{PSTR}
+\alias{PSTR-package}
 \alias{PSTR}
 \title{PSTR: A package implementing the Panel Smooth Transition Regression (PSTR) modelling.}
 \description{
@@ -87,3 +88,15 @@ González, A., Teräsvirta, T., van Dijk, D. and Yang, Y. (2005) "\href{http://s
 \code{\link{sunspot}} transformed Wolf annual sunspot numbers for the years 1710-1979.
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/yukai-yang/PSTR}
+  \item Report bugs at \url{https://github.com/yukai-yang/PSTR/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Yukai Yang \email{yukai.yang@statistik.uu.se} (\href{https://orcid.org/0000-0002-2623-8549}{ORCID})
+
+}

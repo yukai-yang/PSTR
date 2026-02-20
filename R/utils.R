@@ -77,8 +77,15 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
     }
   }
   
-  if(3 %in% tmp){ print_estimates(x,digits); cat("\n")}
-  
+  if(3 %in% tmp){
+    private$print_estimates(format, digits, ...); cat("\n")
+  }else{
+    if(!is.null(private$est)){
+      code = '`print(obj, mode="estimates")`'
+      cli::cli_alert_info("The estimation results are ready, run {code} to show the results."); cat("\n")
+    }
+  }
+    
   if(4 %in% tmp){ print_evaluation(x,digits); cat("\n")}
   
   if(length(tmp)==0){
@@ -203,49 +210,88 @@ PSTR$set("private", "print_tests", function(format, digits, ...) {
 
 PSTR$set("private", "print_estimates", function(format, digits, ...) {
   
-  if(!is.null(obj$iq)){
-    cat0(paste0(rep("#",getOption("width")),collapse=''))
-    cat0(paste0(rep("*",getOption("width")),collapse=''))
-    cat0("Results of the PSTR estimation:")
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("Transition variable '",obj$mQ_name[obj$iq],"' is used in the estimation.")
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("Parameter estimates in the linear part (first extreme regime) are")
-    tmp = rbind(obj$beta[1:length(obj$mX_name)],obj$se[1:length(obj$mX_name)])
-    rownames(tmp) = c('Est','s.e.')
-    print(signif(tmp,digits))
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("Parameter estimates in the non-linear part are")
-    tmp = rbind(obj$beta[(length(obj$mX_name)+1):length(obj$beta)],obj$se[(length(obj$mX_name)+1):length(obj$beta)])
-    rownames(tmp) = c('Est','s.e.')
-    print(signif(tmp,digits))
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("Parameter estimates in the second extreme regime are")
-    tmp = rbind(obj$mbeta,obj$mse)
-    rownames(tmp) = c('Est','s.e.')
-    colnames(tmp) = paste0(colnames(tmp),'_{0+1}')
-    print(signif(tmp,digits))
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("Non-linear parameter estimates are")
-    tmp = rbind(obj$est[(length(obj$beta)+1):length(obj$est)],obj$se[(length(obj$beta)+1):length(obj$se)])
-    rownames(tmp) = c('Est','s.e.')
-    print(signif(tmp,digits))
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("Estimated standard deviation of the residuals is ",signif(sqrt(obj$s2),digits))
-  }else{
-    if(!is.null(obj$est)){
-      cat0(paste0(rep("#",getOption("width")),collapse=''))
-      cat0(paste0(rep("*",getOption("width")),collapse=''))
-      cat0("A linear panel regression with fixed effects is estimated.")
-      cat0(paste0(rep("-",getOption("width")),collapse=''))
-      cat0("Parameter estimates are")
-      tmp = rbind(obj$est,obj$se)
-      rownames(tmp) = c('Est','s.e.')
-      print(signif(tmp,digits))
-      cat0(paste0(rep("-",getOption("width")),collapse=''))
-      cat0("Estimated standard deviation of the residuals is ",signif(sqrt(obj$s2),digits))
-    }
+  # nothing estimated yet
+  if(is.null(private$est) || is.null(private$se)){
+    code <- "`PSTR::EstPSTR()`"
+    cli::cli_alert_warning("The model has not been estimated yet, run {code}.")
+    return(invisible(self))
   }
+  
+  # nonlinear PSTR estimated
+  if(!is.null(private$iq)){
+    
+    cli::cli_h2("Results of the PSTR estimation:")
+    
+    cli::cli_alert_info(paste0(
+      "Transition variable '", private$mQ_name[private$iq], "' is used in the estimation."
+    ))
+    
+    kx <- length(private$mX_name)
+    
+    # linear part (beta_0)
+    cli::cli_h3("Parameter estimates in the linear part (first extreme regime)")
+    tab0 <- rbind(
+      Est = private$beta[1:kx],
+      `s.e.` = private$se[1:kx]
+    )
+    tab0 <- signif(tab0, digits)
+    print(knitr::kable(tab0, format=format, ...))
+    
+    # nonlinear part (beta_1)
+    cli::cli_h3("Parameter estimates in the non-linear part")
+    tab1 <- rbind(
+      Est = private$beta[(kx+1):length(private$beta)],
+      `s.e.` = private$se[(kx+1):length(private$beta)]
+    )
+    tab1 <- signif(tab1, digits)
+    print(knitr::kable(tab1, format=format, ...))
+    
+    # second extreme regime (beta_0 + beta_1) if available
+    if(!is.null(private$mbeta) && !is.null(private$mse)){
+      cli::cli_h3("Parameter estimates in the second extreme regime")
+      tab2 <- rbind(
+        Est = private$mbeta,
+        `s.e.` = private$mse
+      )
+      colnames(tab2) <- paste0(colnames(tab2), "_{0+1}")
+      tab2 <- signif(tab2, digits)
+      print(knitr::kable(tab2, format=format, ...))
+    }
+    
+    # nonlinear parameters (gamma and c's)
+    cli::cli_h3("Non-linear parameter estimates")
+    tab3 <- rbind(
+      Est = private$est[(length(private$beta)+1):length(private$est)],
+      `s.e.` = private$se[(length(private$beta)+1):length(private$se)]
+    )
+    tab3 <- signif(tab3, digits)
+    print(knitr::kable(tab3, format=format, ...))
+    
+    cli::cli_alert_info(paste0(
+      "Estimated standard deviation of the residuals is ",
+      signif(sqrt(private$s2), digits), "."
+    ))
+    
+  } else {
+    
+    # linear FE estimated
+    cli::cli_h2("A linear panel regression with fixed effects is estimated.")
+    
+    cli::cli_h3("Parameter estimates")
+    tab <- rbind(
+      Est = private$est,
+      `s.e.` = private$se
+    )
+    tab <- signif(tab, digits)
+    print(knitr::kable(tab, format=format, ...))
+    
+    cli::cli_alert_info(paste0(
+      "Estimated standard deviation of the residuals is ",
+      signif(sqrt(private$s2), digits), "."
+    ))
+  }
+  
+  invisible(self)
 })
 
 

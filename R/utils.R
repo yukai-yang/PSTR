@@ -93,7 +93,16 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
     }
   }
     
-  if(4 %in% tmp){ print_evaluation(x,digits); cat("\n")}
+  if(4 %in% tmp){
+    private$print_evaluation(format, digits, ...); cat("\n")
+  }else{ # tv, ht, wcb_tv, wcb_ht
+    if(!is.null(private$tv | !is.null(private$ht) | !is.null(private$wcb_tv) | !is.null(private$wcb_ht))){
+      code = '`print(obj, mode="evaluation")`'
+      cli::cli_alert_info("The evaluation results are ready, run {code} to show the results."); cat("\n")
+    }
+  }
+  
+  #{ print_evaluation(x,digits); cat("\n")}
   
   if(length(tmp)==0){
     cli::cli_alert_info("The argument 'mode' only accepts the values:")

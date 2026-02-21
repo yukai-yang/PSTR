@@ -1031,140 +1031,111 @@ plot_target <- function(obj, im = 1, iq = NULL, par = NULL, basedon = c(1, 2),
 }
 
 
-
-#' Plot the coefficients, the standard errors and the p-values against the transition variable.
+#' Plot coefficients, standard errors, and p-values against the transition variable
 #'
-#' This function plots the curves of the coefficients, the standard errors and the p-values against the transition variable.
+#' This function plots three curves against the transition variable:
+#' the coefficient function, its standard error, and the corresponding p-value.
 #'
-#' The curves of the coefficients, the standard errors and the p-values against the transition variable are functions
-#' \deqn{f_1(x) = \beta_{0j} + \beta_{1j}g(x ; \gamma, c)}
-#' \deqn{f_2(x) = se(f_1(x))}
-#' \deqn{f_3(x) = 1 - Prob\{ X < [f_1(x)/f_2(x)]^2 \} }
-#' where \eqn{x} is a variable taking the position of the transition variable,
-#' \eqn{se} stands for the cluster-robust and heteroskedasticity-consistent standard error of the estimate \eqn{f_1(x)} at \eqn{x},
-#' \eqn{X} is a random variable following chi-square distribution with degrees of freedom one.
-#' 
-#' More than one variable can be put in \code{vars}.
+#' For each selected variable \eqn{j}, the curves are
+#' \deqn{f_1(x) = \beta_{0j} + \beta_{1j} g(x;\gamma,c)}
+#' \deqn{f_2(x) = se\{f_1(x)\}}
+#' \deqn{f_3(x) = 1 - \Pr\left\{X < \left[f_1(x)/f_2(x)\right]^2\right\}}
+#' where \eqn{X} follows a chi-square distribution with one degree of freedom.
 #'
-#' The return value is a list of the same length as \code{vars}, whose elements are plottable objects.
+#' In addition to the exported function \code{plot_coefficients(obj = ...)},
+#' the same functionality is available as an R6 method via
+#' \code{obj$plot_coefficients(...)}.
 #'
-#' @param obj an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.
-#' @param vars a vector of column numbers or names (character strings) specifying which variables in the nonlinear part to use.
-#' @param length.out a scalar of desired length (number of points) for building the x-axis. 100 by default.
-#' @param color the color of the lines.
-#' @param size the size of the lines.
+#' @param obj An object of class \code{"PSTR"}.
+#' @param vars A vector of column indices or variable names from the nonlinear part.
+#' @param length.out Number of grid points over the transition variable.
+#' @param color Line colour.
+#' @param size Line width.
 #'
-#' @return A list of plottable objects from the \code{ggplot2} package.
-#'
-#' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
-#' @seealso Functions which return an object of the class PSTR can be input into this function
-#'
-#' \code{\link{EstPSTR}}
-#' 
-#' @keywords utils
+#' @return A named list of \code{ggplot2} objects.
 #'
 #' @examples
 #' \donttest{
-#' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-#'     tvars=c('vala','debta','cfa','sales'), iT=14) # create a new PSTR object
+#' pstr <- NewPSTR(Hansen99, dep = "inva", indep = 4:20,
+#'                 indep_k = c("vala","debta","cfa","sales"),
+#'                 tvars = c("vala","debta","cfa","sales"), iT = 14)
 #'
-#' # estimate the PSTR model first
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
+#' pstr <- EstPSTR(use = pstr, im = 1, iq = 1,
+#'                 useDelta = TRUE, par = c(.63,0), method = "CG")
 #'
-#' # plot the curve and surfaces
-#' ret = plot_coefficients(pstr, vars=1:4, length.out=100, color="dodgerblue4", size=2)
-#' ret[[1]]
-#' ret[[1]] + ggplot2::scale_x_log10()
+#' # Exported function
+#' ret <- plot_coefficients(pstr, vars = 1:4)
+#'
+#' # R6 method
+#' ret2 <- pstr$plot_coefficients(vars = 1:4)
 #' }
 #'
 #' @export
-plot_coefficients <- function(obj, vars, length.out = 100, color = "blue", size = 1.5) {
-  
+plot_coefficients <- function(obj, vars, length.out = 100,
+                              color = "blue", size = 1.5) {
   if (!inherits(obj, "PSTR"))
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
-  if (is.null(obj$vg))
+  
+  obj$plot_coefficients(vars = vars,
+                        length.out = length.out,
+                        color = color,
+                        size = size)
+}
+
+PSTR$set("public", "plot_coefficients", function(vars, length.out = 100, color = "blue", size = 1.5) {
+  
+  if (is.null(self$vg))
     stop(simpleError("The PSTR model is not estimated yet."))
-  if (is.null(obj$est) || is.null(obj$cov))
+  if (is.null(self$est) || is.null(self$cov))
     stop(simpleError("Estimates or covariance matrix are not available."))
   
-  iq <- obj$.get_iq()
-  if (is.null(iq) || length(iq) != 1 || !is.finite(iq))
-    stop(simpleError("No transition variable selected (iq is NULL)."))
+  iq <- private$iq
+  if (is.null(iq))
+    stop(simpleError("No transition variable selected."))
   
-  mQ <- obj$.get_mQ()
-  if (is.null(mQ) || !is.matrix(mQ))
-    stop(simpleError("Transition variables (mQ) are not available."))
+  mQ <- private$mQ
+  tvarname <- private$mQ_name[iq]
+  tvar <- mQ[, iq]
   
-  if (iq < 1 || iq > ncol(mQ))
-    stop(simpleError("Invalid iq (out of range for mQ)."))
+  imm <- private$imm
+  mK <- private$mK
+  mK_name <- private$mK_name
   
-  mQ_name <- obj$.get_mQ_name()
-  if (is.null(mQ_name) || length(mQ_name) < iq)
-    stop(simpleError("mQ_name is not available or has wrong length."))
+  if (length.out < 2)
+    stop(simpleError("length.out must be >= 2."))
   
-  tvarname <- mQ_name[iq]
-  
-  tvar <- as.numeric(mQ[, iq])
-  tvar <- tvar[is.finite(tvar)]
-  if (length(tvar) == 0)
-    stop(simpleError("Transition variable contains no finite values."))
-  
-  imm <- obj$.get_imm()
-  if (is.null(imm) || length(imm) != 1 || !is.finite(imm) || imm < 1)
-    stop(simpleError("Invalid imm."))
-  
-  mK <- obj$.get_mK()
-  if (is.null(mK) || !is.matrix(mK))
-    stop(simpleError("Nonlinear regressors (mK) are not available."))
-  
-  mK_name <- obj$.get_mK_name()
-  if (is.null(mK_name) || length(mK_name) != ncol(mK))
-    stop(simpleError("mK_name is not available or has wrong length."))
-  
-  if (!is.numeric(length.out) || length(length.out) != 1 || length.out < 2)
-    stop(simpleError("length.out must be a single number >= 2."))
-  
-  pp <- seq(from = min(tvar), to = max(tvar), length.out = length.out)
+  pp <- seq(min(tvar), max(tvar), length.out = length.out)
   
   mx <- matrix(rep(pp, times = imm), nrow = imm, byrow = TRUE)
-  ratio_grid <- fTF(mx, obj$gamma, obj$c)
+  ratio_grid <- fTF(mx, self$gamma, self$c)
+  ratio <- if (is.matrix(ratio_grid)) ratio_grid[1, ] else ratio_grid
   
-  # use the first row if fTF returns imm x length(pp)
-  ratio <- ratio_grid
-  if (is.matrix(ratio_grid)) ratio <- as.numeric(ratio_grid[1, ])
-  ratio <- as.numeric(ratio)
-  
-  tnames <- names(obj$est)
-  if (is.null(tnames) || length(tnames) != length(obj$est))
-    stop(simpleError("obj$est must be a named vector."))
-  
+  tnames <- names(self$est)
   ret <- list()
   
   for (vter in vars) {
     
-    # resolve variable name in nonlinear part
     if (is.numeric(vter)) {
-      if (length(vter) != 1 || vter < 1 || vter > ncol(mK)) next
+      if (vter < 1 || vter > ncol(mK)) next
       tchar <- mK_name[vter]
     } else {
       tchar <- as.character(vter)
-      if (length(tchar) != 1) next
     }
     
     idx0 <- match(paste0(tchar, "_0"), tnames)
     idx1 <- match(paste0(tchar, "_1"), tnames)
     if (is.na(idx0) || is.na(idx1)) next
     
-    tmp <- rep(0, length(obj$est))
-    tmp[idx0] <- 1
+    w <- rep(0, length(self$est))
+    w[idx0] <- 1
     
     bb <- numeric(length(ratio))
     se <- numeric(length(ratio))
     
     for (i in seq_along(ratio)) {
-      tmp[idx1] <- ratio[i]
-      bb[i] <- as.numeric(crossprod(tmp, obj$est))
-      se[i] <- sqrt(as.numeric(t(tmp) %*% obj$cov %*% tmp))
+      w[idx1] <- ratio[i]
+      bb[i] <- crossprod(w, self$est)
+      se[i] <- sqrt(t(w) %*% self$cov %*% w)
     }
     
     pv <- 1 - stats::pchisq((bb / se)^2, df = 1)
@@ -1173,23 +1144,27 @@ plot_coefficients <- function(obj, vars, length.out = 100, color = "blue", size 
       xx = rep(pp, 3),
       yy = c(bb, se, pv),
       gg = factor(
-        c(rep("\u03b2", length(bb)), rep("s.e.", length(se)), rep("p-val", length(pv))),
+        c(rep("\u03b2", length(bb)),
+          rep("s.e.", length(se)),
+          rep("p-val", length(pv))),
         levels = c("\u03b2", "s.e.", "p-val")
       )
     )
     
     p <- ggplot2::ggplot(dtmp, ggplot2::aes(x = xx, y = yy)) +
-      ggplot2::geom_line(color = color, linewidth = size) +
+      ggplot2::geom_line(colour = color, linewidth = size) +
       ggplot2::facet_grid(rows = ggplot2::vars(gg), scales = "free") +
       ggplot2::geom_hline(
         data = subset(dtmp, gg == "p-val"),
         ggplot2::aes(yintercept = 0.05),
         colour = "red", linetype = 2
       ) +
-      ggplot2::labs(x = tvarname, y = "", title = paste("coefficient", tchar))
+      ggplot2::labs(x = tvarname,
+                    y = "",
+                    title = paste("coefficient", tchar))
     
     ret[[tchar]] <- p
   }
   
   ret
-}
+})

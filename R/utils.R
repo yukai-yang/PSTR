@@ -718,175 +718,156 @@ plot_transition <- function(obj, size = 1.5, color = "blue",
 }
 
 
-#' Curve or surfaces of the expected reponse agaist the corresponding variable.
+#' Plot the expected response against selected variables
 #'
-#' This function plots the curve or the surfaces of the expected reponse agaist the corresponding variable (and the transition variable if surface).
+#' This function plots the effect-adjusted expected response for selected
+#' nonlinear variables in a PSTR model.
 #'
-#' The expected response is the expected value of the dependent variable minus the individual effect and all the other variables times their estimated coefficients.
-#' That is, if the variable is \eqn{z_{k,it}} in both \eqn{x_{it}} and \eqn{z_{it}},
-#' then the function plots the surface of
-#' \deqn{y_{it} - \mu_i - \beta_{-k,0}' x_{-k,it} + \beta_{-k,1}' z_{-k,it} g_{it} - u_{it}}
-#' or simply
-#' \deqn{(\beta_{k,0} + \beta_{k,1}g_{it}) \cdot z_{k,it}}
-#' where \eqn{-k} means with the \eqn{k}th element removed,
-#' against \eqn{z_{k,it}} and \eqn{q_{it}} if \eqn{z_{k,it} \neq q_{it}}.
+#' If the selected variable differs from the transition variable,
+#' a 3-D surface of
+#' \deqn{(\beta_{k,0} + \beta_{k,1} g(q;\gamma,c)) z_{k}}
+#' is plotted against \eqn{z_k} and the transition variable.
 #'
-#' If \eqn{z_{k,it} = q_{it}}, then the function plots the curve of the expected response defined above against \eqn{z_{k,it}}.
+#' If the selected variable coincides with the transition variable,
+#' a curve is plotted instead.
 #'
-#' More than one variable can be put in \code{vars}.
-#' If \code{vars} contains the transition variable and the transition variable belongs to the nonlinear part,
-#' the function will plot a curve of the effect-adjusted expected response and the transition variable,
-#' otherwise, the function will plot a 3-D surface of the effect-adjusted expected response against a chosen variable in the nonlinear part and the transition variable.
+#' In addition to the exported function
+#' \code{plot_response(obj = ...)}, the same functionality is available
+#' as an R6 method via \code{obj$plot_response(...)}.
 #'
-#' \code{length.out} takes a vector or a scalar.
-#' The vector must be two dimensional specifying numbers of points in the grid built for the surface.
-#' The first element of the vector corresponds to the variables, and the second to the transition variable.
-#' If it is a scalar, then grid has the same number of points for the variables and the transition varible.
+#' @param obj An object of class \code{"PSTR"}.
+#' @param vars Integer vector of column indices from the nonlinear part.
+#' @param log_scale Logical scalar or length-2 vector indicating whether
+#'   to use log scale for the regressor and/or transition variable.
+#' @param length.out Scalar or length-2 numeric vector controlling grid size.
+#' @param color Line colour.
+#' @param size Line width.
 #'
-#' The return value is a list of the same length as \code{vars}, whose elements are plottable objects.
-#'
-#' @param obj an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.
-#' @param vars a vector of column numbers or names (character strings) specifying which variables in the nonlinear part to use.
-#' @param log_scale a 2-dim vector or scalar specifying whether to take log scale for the variables and the transition variable.
-#' @param length.out a 2-dim vector or scalar of desired length (number of points) for the parameters. 20 by default.
-#' @param color the color of the line.
-#' @param size the size of the line.
-#'
-#' @return A list of plottable objects from the \code{ggplot2} (for curve) and/or \code{plotly} (for surface) package.
-#'
-#' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
-#' @seealso Functions which return an object of the class PSTR and can be input into this function
-#'
-#' \code{\link{EstPSTR}}
-#' @keywords utils
+#' @return A named list of \code{ggplot2} (curve) and/or
+#'   \code{plotly} (surface) objects.
 #'
 #' @examples
 #' \donttest{
-#' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-#'     tvars=c('vala','debta','cfa','sales'), iT=14) # create a new PSTR object
+#' pstr <- NewPSTR(Hansen99, dep = "inva", indep = 4:20,
+#'                 indep_k = c("vala","debta","cfa","sales"),
+#'                 tvars = c("vala","debta","cfa","sales"), iT = 14)
 #'
-#' # estimate the PSTR model first
-#' pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
+#' pstr <- EstPSTR(use = pstr, im = 1, iq = 1,
+#'                 useDelta = TRUE, par = c(.63,0), method = "CG")
 #'
-#' # plot the curve and surfaces
-#' ret = plot_response(obj=pstr, vars=1:4, log_scale = c(FALSE,TRUE), length.out=40)
-#' attributes(ret)
-#' ret$vala
-#' ret$debta
+#' # Exported interface
+#' ret <- plot_response(pstr, vars = 1:4)
+#'
+#' # R6 method
+#' ret2 <- pstr$plot_response(vars = 1:4)
 #' }
 #'
 #' @export
-plot_response <- function(obj, vars, log_scale = FALSE, length.out = 20,
-                          color = "blue", size = 1.5) {
+plot_response <- function(obj, vars,
+                          log_scale = FALSE,
+                          length.out = 20,
+                          color = "blue",
+                          size = 1.5) {
+  
   if (!inherits(obj, "PSTR"))
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
-  if (is.null(obj$vg))
+  
+  obj$plot_response(vars = vars,
+                    log_scale = log_scale,
+                    length.out = length.out,
+                    color = color,
+                    size = size)
+}
+
+
+PSTR$set("public", "plot_response", function(vars,
+                                             log_scale = FALSE,
+                                             length.out = 20,
+                                             color = "blue",
+                                             size = 1.5) {
+  
+  if (is.null(self$vg))
     stop(simpleError("The PSTR model is not estimated yet."))
   
-  if (length(length.out) == 1) length.out <- rep(length.out, 2)
-  if (length(log_scale) == 1)  log_scale  <- rep(log_scale, 2)
+  if (length(length.out) == 1)
+    length.out <- rep(length.out, 2)
   
-  iq <- obj$.get_iq()
-  if (is.null(iq) || length(iq) != 1 || !is.finite(iq))
-    stop(simpleError("No transition variable selected (iq is NULL)."))
+  if (length(log_scale) == 1)
+    log_scale <- rep(log_scale, 2)
   
-  mQ <- obj$.get_mQ()
-  if (is.null(mQ) || !is.matrix(mQ))
-    stop(simpleError("Transition variables (mQ) are not available."))
+  iq  <- private$iq
+  imm <- private$imm
+  mQ  <- private$mQ
+  mK  <- private$mK
   
-  if (iq < 1 || iq > ncol(mQ))
-    stop(simpleError("Invalid iq (out of range for mQ)."))
+  if (is.null(iq))
+    stop(simpleError("No transition variable selected."))
   
-  tvar <- as.numeric(mQ[, iq])
-  tvar <- tvar[is.finite(tvar)]
-  if (length(tvar) == 0)
-    stop(simpleError("Transition variable contains no finite values."))
+  tvar     <- mQ[, iq]
+  tvarname <- private$mQ_name[iq]
+  mK_name  <- private$mK_name
   
-  imm <- obj$.get_imm()  # NOTE: getter returns private$imm (not private$im)
-  if (is.null(imm) || length(imm) != 1 || !is.finite(imm) || imm < 1)
-    stop(simpleError("Invalid imm."))
-  
-  mQ_name <- obj$.get_mQ_name()
-  if (is.null(mQ_name) || length(mQ_name) < iq)
-    stop(simpleError("mQ_name is not available or has wrong length."))
-  
-  tvarname <- mQ_name[iq]
-  
-  mK <- obj$.get_mK()
-  if (is.null(mK) || !is.matrix(mK))
-    stop(simpleError("Nonlinear regressors (mK) are not available."))
-  
-  mK_name <- obj$.get_mK_name()
-  if (is.null(mK_name) || length(mK_name) != ncol(mK))
-    stop(simpleError("mK_name is not available or has wrong length."))
-  
-  vy <- seq(from = min(tvar), to = max(tvar), length.out = length.out[2])
-  
-  # build matrix for fTF: imm x length(vy), each row is vy
+  vy <- seq(min(tvar), max(tvar), length.out = length.out[2])
   mx <- matrix(rep(vy, times = imm), nrow = imm, byrow = TRUE)
   
-  # NOTE: gamma, c, beta, vg are results stored as public in your current design
-  vg_grid <- fTF(vx = mx, gamma = obj$gamma, vc = obj$c)
-  
-  ftmp <- function(vu) (phi0 + phi1 * vu[2]) * vu[1]
+  vg_grid <- fTF(vx = mx, gamma = self$gamma, vc = self$c)
+  vg1 <- if (is.matrix(vg_grid)) vg_grid[1, ] else vg_grid
   
   ret <- list()
   
   for (vter in vars) {
     
-    if (!is.numeric(vter) || length(vter) != 1) next
     if (vter < 1 || vter > ncol(mK)) next
     
-    vK <- as.numeric(mK[, vter])
-    vK <- vK[is.finite(vK)]
-    if (length(vK) == 0) next
-    
     varname <- mK_name[vter]
+    vK <- mK[, vter]
     
-    phi0 <- obj$beta[paste0(varname, "_0")]
-    phi1 <- obj$beta[paste0(varname, "_1")]
-    if (!is.finite(phi0) || !is.finite(phi1)) next
+    phi0 <- self$beta[paste0(varname, "_0")]
+    phi1 <- self$beta[paste0(varname, "_1")]
     
-    # Use the first row if fTF returns imm x length(vy)
-    vg1 <- vg_grid
-    if (is.matrix(vg_grid)) vg1 <- as.numeric(vg_grid[1, ])
+    ftmp <- function(vu) (phi0 + phi1 * vu[2]) * vu[1]
     
-    if (!identical(varname, tvarname)) {
+    if (varname != tvarname) {
       
-      vx <- seq(from = min(vK), to = max(vK), length.out = length.out[1])
-      
-      mz <- t(matrix(apply(expand.grid(vx, vg1), 1, ftmp), nrow = length(vx)))
+      vx <- seq(min(vK), max(vK), length.out = length.out[1])
+      mz <- t(matrix(apply(expand.grid(vx, vg1), 1, ftmp),
+                     nrow = length(vx)))
       
       scene <- list(
-        xaxis = list(title = paste0(varname, "_x")),
-        yaxis = list(title = paste0(tvarname, "_y")),
+        xaxis = list(title = varname),
+        yaxis = list(title = tvarname),
         zaxis = list(title = "response")
       )
-      if (isTRUE(log_scale[1])) scene$xaxis$type <- "log"
-      if (isTRUE(log_scale[2])) scene$yaxis$type <- "log"
       
-      tmp <- plotly::plot_ly(x = vx, y = vy, z = mz) |> plotly::add_surface()
-      tmp <- plotly::layout(tmp, scene = scene)
+      if (log_scale[1]) scene$xaxis$type <- "log"
+      if (log_scale[2]) scene$yaxis$type <- "log"
       
-      ret[[varname]] <- tmp
+      p <- plotly::plot_ly(x = vx, y = vy, z = mz) |>
+        plotly::add_surface() |>
+        plotly::layout(scene = scene)
+      
+      ret[[varname]] <- p
       
     } else {
       
       vz <- as.numeric(apply(cbind(vy, vg1), 1, ftmp))
       
-      tmp <- ggplot2::ggplot(tibble::tibble(vy = vy, vz = vz),
-                             ggplot2::aes(x = vy, y = vz)) +
-        ggplot2::labs(y = "response", x = varname) +
-        ggplot2::geom_line(color = color, linewidth = size)
+      p <- ggplot2::ggplot(
+        tibble::tibble(vy = vy, vz = vz),
+        ggplot2::aes(x = vy, y = vz)
+      ) +
+        ggplot2::geom_line(colour = color, linewidth = size) +
+        ggplot2::labs(x = varname, y = "response")
       
-      if (isTRUE(log_scale[2])) tmp <- tmp + ggplot2::scale_x_log10()
+      if (log_scale[2])
+        p <- p + ggplot2::scale_x_log10()
       
-      ret[[varname]] <- tmp
+      ret[[varname]] <- p
     }
   }
   
   ret
-}
+})
 
 
 

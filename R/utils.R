@@ -75,7 +75,7 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
   
   if(1 %in% tmp){ private$print_summary(format, ...); cat("\n")}
   
-  print_message = NULL
+  print_message = character()
   
   if(2 %in% tmp){
     private$print_tests(format, digits, ...); cat("\n")
@@ -83,7 +83,7 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
     if(!is.null(self$test) || !is.null(self$wcb_test)){
       #code = '`print(obj, mode="tests")`'
       #cli::cli_alert_info("The results of the linearity tests are ready, run {code} to show the results."); cat("\n")
-      print_message = paste0(print_message, '\n The results of the linearity tests are ready, run `print(obj, mode="tests")` to show the results.')
+      print_message = c(print_message, 'The specification results are ready, run `print(obj, mode="tests")` to show the results.')
     }
   }
   
@@ -93,7 +93,7 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
     if(!is.null(self$est)){
       #code = '`print(obj, mode="estimates")`'
       #cli::cli_alert_info("The estimation results are ready, run {code} to show the results."); cat("\n")
-      print_message = paste0(print_message, '\n The estimation results are ready, run `print(obj, mode="estimates")` to show the results.')
+      print_message = c(print_message, 'The estimation results are ready, run `print(obj, mode="estimates")` to show the results.')
     }
   }
     
@@ -103,7 +103,7 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
     if(!is.null(self$tv) || !is.null(self$ht) || !is.null(self$wcb_tv) || !is.null(self$wcb_ht)){
       #code = '`print(obj, mode="evaluation")`'
       #cli::cli_alert_info("The evaluation results are ready, run {code} to show the results."); cat("\n")
-      print_message = paste0(print_message, '\n The evaluation results are ready, run `print(obj, mode="evaluation")` to show the results.')
+      print_message = c(print_message, 'The evaluation results are ready, run `print(obj, mode="evaluation")` to show the results.')
     }
   }
   
@@ -112,7 +112,9 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
     cat0("  'summary', 'tests', 'estimates' or 'evaluation'.")
     cat0("  Incomplete words, such as 'su' or 'mm' for 'summary', are allowed.")
   }else{
-    cli::cli_alert_info(print_message)
+    if (length(print_message) > 0) {
+      cli::cli_bullets(setNames(print_message, rep("i", length(print_message))))
+    }
   }
   
 })

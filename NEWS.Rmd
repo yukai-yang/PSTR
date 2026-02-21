@@ -14,11 +14,33 @@ knitr::opts_chunk$set(
 )
 ```
 
-# New Features in PSTR 1.4.0 'Green Panel'
+# PSTR 2.0.0 'Green Panel'
 
-* In this version, the PSTR class follows the R6 type class with reference semantics.
-* The print uses knitr::kable and has a new-look.
-* The "cli" package is used to decorate the command line output.
+## New features
+
+* The `PSTR` class now follows an R6 design with reference semantics.
+* The main modelling steps are implemented as class methods.
+* Exported wrapper functions remain available for backward compatibility.
+* The command line output is redesigned using the `cli` package.
+* The print layout is modernised using `knitr::kable`.
+* Separate print views are available for summary, tests, estimation, and evaluation.
+* Internal getters and setters are added to support a clean R6 workflow.
+
+## Improvements
+
+* Evaluation and bootstrap routines are rewritten under the R6 structure.
+* Result objects are stored with consistent naming (`tv`, `ht`, `wcb_tv`, `wcb_ht`).
+* Numerical robustness is improved in near-singular matrix inversion cases.
+* An SVD-based pseudoinverse is used when necessary.
+* Bootstrap routines use deep cloning to avoid overwriting the original object.
+* Internal print helpers are reorganised into dedicated private methods.
+
+## Notes
+
+* This release includes a substantial internal refactor.
+* Direct access to model components is discouraged.
+* Users should rely on documented print modes and exported interfaces.
+
 
 # New Features in PSTR 1.3.0 'Yellow Panel'
 

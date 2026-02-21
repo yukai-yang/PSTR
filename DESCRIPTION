@@ -1,16 +1,16 @@
 Package: PSTR
 Type: Package
 Title: Panel Smooth Transition Regression Modelling
-Version: 1.4.0
+Version: 2.0.0
 Authors@R: person(given="Yukai",family="Yang",email="yukai.yang@statistik.uu.se",role=c("aut", "cre"),comment=c(ORCID="0000-0002-2623-8549"))
-Description: Provides the Panel Smooth Transition Regression (PSTR) modelling.
+Description: Implements the Panel Smooth Transition Regression (PSTR) framework for nonlinear panel data modelling.
     The modelling procedure consists of three stages: Specification, Estimation and Evaluation.
-    The package offers sharp tools helping the package user(s) to conduct model specification tests,
+    The package provides tools for model specification testing,
     to do PSTR model estimation, and to do model evaluation.
-    The tests implemented in the package allow for cluster-dependency and are heteroskedasticity-consistent.
+    The implemented tests allow for cluster dependence and are heteroskedasticity-consistent.
     The wild bootstrap and wild cluster bootstrap tests are also implemented.
     Parallel computation (as an option) is implemented in some functions, especially the bootstrap tests.
-    The package suits tasks running many cores on super-computation servers.
+    The package supports parallel computation, which is useful for large-scale bootstrap procedures.
 Depends: R (>= 4.0.0)
 License: GPL-3
 Encoding: UTF-8
@@ -23,7 +23,6 @@ Imports: tibble,
     cli,
     ggplot2,
     plotly,
-    stats,
     magrittr
 Suggests: 
     rmarkdown

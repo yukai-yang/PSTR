@@ -255,71 +255,140 @@ WCB_TVTest <- function(use, iB = 100, parallel = FALSE, cpus = 4) {
 }
 
 
-#' @rdname EvalTest
-#' @export
-WCB_HETest <- function(use, vq, iB=100, parallel=F, cpus=4)
-{
-  if(!inherits(use, 'PSTR'))
-    stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
-  if(is.null(use$iq))
+# ---- internal helpers assumed to exist (as in your WCB_TVTest) ----
+# - svd_pinv()
+# - sLMTEST()
+# - EstPSTR() wrapper
+# - PSTR public methods: .set_vY, .get_vU, .get_s2, .get_mK, .get_beta, .get_mXX
+# - snowfall: sfInit/sfSapply/sfStop
+
+PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus = 4) {
+  
+  if (is.null(private$iq)) {
     stop(simpleError("Estimate the PSTR model first!"))
-  ret = use; ruse = use
-  im = use$im
-  
-  iT = use$iT; iN = use$iN
-  vU = use$vU; eY = use$vY - vU
-  
-  mD = diag(1,iN) %x% rep(1,iT)
-  mM = diag(1, iN*iT) - tcrossprod(mD)/iT
-  
-  tmp = c(use$mK %*% use$beta[(ncol(use$mX)+1):length(use$beta)])
-  tmp = use$mD * tmp
-  mV = cbind(use$mXX, tmp)
-  mV2 = mM %*% mV
-  invVV = chol2inv(chol(crossprod(mV2)))
-  
-  ftmp_wb <- function(bter){# WB
-    ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
-    ruse$vY = eY + ve1
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),useDelta=T,vLower=1,vUpper=1)
-    vu1 = EST$vU; ss1 = EST$s2 # sigma^2
-    tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
-    tmp = EST$mD * tmp
-    mV11 = cbind(EST$mXX, tmp)
-    mV12 = mM %*% mV11
-    invVV1 = chol2inv(chol(t(mV12)%*%mV12))
-    return(sLMTEST(iT=iT,iN=iN,vU=vu1,mX=mV11,mW=mW,mM=mM,s2=ss1,mX2=mV12,invXX=invVV1))
   }
   
-  ftmp_wcb <- function(bter){# WCB
-    ve2 = c(t(matrix(sample(c(1,-1),iN,replace=T),iN,iT)))*vU
-    ruse$vY = eY + ve2
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),useDelta=T,vLower=1,vUpper=1)
-    vu2 = EST$vU; ss2 = EST$s2 # sigma^2
-    tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
-    tmp = EST$mD * tmp
-    mV21 = cbind(EST$mXX, tmp)
-    mV22 = mM %*% mV21
-    invVV2 = chol2inv(chol(t(mV22)%*%mV22))
-    return(sLMTEST(iT=iT,iN=iN,vU=vu2,mX=mV21,mW=mW,mM=mM,s2=ss2,mX2=mV22,invXX=invVV2))
+  if (is.null(vq)) {
+    stop(simpleError("Please provide 'vq' for the heterogeneity test."))
   }
   
-  ret$wcb_ht = NULL
-  mW = NULL
+  # IMPORTANT: use a deep clone so we don't overwrite the original object
+  ruse <- self$clone(deep = TRUE)
   
-  for(mter in 1:im){
-    mW = cbind(mW, use$mXX*(vq**mter))
-    LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mV,mW=mW,mM=mM,s2=use$s2,mX2=mV2,invXX=invVV)
+  im <- private$im
+  iT <- private$iT
+  iN <- private$iN
+  
+  vU <- private$vU
+  eY <- private$vY - vU
+  
+  mD <- diag(1, iN) %x% rep(1, iT)
+  mM <- diag(1, iN * iT) - tcrossprod(mD) / iT
+  
+  # build V for the auxiliary regression (pp.14)
+  mK0 <- private$mK
+  beta0 <- private$beta
+  beta_k0 <- tail(beta0, ncol(mK0))
+  tmp <- c(mK0 %*% beta_k0)
+  
+  tmp <- mD * tmp
+  mV <- cbind(private$mXX, tmp)
+  mV2 <- mM %*% mV
+  invVV <- svd_pinv(crossprod(mV2))
+  
+  ftmp_wb <- function(bter) { # WB
+    ve1 <- sample(c(1, -1), iT * iN, replace = TRUE) * vU
+    ruse$.set_vY(eY + ve1)
     
-    sfInit(parallel=parallel,cpus=cpus)
-    qLM1 = sfSapply(1:iB,ftmp_wb)
-    qLM2 = sfSapply(1:iB,ftmp_wcb)
+    EST <- EstPSTR(
+      use = ruse, im = 1, iq = ruse$iq,
+      par = c(private$delta, private$c),
+      useDelta = TRUE, vLower = 1, vUpper = 1
+    )
+    
+    vu1 <- EST$.get_vU()
+    ss1 <- EST$.get_s2()
+    
+    mK <- EST$.get_mK()
+    beta <- EST$.get_beta()
+    beta_k <- tail(beta, ncol(mK))
+    tmp1 <- c(mK %*% beta_k)
+    
+    tmp1 <- mD * tmp1
+    mV11 <- cbind(EST$.get_mXX(), tmp1)
+    mV12 <- mM %*% mV11
+    invVV1 <- svd_pinv(crossprod(mV12))
+    
+    sLMTEST(
+      iT = iT, iN = iN, vU = vu1,
+      mX = mV11, mW = mW, mM = mM,
+      s2 = ss1, mX2 = mV12, invXX = invVV1
+    )
+  }
+  
+  ftmp_wcb <- function(bter) { # WCB
+    ve2 <- c(t(matrix(sample(c(1, -1), iN, replace = TRUE), iN, iT))) * vU
+    ruse$.set_vY(eY + ve2)
+    
+    EST <- EstPSTR(
+      use = ruse, im = 1, iq = ruse$iq,
+      par = c(private$delta, private$c),
+      useDelta = TRUE, vLower = 1, vUpper = 1
+    )
+    
+    vu2 <- EST$.get_vU()
+    ss2 <- EST$.get_s2()
+    
+    mK <- EST$.get_mK()
+    beta <- EST$.get_beta()
+    beta_k <- tail(beta, ncol(mK))
+    tmp2 <- c(mK %*% beta_k)
+    
+    tmp2 <- mD * tmp2
+    mV21 <- cbind(EST$.get_mXX(), tmp2)
+    mV22 <- mM %*% mV21
+    invVV2 <- svd_pinv(crossprod(mV22))
+    
+    sLMTEST(
+      iT = iT, iN = iN, vU = vu2,
+      mX = mV21, mW = mW, mM = mM,
+      s2 = ss2, mX2 = mV22, invXX = invVV2
+    )
+  }
+  
+  private$wcb_ht <- NULL
+  mW <- NULL
+  
+  for (mter in 1:im) {
+    
+    mW <- cbind(mW, private$mXX * (vq ^ mter))
+    
+    LM <- sLMTEST(
+      iT = iT, iN = iN, vU = vU,
+      mX = mV, mW = mW, mM = mM,
+      s2 = private$s2, mX2 = mV2, invXX = invVV
+    )
+    
+    sfInit(parallel = parallel, cpus = cpus)
+    qLM1 <- sfSapply(1:iB, ftmp_wb)
+    qLM2 <- sfSapply(1:iB, ftmp_wcb)
     sfStop()
     
-    ret$wcb_ht = rbind(ret$wcb_ht,c(LM, mean(LM<=qLM1), mean(LM<=qLM2)))
+    private$wcb_ht <- rbind(private$wcb_ht, c(LM, mean(LM <= qLM1), mean(LM <= qLM2)))
   }
   
-  ret$wcb_ht = matrix(ret$wcb_ht, nrow=im)
+  private$wcb_ht <- matrix(private$wcb_ht, nrow = im)
   
-  return(ret)
+  cli::cli_alert_success("Done!")
+  invisible(self)
+})
+
+#' @rdname EvalTest
+#' @export
+WCB_HETest <- function(use, vq, iB = 100, parallel = FALSE, cpus = 4) {
+  if (!inherits(use, "PSTR")) {
+    stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
+  }
+  use$WCB_HETest(vq = vq, iB = iB, parallel = parallel, cpus = cpus)
+  invisible(use)
 }

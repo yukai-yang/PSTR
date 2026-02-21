@@ -2,60 +2,73 @@
 % Please edit documentation in R/PSTR.R
 \name{NewPSTR}
 \alias{NewPSTR}
-\title{Create an object of the class PSTR.}
+\title{Create a PSTR model object}
 \usage{
 NewPSTR(data, dep, indep, indep_k = NULL, tvars, im = 1, iT)
 }
 \arguments{
-\item{data}{a tibble of data. The number of rows of \code{data} must be the sample size \code{iT} times individuals number N.}
+\item{data}{A tibble containing the panel in long format. The number of rows must be
+\code{iT * N} for some integer \code{N}. Rows are assumed to be ordered by time within
+individual, consistently with the package conventions.}
 
-\item{dep}{column number or name of the dependent variable. Note that this must be specified.}
+\item{dep}{A single column index or a single column name specifying the dependent variable.}
 
-\item{indep}{a vector of column numbers of names of the independent variables. Note that this must be specified.}
+\item{indep}{A vector of column indices or column names specifying the regressors in the
+linear part.}
 
-\item{indep_k}{a vector of column numbers of names of the independent variables in the nonlinear part. If \code{indep_k} is not given (\code{= NULL}), the nonlinear part will be the same as the linear part.}
+\item{indep_k}{Optional. A vector of column indices or column names specifying the regressors
+in the non-linear part. If \code{NULL}, the non-linear part is set equal to the linear part.}
 
-\item{tvars}{a vector of column numbers or names of the potential transition variables to be tested.}
+\item{tvars}{A vector of column indices or column names specifying the candidate transition
+variables.}
 
-\item{im}{maximal number of switches in the transition function used in the linearity evaluation tests, by default \code{im=1}.}
+\item{im}{Integer. The maximal number of switches used in linearity-related tests.
+Default is \code{1}.}
 
-\item{iT}{sample size.}
+\item{iT}{Integer. The time dimension (number of time observations per individual).}
 }
 \value{
-An object of the class PSTR for later usage.
-
-The object is a list containing the following components:
-\item{iT}{the time length of the panel}
-\item{iN}{the number of individuals}
-\item{vY}{the vector of the dependent variable}
-\item{mX}{the matrix of the explanatory variables in the linear part}
-\item{mK}{the matrix of the explanatory variables in the nonlinear part}
-\item{mQ}{the matrix of the potential transition variables}
-\item{im}{the maximal number of switches used in the linearity test}
+An R6 object of class \code{"PSTR"}.
 }
 \description{
-Create an object of the R6 class PSTR for later usage. This function should be run prior to the other functions in the package. It will return an object which you will use as an input for the other functions. It builds up the basic settings for the Panel Smooth Transition Regression (PSTR) Modelling.
+Create an R6 object of class \code{"PSTR"} to be used as the main container for
+Panel Smooth Transition Regression (PSTR) modelling in this package.
+You typically call \code{NewPSTR()} once, and then pass the returned object to
+specification, estimation and evaluation functions.
 }
 \details{
-Potential transition variables in \code{tvars} will be tested one by one in, for example, \code{LinTest} function.
+The candidate transition variables in \code{tvars} will be stored in the object
+and can be tested one by one by functions such as \code{\link{LinTest}}.
 
-There is no need to specify the number of individuals,  as it will be obtained automatically inside the function given the number of rows and the sample size \code{iT}.
-
-\code{NA}s in \code{data} are removed automatically inside the function.
+Missing values in the dependent variable, linear regressors, non-linear regressors,
+or transition variables are removed internally (row-wise).
+The number of individuals \eqn{N} is inferred from \code{nrow(data)} and \code{iT}
+after removing missing values.
 }
 \examples{
-pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-    tvars=c('vala','debta'), iT=14)
+\donttest{
+pstr <- NewPSTR(
+  Hansen99,
+  dep = "inva",
+  indep = 4:20,
+  indep_k = c("vala", "debta", "cfa", "sales"),
+  tvars = c("vala", "debta"),
+  iT = 14
+)
 
+# print summary (your R6 print method)
 pstr
+print(pstr, mode = "summary")
 
-print(pstr,"summary")
+# after running tests/estimation, you can print other sections
+# print(pstr, mode = "tests")
+# print(pstr, mode = "estimates")
+# print(pstr, mode = "evaluation")
+}
 
 }
 \seealso{
-\code{\link{LinTest}}
-}
-\author{
-Yukai Yang, \email{yukai.yang@statistik.uu.se}
+\code{\link{LinTest}}, \code{\link{WCB_LinTest}}, \code{\link{EstPSTR}},
+  \code{\link{EvalTest}}, \code{\link{WCB_TVTest}}, \code{\link{WCB_HETest}}.
 }
 \keyword{initialization}

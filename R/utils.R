@@ -786,7 +786,6 @@ plot_response <- function(obj, vars, log_scale = FALSE, length.out = 20,
   if (length(length.out) == 1) length.out <- rep(length.out, 2)
   if (length(log_scale) == 1)  log_scale  <- rep(log_scale, 2)
   
-  # ---- private members via getters ----
   iq <- obj$.get_iq()
   if (is.null(iq) || length(iq) != 1 || !is.finite(iq))
     stop(simpleError("No transition variable selected (iq is NULL)."))
@@ -820,7 +819,6 @@ plot_response <- function(obj, vars, log_scale = FALSE, length.out = 20,
   mK_name <- obj$.get_mK_name()
   if (is.null(mK_name) || length(mK_name) != ncol(mK))
     stop(simpleError("mK_name is not available or has wrong length."))
-  # -------------------------------------
   
   vy <- seq(from = min(tvar), to = max(tvar), length.out = length.out[2])
   
@@ -943,68 +941,84 @@ plot_response <- function(obj, vars, log_scale = FALSE, length.out = 20,
 #'   to=c(log(18),10),length.out=c(40,40))
 #' }
 #' 
-#' @export
-plot_target <- function(obj,im=1,iq=NULL,par=NULL,basedon=c(1,2),from,to,length.out=40)
-{
-  if(!inherits(obj, 'PSTR'))
-    stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
-  ret = NULL
-  iT = obj$iT; iN = obj$iN
+#' @name plot_target
+NULL
 
-  # get the data here
-  vY = obj$vY; vYb = obj$vYb
-  mX = obj$mX; mXb = obj$mXb
-  mK = obj$mK
-  ik = ncol(mK)
-
-  ftmp <- function(vx) return(vx - mean(vx))
-
-  if(!is.null(iq)){
-    if(im < 1) stop(simpleError("The number of switches is invalid."))
-
-    pnames = paste0('c_',basedon-1)
-    pnames[pnames=='c_0'] = "delta"
-
-    vQ = obj$mQ[,iq]
-    mQ = t(matrix(vQ,iT*iN,im))
-
-    if(is.null(par)){
-      tmp = unname(quantile(vQ, (1:im) / (im+1)))
-      par = c(log(8/min(diff(c(0,tmp)))), tmp)
-    }
-
-    if(length(length.out)==1) length.out = rep(length.out,2)
-
-    ret$x = seq(from=from[1], to=to[1], length.out=length.out[1])
-    ret$y = seq(from=from[2], to=to[2], length.out=length.out[2])
-
-    ret$com = expand.grid(ret$x, ret$y)
-
-    ResiduleSumSquare <- function(vpp){
-      vp = par
-      vp[basedon] = vpp
-      vg = fTF(vx=mQ,gamma=exp(vp[1]),vc=vp[2:length(vp)])
-      mXX = mK * vg
-      aXX = array(c(mXX), dim=c(iT,iN,ik))
-      mXXb = cbind(mXb, matrix(c(apply(aXX,c(2,3),ftmp)), iT*iN, ik))
-      tmp = chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb
-      vE = c(vYb-mXXb%*%tmp)
-      return(sum(vE*vE)/iT/iN)
-    }
-
-    ret$val = apply(ret$com,1,ResiduleSumSquare)
-    ret$val = t(matrix(ret$val, nrow=length(ret$x)))
-
-    ret = add_surface(plot_ly(x=ret$x, y=ret$y, z=ret$val))
-
-    tmpp = list(xaxis=list(title=pnames[1]),
-                yaxis=list(title=pnames[2]),zaxis=list(title="target"))
-    ret = ret %>% layout(scene=tmpp)
-
-    return(ret)
+# 1) R6 method (inside class)
+PSTR$set("public", "plot_target", function(im = 1, iq = NULL, par = NULL,
+                                           basedon = c(1, 2), from, to, length.out = 40) {
+  if (is.null(iq)) stop(simpleError("Transition variable missing! Please specify iq."))
+  if (im < 1) stop(simpleError("The number of switches is invalid."))
+  
+  # allow iq as name
+  if (!is.numeric(iq)) {
+    iq <- which(private$mQ_name == iq)
+    if (length(iq) != 1) stop(simpleError("Invalid iq name (not found or not unique)."))
   }
-  else stop(simpleError("Transition variable missing! Please specify iq."))
+  
+  iT <- private$iT
+  iN <- private$iN
+  
+  vYb <- private$vYb
+  mXb <- private$mXb
+  mK  <- private$mK
+  ik  <- ncol(mK)
+  
+  vQ <- private$mQ[, iq]
+  mQ <- t(matrix(vQ, iT * iN, im))
+  
+  ftmp <- function(vx) vx - mean(vx)
+  
+  pnames <- paste0("c_", basedon - 1)
+  pnames[pnames == "c_0"] <- "delta"
+  
+  if (is.null(par)) {
+    tmp <- unname(quantile(vQ, (1:im) / (im + 1)))
+    par <- c(log(8 / min(diff(c(0, tmp)))), tmp)
+  }
+  
+  if (length(length.out) == 1) length.out <- rep(length.out, 2)
+  
+  x <- seq(from = from[1], to = to[1], length.out = length.out[1])
+  y <- seq(from = from[2], to = to[2], length.out = length.out[2])
+  com <- expand.grid(x, y)
+  
+  ResiduleSumSquare <- function(vpp) {
+    vp <- par
+    vp[basedon] <- vpp
+    vg <- fTF(vx = mQ, gamma = exp(vp[1]), vc = vp[2:length(vp)])
+    
+    mXX <- mK * vg
+    aXX <- array(c(mXX), dim = c(iT, iN, ik))
+    mXXb <- cbind(mXb, matrix(c(apply(aXX, c(2, 3), ftmp)), iT * iN, ik))
+    
+    tmp <- chol2inv(chol(t(mXXb) %*% mXXb)) %*% t(mXXb) %*% vYb
+    vE <- c(vYb - mXXb %*% tmp)
+    sum(vE * vE) / iT / iN
+  }
+  
+  val <- apply(com, 1, ResiduleSumSquare)
+  val <- t(matrix(val, nrow = length(x)))
+  
+  ret <- plotly::add_surface(plotly::plot_ly(x = x, y = y, z = val))
+  tmpp <- list(
+    xaxis = list(title = pnames[1]),
+    yaxis = list(title = pnames[2]),
+    zaxis = list(title = "target")
+  )
+  ret <- ret %>% plotly::layout(scene = tmpp)
+  
+  ret
+})
 
+#' @rdname plot_target
+#' @export
+plot_target <- function(obj, im = 1, iq = NULL, par = NULL, basedon = c(1, 2),
+                        from, to, length.out = 40) {
+  if (!inherits(obj, "PSTR"))
+    stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
+  obj$plot_target(im = im, iq = iq, par = par, basedon = basedon,
+                  from = from, to = to, length.out = length.out)
 }
 
 #' Plot the coefficients, the standard errors and the p-values against the transition variable.
@@ -1062,7 +1076,6 @@ plot_coefficients <- function(obj, vars, length.out = 100, color = "blue", size 
   if (is.null(obj$est) || is.null(obj$cov))
     stop(simpleError("Estimates or covariance matrix are not available."))
   
-  # ---- private members via getters ----
   iq <- obj$.get_iq()
   if (is.null(iq) || length(iq) != 1 || !is.finite(iq))
     stop(simpleError("No transition variable selected (iq is NULL)."))
@@ -1096,7 +1109,6 @@ plot_coefficients <- function(obj, vars, length.out = 100, color = "blue", size 
   mK_name <- obj$.get_mK_name()
   if (is.null(mK_name) || length(mK_name) != ncol(mK))
     stop(simpleError("mK_name is not available or has wrong length."))
-  # -------------------------------------
   
   if (!is.numeric(length.out) || length(length.out) != 1 || length.out < 2)
     stop(simpleError("length.out must be a single number >= 2."))

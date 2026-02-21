@@ -527,13 +527,6 @@ PSTR$set("private", "print_evaluation", function(format, digits, ...) {
 })
 
 
-PSTR$set("public", ".get_iq", function() private$iq)
-PSTR$set("public", ".get_mQ", function() private$mQ)
-PSTR$set("public", ".get_mQ_name", function() private$mQ_name)
-PSTR$set("public", ".get_imm", function() private$imm)
-PSTR$set("public", ".get_mK_name", function() private$mK_name)
-
-
 #' Plot the transition function of an estimated PSTR model
 #'
 #' This function plots the estimated transition function

@@ -103,7 +103,7 @@ PSTR$set("public", "EvalTest", function(type = c("time-varying", "heterogeneity"
   mM = diag(1, private$iN*private$iT) - tcrossprod(mD)/private$iT
   
   tmp = c(private$mK %*% private$beta[(ncol(private$mX)+1):length(private$beta)])
-  tmp = private$mD * tmp ## pp.14
+  tmp = mD * tmp ## pp.14
   mV = cbind(private$mXX, tmp)
   mV2 = mM %*% mV
   invVV = chol2inv(chol(crossprod(mV2)))
@@ -147,6 +147,10 @@ EvalTest <- function(use, type = c("time-varying", "heterogeneity"), vq = NULL) 
   invisible(use)
 }
 
+PSTR$set("public", "set_vY", function(vY_new) {
+  private$vY <- as.numeric(vY_new)
+  invisible(self)
+})
 
 PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) {
   
@@ -165,18 +169,18 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
   mM = diag(1, iN*iT) - tcrossprod(mD)/iT
   
   tmp = c(private$mK %*% private$beta[(ncol(private$mX)+1):length(private$beta)])
-  tmp = private$mD * tmp
+  tmp = mD * tmp
   mV = cbind(private$mXX, tmp)
   mV2 = mM %*% mV
   invVV = chol2inv(chol(crossprod(mV2)))
   
   ftmp_wb <- function(bter){# WB
     ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
-    ruse$vY = eY + ve1
+    ruse$set_vY(eY + ve1)
     EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
     vu1 = EST$vU; ss1 = EST$s2 # sigma^2
     tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
-    tmp = EST$mD * tmp
+    tmp = mD * tmp
     mV11 = cbind(EST$mXX, tmp)
     mV12 = mM %*% mV11
     invVV1 = chol2inv(chol(t(mV12)%*%mV12))
@@ -185,11 +189,11 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
   
   ftmp_wcb <- function(bter){# WCB
     ve2 = c(t(matrix(sample(c(1,-1),iN,replace=T),iN,iT)))*vU
-    ruse$vY = eY + ve2
+    ruse$set_vY(eY + ve2)
     EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
     vu2 = EST$vU; ss2 = EST$s2 # sigma^2
     tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
-    tmp = EST$mD * tmp
+    tmp = mD * tmp
     mV21 = cbind(EST$mXX, tmp)
     mV22 = mM %*% mV21
     invVV2 = chol2inv(chol(t(mV22)%*%mV22))

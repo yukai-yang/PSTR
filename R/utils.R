@@ -146,162 +146,287 @@ PSTR$set("private", "print_summary", function(...) {
 
 
 PSTR$set("private", "print_tests", function(format, digits, ...) {
-  im = private$im
   
-  if(!is.null(self$test) | !is.null(self$wcb_test)){
-    cli::cli_h2("Results of the linearity (homogeneity) tests:")
+  im <- private$im
+  
+  # helper: build two-row-per-m table for one transition variable
+  build_tab <- function(test_list_for_one_q, wcb_mat_for_one_q = NULL, im) {
     
-    tmp = list()
-    if(!is.null(self$test)){
-      length(tmp) = length(self$test)
-      for(iter in 1:length(self$test)){
-        for(jter in 1:im){
-          ttmp = self$test[[iter]][[jter]]
-          tmp[[iter]] = rbind(tmp[[iter]], c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
-                             ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
+    out <- NULL
+    
+    for (m in 1:im) {
+      
+      ttmp <- test_list_for_one_q[[m]]
+      
+      # 1) stat row
+      r1 <- c(
+        m,
+        ttmp$LM1_X,
+        ttmp$LM1_F,
+        ttmp$LM2_X,
+        ttmp$LM2_F
+      )
+      
+      # 2) p-val row
+      r2 <- c(
+        "p-val",
+        ttmp$PV1_X,
+        ttmp$PV1_F,
+        ttmp$PV2_X,
+        ttmp$PV2_F
+      )
+      
+      # optional: add WB/WCB p-values (already p-values)
+      if (!is.null(wcb_mat_for_one_q)) {
+        wb  <- wcb_mat_for_one_q[m, 2]
+        wcb <- wcb_mat_for_one_q[m, 3]
+        r1 <- c(r1, wb, wcb)
+        r2 <- c(r2, wb, wcb)
+      }
+      
+      out <- rbind(out, r1, r2)
+    }
+    
+    out <- as.data.frame(out, stringsAsFactors = FALSE)
+    
+    if (is.null(wcb_mat_for_one_q)) {
+      colnames(out) <- c("m", "LM_X", "LM_F", "HAC_X", "HAC_F")
+    } else {
+      colnames(out) <- c("m", "LM_X", "LM_F", "HAC_X", "HAC_F", "WB_PV", "WCB_PV")
+    }
+    
+    # numeric conversion for numeric columns
+    num_cols <- setdiff(colnames(out), "m")
+    out[num_cols] <- lapply(out[num_cols], as.numeric)
+    
+    out
+  }
+  
+  printed_any <- FALSE
+  
+  # ---------------------------
+  # Main linearity tests
+  # ---------------------------
+  if (!is.null(self$test) || !is.null(self$wcb_test)) {
+    
+    printed_any <- TRUE
+    cli::cli_h2("Results of the linearity (homogeneity) tests")
+    
+    # how many transition variables are we printing?
+    nQ <- max(length(self$test), length(self$wcb_test))
+    
+    for (iter in seq_len(nQ)) {
+      
+      cli::cli_h3(
+        paste0("LM tests based on transition variable '",
+               private$mQ_name[iter], "'")
+      )
+      
+      # main tests exist?
+      if (!is.null(self$test) && iter <= length(self$test)) {
+        wcb_here <- NULL
+        if (!is.null(self$wcb_test) && iter <= length(self$wcb_test)) {
+          wcb_here <- self$wcb_test[[iter]]
         }
-        tmp[[iter]] = matrix(tmp[[iter]], nrow=im)
-        colnames(tmp[[iter]]) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
+        tab <- build_tab(self$test[[iter]], wcb_here, im)
+        print(knitr::kable(tab, format = format, digits = digits, row.names = FALSE, ...))
+        
+      } else if (!is.null(self$wcb_test) && iter <= length(self$wcb_test)) {
+        
+        # edge case: only wcb exists but no asymptotic tests
+        # show a compact table (still two rows per m so your layout remains consistent)
+        w <- self$wcb_test[[iter]]
+        out <- NULL
+        for (m in 1:im) {
+          wb  <- w[m, 2]
+          wcb <- w[m, 3]
+          out <- rbind(out,
+                       c(m,     NA, NA, NA, NA, wb, wcb),
+                       c("p-val", NA, NA, NA, NA, wb, wcb))
+        }
+        out <- as.data.frame(out, stringsAsFactors = FALSE)
+        colnames(out) <- c("m", "LM_X", "LM_F", "HAC_X", "HAC_F", "WB_PV", "WCB_PV")
+        num_cols <- setdiff(colnames(out), "m")
+        out[num_cols] <- lapply(out[num_cols], as.numeric)
+        print(knitr::kable(out, format = format, digits = digits, row.names = FALSE, ...))
       }
-    }
-    
-    if(!is.null(self$wcb_test)){
-      if(length(tmp) == 0) length(tmp) = length(self$wcb_test)
-      for(iter in 1:length(self$wcb_test)){
-        ttmp = self$wcb_test[[iter]][,2:3,drop=F]
-        colnames(ttmp) = c("WB_PV","WCB_PV")
-        tmp[[iter]] = cbind(tmp[[iter]], ttmp)
-      }
-    }
-    
-    for(iter in seq_along(tmp)){
-      cli::cli_h3(paste0("LM tests based on transition variable '",private$mQ_name[iter],"'"))
-      print(knitr::kable(tmp[[iter]], format=format, digits=digits, ...))
     }
   }
   
-  if(!is.null(self$sqtest) | !is.null(self$wcb_sqtest)){
-    cli::cli_h2("Sequence of homogeneity tests for selecting number of switches 'm':")
+  # ---------------------------
+  # Sequence tests
+  # ---------------------------
+  if (!is.null(self$sqtest) || !is.null(self$wcb_sqtest)) {
     
-    tmp = list()
-    if(!is.null(self$sqtest)){
-      length(tmp) = length(self$sqtest)
-      for(iter in 1:length(self$sqtest)){
-        for(jter in 1:im){
-          ttmp = self$sqtest[[iter]][[jter]]
-          tmp[[iter]] = rbind(tmp[[iter]], c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
-                                             ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
+    printed_any <- TRUE
+    cli::cli_h2("Sequence of homogeneity tests for selecting number of switches 'm'")
+    
+    nQ <- max(length(self$sqtest), length(self$wcb_sqtest))
+    
+    for (iter in seq_len(nQ)) {
+      
+      cli::cli_h3(
+        paste0("LM tests based on transition variable '",
+               private$mQ_name[iter], "'")
+      )
+      
+      if (!is.null(self$sqtest) && iter <= length(self$sqtest)) {
+        wcb_here <- NULL
+        if (!is.null(self$wcb_sqtest) && iter <= length(self$wcb_sqtest)) {
+          wcb_here <- self$wcb_sqtest[[iter]]
         }
-        tmp[[iter]] = matrix(tmp[[iter]], nrow=im)
-        colnames(tmp[[iter]]) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
+        tab <- build_tab(self$sqtest[[iter]], wcb_here, im)
+        print(knitr::kable(tab, format = format, digits = digits, row.names = FALSE, ...))
+        
+      } else if (!is.null(self$wcb_sqtest) && iter <= length(self$wcb_sqtest)) {
+        
+        w <- self$wcb_sqtest[[iter]]
+        out <- NULL
+        for (m in 1:im) {
+          wb  <- w[m, 2]
+          wcb <- w[m, 3]
+          out <- rbind(out,
+                       c(m,     NA, NA, NA, NA, wb, wcb),
+                       c("p-val", NA, NA, NA, NA, wb, wcb))
+        }
+        out <- as.data.frame(out, stringsAsFactors = FALSE)
+        colnames(out) <- c("m", "LM_X", "LM_F", "HAC_X", "HAC_F", "WB_PV", "WCB_PV")
+        num_cols <- setdiff(colnames(out), "m")
+        out[num_cols] <- lapply(out[num_cols], as.numeric)
+        print(knitr::kable(out, format = format, digits = digits, row.names = FALSE, ...))
       }
-    }
-    
-    if(!is.null(self$wcb_sqtest)){
-      if(length(tmp) == 0) length(tmp) = length(self$wcb_sqtest)
-      for(iter in 1:length(self$wcb_sqtest)){
-        ttmp = self$wcb_sqtest[[iter]][,2:3,drop=F]
-        colnames(ttmp) = c("WB_PV","WCB_PV")
-        tmp[[iter]] = cbind(tmp[[iter]], ttmp)
-      }
-    }
-    
-    for(iter in seq_along(tmp)){
-      cli::cli_h3(paste0("LM tests based on transition variable '",private$mQ_name[iter],"'"))
-      print(knitr::kable(tmp[[iter]], format=format, digits=digits, ...))
     }
   }
   
-  if(is.null(self$test) & is.null(self$wcb_test) &
-     is.null(self$sqtest) & is.null(self$wcb_sqtest)){
-    code = "`PSTR::LinTest()`"
+  if (!printed_any) {
+    code <- "`PSTR::LinTest()`"
     cli::cli_alert_warning("The linearity tests have not been conducted yet, run {code}.")
   }
-      
+  
+  invisible(self)
 })
 
 
-PSTR$set("private", "print_estimates", function(format, digits, ...) {
+PSTR$set("private", "print_estimates", function(format, digits, ..., max_cols = NULL) {
   
   # nothing estimated yet
-  if(is.null(self$est) || is.null(self$se)){
+  if (is.null(self$est) || is.null(self$se)) {
     code <- "`PSTR::EstPSTR()`"
     cli::cli_alert_warning("The model has not been estimated yet, run {code}.")
     return(invisible(self))
   }
   
+  # helper: chunked wide table with Est / s.e. / t-ratio
+  print_chunked_coef_table <- function(est, se, title = NULL) {
+    
+    if (!is.null(title)) cli::cli_h3(title)
+    
+    nm <- names(est)
+    if (is.null(nm) || anyNA(nm) || any(nm == "")) {
+      nm <- paste0("p", seq_along(est))
+    }
+    
+    # t-ratio
+    tr <- est / se
+    
+    # choose columns per chunk
+    w <- cli::console_width()
+    
+    # crude but stable width estimate per parameter column
+    name_w <- max(nchar(nm), na.rm = TRUE)
+    num_w  <- max(10L, digits + 6L)  # sign + integer + dot + decimals
+    col_w  <- max(name_w, num_w) + 2L
+    
+    # room for row names + separators; keep a safety margin
+    if (is.null(max_cols)) {
+      max_cols <- floor((w - 12L) / col_w)
+      max_cols <- max(1L, min(max_cols, length(est)))
+    } else {
+      max_cols <- max(1L, min(as.integer(max_cols), length(est)))
+    }
+    
+    idx_list <- split(seq_along(est), ceiling(seq_along(est) / max_cols))
+    
+    for (idx in idx_list) {
+      tab <- rbind(
+        Est     = est[idx],
+        `s.e.`  = se[idx],
+        `t-ratio` = tr[idx]
+      )
+      tab <- signif(tab, digits)
+      
+      # keep original parameter names as column names
+      colnames(tab) <- nm[idx]
+      
+      print(knitr::kable(tab, format = format, ...))
+      cat("\n")
+    }
+  }
+  
   # nonlinear PSTR estimated
-  if(!is.null(private$iq)){
+  if (!is.null(private$iq)) {
     
     cli::cli_h2("Results of the PSTR estimation:")
-    
-    cli::cli_alert_info(paste0(
-      "Transition variable '", private$mQ_name[private$iq], "' is used in the estimation."
-    ))
+    cli::cli_alert_info("Transition variable '{private$mQ_name[private$iq]}' is used in the estimation.")
     
     kx <- length(private$mX_name)
     
     # linear part (beta_0)
-    cli::cli_h3("Parameter estimates in the linear part (first extreme regime)")
-    tab0 <- rbind(
-      Est = self$beta[1:kx],
-      `s.e.` = self$se[1:kx]
+    print_chunked_coef_table(
+      est = self$beta[1:kx],
+      se  = self$se[1:kx],
+      title = "Parameter estimates in the linear part (first extreme regime)"
     )
-    tab0 <- signif(tab0, digits)
-    print(knitr::kable(tab0, format=format, ...))
     
-    # nonlinear part (beta_1)
-    cli::cli_h3("Parameter estimates in the non-linear part")
-    tab1 <- rbind(
-      Est = self$beta[(kx+1):length(self$beta)],
-      `s.e.` = self$se[(kx+1):length(self$beta)]
+    # non-linear part (beta_1)
+    print_chunked_coef_table(
+      est = self$beta[(kx + 1):length(self$beta)],
+      se  = self$se[(kx + 1):length(self$beta)],
+      title = "Parameter estimates in the non-linear part"
     )
-    tab1 <- signif(tab1, digits)
-    print(knitr::kable(tab1, format=format, ...))
     
     # second extreme regime (beta_0 + beta_1) if available
-    if(!is.null(self$mbeta) && !is.null(self$mse)){
-      cli::cli_h3("Parameter estimates in the second extreme regime")
-      tab2 <- rbind(
-        Est = self$mbeta,
-        `s.e.` = self$mse
+    if (!is.null(self$mbeta) && !is.null(self$mse)) {
+      est2 <- self$mbeta
+      se2  <- self$mse
+      nm2  <- names(est2)
+      if (!is.null(nm2)) names(est2) <- paste0(nm2, "_{0+1}")
+      
+      print_chunked_coef_table(
+        est = est2,
+        se  = se2,
+        title = "Parameter estimates in the second extreme regime"
       )
-      colnames(tab2) <- paste0(colnames(tab2), "_{0+1}")
-      tab2 <- signif(tab2, digits)
-      print(knitr::kable(tab2, format=format, ...))
     }
     
     # nonlinear parameters (gamma and c's)
-    cli::cli_h3("Non-linear parameter estimates")
-    tab3 <- rbind(
-      Est = self$est[(length(self$beta)+1):length(self$est)],
-      `s.e.` = self$se[(length(self$beta)+1):length(self$se)]
-    )
-    tab3 <- signif(tab3, digits)
-    print(knitr::kable(tab3, format=format, ...))
+    est3 <- self$est[(length(self$beta) + 1):length(self$est)]
+    se3  <- self$se[(length(self$beta) + 1):length(self$se)]
     
-    cli::cli_alert_info(paste0(
-      "Estimated standard deviation of the residuals is ",
-      signif(sqrt(self$s2), digits), "."
-    ))
+    print_chunked_coef_table(
+      est = est3,
+      se  = se3,
+      title = "Non-linear parameter estimates"
+    )
+    
+    cli::cli_alert_info(
+      "Estimated standard deviation of the residuals is {signif(sqrt(self$s2), digits)}."
+    )
     
   } else {
     
     # linear FE estimated
     cli::cli_h2("A linear panel regression with fixed effects is estimated.")
     
-    cli::cli_h3("Parameter estimates")
-    tab <- rbind(
-      Est = self$est,
-      `s.e.` = self$se
+    print_chunked_coef_table(
+      est = self$est,
+      se  = self$se,
+      title = "Parameter estimates"
     )
-    tab <- signif(tab, digits)
-    print(knitr::kable(tab, format=format, ...))
     
-    cli::cli_alert_info(paste0(
-      "Estimated standard deviation of the residuals is ",
-      signif(sqrt(self$s2), digits), "."
-    ))
+    cli::cli_alert_info(
+      "Estimated standard deviation of the residuals is {signif(sqrt(self$s2), digits)}."
+    )
   }
   
   invisible(self)

@@ -147,10 +147,22 @@ EvalTest <- function(use, type = c("time-varying", "heterogeneity"), vq = NULL) 
   invisible(use)
 }
 
-PSTR$set("public", "set_vY", function(vY_new) {
+PSTR$set("public", ".set_vY", function(vY_new) {
   private$vY <- as.numeric(vY_new)
   invisible(self)
 })
+
+PSTR$set("public", ".get_vU", function() { private$vU })
+
+PSTR$set("public", ".get_s2", function() { private$s2 })
+
+PSTR$set("public", ".get_mK", function() { private$mK })
+
+PSTR$set("public", ".get_beta", function() { private$beta })
+
+PSTR$set("public", ".get_mX", function() { private$mX })
+
+PSTR$set("public", ".get_mXX", function() { private$mXX })
 
 PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) {
   
@@ -176,12 +188,12 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
   
   ftmp_wb <- function(bter){# WB
     ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
-    ruse$set_vY(eY + ve1)
+    ruse$.set_vY(eY + ve1)
     EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
-    vu1 = EST$vU; ss1 = EST$s2 # sigma^2
-    tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
+    vu1 = EST$.get_vU(); ss1 = EST$.get_s2() # sigma^2
+    tmp = c(EST$.get_mK() %*%EST$.get_beta()[(ncol(EST$.get_mX())+1):length(EST$.get_beta())])
     tmp = mD * tmp
-    mV11 = cbind(EST$mXX, tmp)
+    mV11 = cbind(EST$.get_mXX(), tmp)
     mV12 = mM %*% mV11
     invVV1 = chol2inv(chol(t(mV12)%*%mV12))
     return(sLMTEST(iT=iT,iN=iN,vU=vu1,mX=mV11,mW=mW,mM=mM,s2=ss1,mX2=mV12,invXX=invVV1))
@@ -189,12 +201,12 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
   
   ftmp_wcb <- function(bter){# WCB
     ve2 = c(t(matrix(sample(c(1,-1),iN,replace=T),iN,iT)))*vU
-    ruse$set_vY(eY + ve2)
+    ruse$.set_vY(eY + ve2)
     EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
-    vu2 = EST$vU; ss2 = EST$s2 # sigma^2
-    tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
+    vu2 = EST$.get_vU(); ss2 = EST$.get_s2() # sigma^2
+    tmp = c(EST$.get_mK() %*%EST$.get_beta()[(ncol(EST$.get_mX())+1):length(EST$.get_beta())])
     tmp = mD * tmp
-    mV21 = cbind(EST$mXX, tmp)
+    mV21 = cbind(EST$.get_mXX(), tmp)
     mV22 = mM %*% mV21
     invVV2 = chol2inv(chol(t(mV22)%*%mV22))
     return(sLMTEST(iT=iT,iN=iN,vU=vu2,mX=mV21,mW=mW,mM=mM,s2=ss2,mX2=mV22,invXX=invVV2))

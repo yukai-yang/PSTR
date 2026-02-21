@@ -950,8 +950,14 @@ plot_response <- function(obj, vars, log_scale = FALSE, length.out = 20,
 #'                          length.out = c(40, 40))
 #' }
 #'
-#' @name plot_target
-NULL
+#' @export
+plot_target <- function(obj, im = 1, iq = NULL, par = NULL, basedon = c(1, 2),
+                        from, to, length.out = 40) {
+  if (!inherits(obj, "PSTR"))
+    stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
+  obj$plot_target(im = im, iq = iq, par = par, basedon = basedon,
+                  from = from, to = to, length.out = length.out)
+}
 
 # 1) R6 method (inside class)
 PSTR$set("public", "plot_target", function(im = 1, iq = NULL, par = NULL,
@@ -1020,15 +1026,6 @@ PSTR$set("public", "plot_target", function(im = 1, iq = NULL, par = NULL,
   ret
 })
 
-#' @rdname plot_target
-#' @export
-plot_target <- function(obj, im = 1, iq = NULL, par = NULL, basedon = c(1, 2),
-                        from, to, length.out = 40) {
-  if (!inherits(obj, "PSTR"))
-    stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
-  obj$plot_target(im = im, iq = iq, par = par, basedon = basedon,
-                  from = from, to = to, length.out = length.out)
-}
 
 
 #' Plot coefficients, standard errors, and p-values against the transition variable

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{plot_target}
 \alias{plot_target}
-\title{Plot the surface of the target function for the nonlinear least square estimation.}
+\title{Plot the surface of the target function for nonlinear least squares estimation}
 \usage{
 plot_target(
   obj,
@@ -16,64 +16,73 @@ plot_target(
 )
 }
 \arguments{
-\item{obj}{an object of the class PSTR returned from some functions in the package.}
+\item{obj}{An object of class \code{"PSTR"}.}
 
-\item{im}{specifies the number of switches in the transtion function. The default value is 1.}
+\item{im}{Integer. The number of switches \eqn{m} in the transition function used to
+construct the target function surface. Default is \code{1}.}
 
-\item{iq}{a column number (in \code{mQ}) or variable name specifying the transition variable to use.}
+\item{iq}{Either an integer index (a column number in the transition-variable matrix)
+or a character string (a transition-variable name) specifying which transition variable
+is used when computing the target function.}
 
-\item{par}{a vector of the values of the parameters. NULL by default, then it will be made automatically.}
+\item{par}{Numeric vector of length \code{1 + im} giving fixed values of the nonlinear
+parameters in the order \code{c(delta, c_1, ..., c_m)}. If \code{NULL}, the function
+constructs a default initial vector from quantiles of the chosen transition variable.}
 
-\item{basedon}{an integer vector of length 2 specify which two parameters to use to build the grid.}
+\item{basedon}{Integer vector of length \code{2}. Positions in \code{par} indicating the
+two parameters to vary on the grid. The values at these positions in \code{par} are
+ignored and replaced by grid values.
+Use \code{1} for \eqn{\delta}, and \code{2:(im+1)} for \eqn{c_1, \ldots, c_m}.}
 
-\item{from}{a vector of length 2 of the starting (minimal) values of the parameters.}
+\item{from}{Numeric vector of length \code{2}. Lower bounds (start values) for the two
+grid parameters specified by \code{basedon}.}
 
-\item{to}{a vector of length 2 of the end (maximal) values of the parameters.}
+\item{to}{Numeric vector of length \code{2}. Upper bounds (end values) for the two
+grid parameters specified by \code{basedon}.}
 
-\item{length.out}{a 2-dim vector or scalar of desired length (number of points) for the parameters. 40 by default.}
+\item{length.out}{Either a scalar or a numeric vector of length \code{2}. If scalar, the
+same number of grid points is used for both dimensions. If length 2, the first element
+controls the grid resolution for the first parameter in \code{basedon}, and the second
+for the second parameter.}
 }
 \value{
-A plottable object from the \code{plotly} package.
+A \code{plotly} object representing a 3-D surface plot of the target function
+  values evaluated on the specified parameter grid.
 }
 \description{
-This function plots the surface of the target function for the nonlinear least square estimation.
-It is useful for finding the suitable initial value for the estimation.
+This function plots a 3-D surface of the nonlinear least squares (NLS) target function
+used in estimating a PSTR model. It is mainly intended as a diagnostic tool for choosing
+reasonable initial values for the nonlinear parameters.
 }
 \details{
-The funciton uses the \code{plotly} package to plot the 3-D surface of the target function for the nonlinear least square estimation.
+The target function is evaluated on a two-dimensional grid over two selected parameters,
+while all other nonlinear parameters are held fixed at values provided by \code{par}.
+The nonlinear parameter vector is always ordered as
+\eqn{\delta, c_1, \ldots, c_m}, where \eqn{\gamma = \exp(\delta)} and \eqn{m = im}.
 
-The function takes the PSTR object as one of the inputs. The user needs to give the number of switches \code{im}, and the transition variable \code{iq},
-such that the target function values can be computed.
-
-The number of parameters to estimate in the nonlinear least square estimation is \code{1+im}, that is, one smoothness parameter and the \code{im} switching locations.
-However, the 3-D plot is based on only two changing parameters with the others (if more than two parameters) constant. Thus, the user needs to input a vector \code{par},
-which gives the values of the other parameters. Note that \code{par} should still be of length \code{1+im} with the order \eqn{\delta} (always use delta in this function),
-\eqn{c_1}, ..., \eqn{c_m}.
-
-The user should give the vector \code{basedon} of length two, that shows which two parameters will be used to build the grid.
-\code{basedon} gives the positions of the two parameters in \code{par}. Thus, the values in the positions \code{basedon} in \code{par} will not be used.
-
-\code{from}, \code{to} and \code{length.out} serve to build the grid for the two parameters.
-These arguments must be of length two for the two parameters, respectively.
-See the \code{seq} function for the details.
+In addition to the exported function \code{plot_target(obj = ...)}, the same functionality
+is available as an R6 method via \code{obj$plot_target(...)}.
 }
 \examples{
 \donttest{
-pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-    tvars=c('vala'), iT=14) # create a new PSTR object
+pstr <- NewPSTR(Hansen99, dep = "inva", indep = 4:20,
+               indep_k = c("vala", "debta", "cfa", "sales"),
+               tvars = c("vala"), iT = 14)
 
-# build the grid based on the first two parameters
-ret = plot_target(obj=pstr,iq=1,basedon=c(1,2),from=c(log(1),6),
-  to=c(log(18),10),length.out=c(40,40))
+# 1) Exported function interface
+ret <- plot_target(obj = pstr, iq = 1, basedon = c(1, 2),
+                   from = c(log(1), 6), to = c(log(18), 10),
+                   length.out = c(40, 40))
+
+# 2) R6 method interface
+ret2 <- pstr$plot_target(iq = 1, basedon = c(1, 2),
+                         from = c(log(1), 6), to = c(log(18), 10),
+                         length.out = c(40, 40))
 }
 
 }
 \seealso{
-Functions which return an object of the class PSTR and can be input into this function
-
-\code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}}, \code{\link{EstPSTR}}, \code{\link{EvalTest}}, \code{\link{WCB_TVTest}} and \code{\link{WCB_HETest}}
+\code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}},
+  \code{\link{EstPSTR}}, \code{\link{EvalTest}}, \code{\link{WCB_TVTest}},
+  \code{\link{WCB_HETest}}
 }
-\author{
-Yukai Yang, \email{yukai.yang@statistik.uu.se}
-}
-\keyword{utils}

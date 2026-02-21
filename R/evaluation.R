@@ -110,25 +110,25 @@ PSTR$set("public", "EvalTest", function(type = c("time-varying", "heterogeneity"
   invVV = svd_pinv(crossprod(mV2))
   
   if(length(grep("time-varying",type))>0){
-    private$tv = list(); length(private$tv) = im
+    self$tv = list(); length(self$tv) = im
     
     vt = 1:private$iT/private$iT
     
     mW = NULL
     for(mter in 1:im){
       mW = cbind(mW, private$mXX*(vt**mter))
-      private$tv[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=private$vU,mX=mV,
+      self$tv[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=private$vU,mX=mV,
                               mW=mW,mM=mM,s2=private$s2,mX2=mV2,invXX=invVV)
     }
   }
   
   if(length(grep("heterogeneity",type))>0){
-    private$ht = list(); length(private$ht) = im
+    self$ht = list(); length(self$ht) = im
     
     mW = NULL
     for(mter in 1:im){
       mW = cbind(mW, private$mXX*(vq**mter))
-      private$ht[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=private$vU,mX=mV,
+      self$ht[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=private$vU,mX=mV,
                               mW=mW,mM=mM,s2=private$s2,mX2=mV2,invXX=invVV)
     }
   }
@@ -221,7 +221,7 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
     return(sLMTEST(iT=iT,iN=iN,vU=vu2,mX=mV21,mW=mW,mM=mM,s2=ss2,mX2=mV22,invXX=invVV2))
   }
   
-  private$wcb_tv = NULL
+  self$wcb_tv = NULL
   vt = 1:iT/iT
   mW = NULL
   
@@ -234,10 +234,10 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
     qLM2 = sfSapply(1:iB,ftmp_wcb)
     sfStop()
     
-    private$wcb_tv = rbind(private$wcb_tv,c(LM, mean(LM<=qLM1), mean(LM<=qLM2)))
+    self$wcb_tv = rbind(self$wcb_tv,c(LM, mean(LM<=qLM1), mean(LM<=qLM2)))
   }
   
-  private$wcb_tv = matrix(private$wcb_tv, nrow=im)
+  self$wcb_tv = matrix(self$wcb_tv, nrow=im)
   
   cli::cli_alert_success("Done!")
   invisible(self)
@@ -356,7 +356,7 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
     )
   }
   
-  private$wcb_ht <- NULL
+  self$wcb_ht <- NULL
   mW <- NULL
   
   for (mter in 1:im) {
@@ -374,10 +374,10 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
     qLM2 <- sfSapply(1:iB, ftmp_wcb)
     sfStop()
     
-    private$wcb_ht <- rbind(private$wcb_ht, c(LM, mean(LM <= qLM1), mean(LM <= qLM2)))
+    self$wcb_ht <- rbind(self$wcb_ht, c(LM, mean(LM <= qLM1), mean(LM <= qLM2)))
   }
   
-  private$wcb_ht <- matrix(private$wcb_ht, nrow = im)
+  self$wcb_ht <- matrix(self$wcb_ht, nrow = im)
   
   cli::cli_alert_success("Done!")
   invisible(self)

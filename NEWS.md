@@ -2,6 +2,13 @@
 
 # PSTR 2.0.0 ‘Green Panel’
 
+## Breaking changes
+
+- The internal architecture is fully refactored to an R6 design.
+- Direct access to internal slots is no longer supported.
+- Users relying on previous S3-style behaviour may need to update their
+  code.
+
 ## New features
 
 - The `PSTR` class now follows an R6 design with reference semantics.
@@ -26,12 +33,6 @@
 - Bootstrap routines use deep cloning to avoid overwriting the original
   object.
 - Internal print helpers are reorganised into dedicated private methods.
-
-## Notes
-
-- This release includes a substantial internal refactor.
-- Direct access to model components is discouraged.
-- Users should rely on documented print modes and exported interfaces.
 
 # New Features in PSTR 1.3.0 ‘Yellow Panel’
 

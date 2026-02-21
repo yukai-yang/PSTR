@@ -302,76 +302,84 @@ PSTR$set("private", "print_estimates", function(format, digits, ...) {
 })
 
 
-print_evaluation <- function(obj,digits)
-{
-  if(!is.null(obj$tv) || !is.null(obj$wcb_tv) || !is.null(obj$ht) || !is.null(obj$wcb_ht)){
-    cat0(paste0(rep("#",getOption("width")),collapse=''))
-    cat0(paste0(rep("*",getOption("width")),collapse=''))
-
-    cat0("Results of the evaluation tests:")
+PSTR$set("private", "print_evaluation", function(format, digits, ...) {
+  
+  has_eval <- (!is.null(private$tv) || !is.null(private$wcb_tv) ||
+                 !is.null(private$ht) || !is.null(private$wcb_ht))
+  
+  if (!has_eval) {
+    code <- "`PSTR::EvalTest()`"
+    code2 <- "`PSTR::WCB_TVTest()` / `PSTR::WCB_HETest()`"
+    cli::cli_alert_warning("No evaluation test results found. Run {code} and/or {code2}.")
+    return(invisible(self))
   }
-
-  if(!is.null(obj$tv)){
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("Parameter constancy test")
-    im = length(obj$tv)
-
-    tmp = NULL
-    for(jter in 1:im){
-      ttmp = obj$tv[[jter]]
-      tmp = rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
-                         ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
+  
+  cli::cli_h2("Results of the evaluation tests")
+  
+  # --- Parameter constancy (time-varying) ---
+  if (!is.null(private$tv)) {
+    cli::cli_h3("Parameter constancy test")
+    
+    im <- length(private$tv)
+    tmp <- NULL
+    for (jter in 1:im) {
+      ttmp <- private$tv[[jter]]
+      tmp <- rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
+                          ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F))
     }
-    tmp = matrix(tmp, nrow=im)
-    rownames(tmp) = rep(" ",im)
-    colnames(tmp) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
-
-    print(signif(tmp,digits))
+    tmp <- matrix(tmp, nrow = im)
+    colnames(tmp) <- c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
+    
+    tmp <- signif(tmp, digits)
+    print(knitr::kable(tmp, format = format, ...))
   }
-
-  if(!is.null(obj$wcb_tv)){
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("WB and WCB parameter constancy test")
-    tmp = obj$wcb_tv[,2:3,drop=F]
-    im = nrow(tmp)
-    tmp = cbind(1:im, tmp)
-    rownames(tmp) = rep(" ",im)
-    colnames(tmp) = c("m","WB_PV", "WCB_PV")
-
-    print(signif(tmp,digits))
+  
+  if (!is.null(private$wcb_tv)) {
+    cli::cli_h3("WB and WCB parameter constancy test")
+    
+    tmp <- private$wcb_tv[, 2:3, drop = FALSE]
+    colnames(tmp) <- c("WB_PV", "WCB_PV")
+    
+    im <- nrow(tmp)
+    tmp <- cbind(m = 1:im, tmp)
+    
+    tmp <- signif(tmp, digits)
+    print(knitr::kable(tmp, format = format, ...))
   }
-
-  if(!is.null(obj$ht)){
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("No remaining nonliearity (heterogeneity) test")
-    im = length(obj$ht)
-
-    tmp = NULL
-    for(jter in 1:im){
-      ttmp = obj$ht[[jter]]
-      tmp = rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
-                         ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
+  
+  # --- No remaining nonlinearity / heterogeneity ---
+  if (!is.null(private$ht)) {
+    cli::cli_h3("No remaining nonlinearity (heterogeneity) test")
+    
+    im <- length(private$ht)
+    tmp <- NULL
+    for (jter in 1:im) {
+      ttmp <- private$ht[[jter]]
+      tmp <- rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
+                          ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F))
     }
-    tmp = matrix(tmp, nrow=im)
-    rownames(tmp) = rep(" ",im)
-    colnames(tmp) = c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
-
-    print(signif(tmp,digits))
+    tmp <- matrix(tmp, nrow = im)
+    colnames(tmp) <- c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
+    
+    tmp <- signif(tmp, digits)
+    print(knitr::kable(tmp, format = format, ...))
   }
-
-  if(!is.null(obj$wcb_ht)){
-    cat0(paste0(rep("-",getOption("width")),collapse=''))
-    cat0("WB and WCB no remaining nonliearity (heterogeneity) test")
-    tmp = obj$wcb_ht[,2:3,drop=F]
-    im = nrow(tmp)
-    tmp = cbind(1:im, tmp)
-    rownames(tmp) = rep(" ",im)
-    colnames(tmp) = c("m","WB_PV", "WCB_PV")
-
-    print(signif(tmp,digits))
+  
+  if (!is.null(private$wcb_ht)) {
+    cli::cli_h3("WB and WCB no remaining nonlinearity (heterogeneity) test")
+    
+    tmp <- private$wcb_ht[, 2:3, drop = FALSE]
+    colnames(tmp) <- c("WB_PV", "WCB_PV")
+    
+    im <- nrow(tmp)
+    tmp <- cbind(m = 1:im, tmp)
+    
+    tmp <- signif(tmp, digits)
+    print(knitr::kable(tmp, format = format, ...))
   }
-
-}
+  
+  invisible(self)
+})
 
 
 #' Plot the transition function of the estimated PSTR model.

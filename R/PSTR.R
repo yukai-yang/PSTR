@@ -2,7 +2,6 @@
 ## package name: PSTR
 ## author: Yukai Yang
 ## Statistiska Inst., Uppsala Universitet
-## Aug 2023
 #################################################################################
 
 
@@ -204,12 +203,7 @@ PSTR <- R6::R6Class(
       }
       
       private$vYb = vYb; private$mXb = mXb
-    }
-  ),
-  private = list(
-    iT=NULL, vY_name=NULL, mX_name=NULL, mK_name=NULL, mQ_name=NULL,
-    vY=NULL, mX=NULL, mK=NULL, mQ=NULL, im=NULL, iN=NULL,
-    vYb=NULL, mXb=NULL,
+    },
     
     # assigned by LinTest
     test=NULL, sqtest=NULL,
@@ -232,5 +226,10 @@ PSTR <- R6::R6Class(
     
     # assigned by WCB_HETest
     wcb_ht = NULL
+  ),
+  private = list(
+    iT=NULL, vY_name=NULL, mX_name=NULL, mK_name=NULL, mQ_name=NULL,
+    vY=NULL, mX=NULL, mK=NULL, mQ=NULL, im=NULL, iN=NULL,
+    vYb=NULL, mXb=NULL
   )
 )

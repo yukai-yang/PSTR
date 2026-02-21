@@ -447,66 +447,80 @@ PSTR$set("private", "print_evaluation", function(format, digits, ...) {
   
   cli::cli_h2("Results of the evaluation tests")
   
+  # helper: make "stat + p-val" two-line rows per m, without adding extra columns
+  mk_stat_pval_table <- function(obj_list, im) {
+    out <- NULL
+    for (m in 1:im) {
+      ttmp <- obj_list[[m]]
+      
+      stat_row <- c(
+        m,
+        ttmp$LM1_X, ttmp$LM1_F, ttmp$LM2_X, ttmp$LM2_F
+      )
+      pval_row <- c(
+        "p-val",
+        ttmp$PV1_X, ttmp$PV1_F, ttmp$PV2_X, ttmp$PV2_F
+      )
+      
+      out <- rbind(out, stat_row, pval_row)
+    }
+    out <- as.data.frame(out, stringsAsFactors = FALSE)
+    colnames(out) <- c("m", "LM_X", "LM_F", "HAC_X", "HAC_F")
+    
+    # numeric formatting for all but first column (which is m / p-val)
+    for (j in 2:ncol(out)) out[[j]] <- as.numeric(out[[j]])
+    out[, 2:ncol(out)] <- signif(out[, 2:ncol(out), drop = FALSE], digits)
+    out
+  }
+  
+  mk_boot_table <- function(mat) {
+    # mat is self$wcb_tv or self$wcb_ht; columns 2:3 are p-values
+    tmp <- mat[, 2:3, drop = FALSE]
+    colnames(tmp) <- c("WB_PV", "WCB_PV")
+    
+    im <- nrow(tmp)
+    out <- NULL
+    for (m in 1:im) {
+      stat_row <- c(m, tmp[m, 1], tmp[m, 2])
+      pval_row <- c("p-val", tmp[m, 1], tmp[m, 2])
+      out <- rbind(out, stat_row, pval_row)
+    }
+    out <- as.data.frame(out, stringsAsFactors = FALSE)
+    colnames(out) <- c("m", "WB_PV", "WCB_PV")
+    out[, 2:3] <- signif(as.data.frame(lapply(out[, 2:3, drop = FALSE], as.numeric)), digits)
+    out
+  }
+  
   # --- Parameter constancy (time-varying) ---
   if (!is.null(self$tv)) {
     cli::cli_h3("Parameter constancy test")
-    
     im <- length(self$tv)
-    tmp <- NULL
-    for (jter in 1:im) {
-      ttmp <- self$tv[[jter]]
-      tmp <- rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
-                          ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F))
-    }
-    tmp <- matrix(tmp, nrow = im)
-    colnames(tmp) <- c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
-    
-    tmp <- signif(tmp, digits)
-    print(knitr::kable(tmp, format = format, ...))
+    tab <- mk_stat_pval_table(self$tv, im)
+    print(knitr::kable(tab, format = format, row.names = FALSE, ...))
+    cat("\n")
   }
   
   if (!is.null(self$wcb_tv)) {
     cli::cli_h3("WB and WCB parameter constancy test")
-    
-    tmp <- self$wcb_tv[, 2:3, drop = FALSE]
-    colnames(tmp) <- c("WB_PV", "WCB_PV")
-    
-    im <- nrow(tmp)
-    tmp <- cbind(m = 1:im, tmp)
-    
-    tmp <- signif(tmp, digits)
-    print(knitr::kable(tmp, format = format, ...))
+    tab <- mk_boot_table(self$wcb_tv)
+    print(knitr::kable(tab, format = format, row.names = FALSE, ...))
+    cat("\n")
   }
   
   # --- No remaining nonlinearity / heterogeneity ---
   if (!is.null(self$ht)) {
     cli::cli_h3("No remaining nonlinearity (heterogeneity) test")
-    
     im <- length(self$ht)
-    tmp <- NULL
-    for (jter in 1:im) {
-      ttmp <- self$ht[[jter]]
-      tmp <- rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
-                          ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F))
-    }
-    tmp <- matrix(tmp, nrow = im)
-    colnames(tmp) <- c("m", "LM_X", "PV", "LM_F", "PV", "HAC_X", "PV", "HAC_F", "PV")
-    
-    tmp <- signif(tmp, digits)
-    print(knitr::kable(tmp, format = format, ...))
+    tab <- mk_stat_pval_table(self$ht, im)
+    print(knitr::kable(tab, format = format, row.names = FALSE, ...))
+    cat("\n")
   }
   
   if (!is.null(self$wcb_ht)) {
     cli::cli_h3("WB and WCB no remaining nonlinearity (heterogeneity) test")
-    
-    tmp <- self$wcb_ht[, 2:3, drop = FALSE]
-    colnames(tmp) <- c("WB_PV", "WCB_PV")
-    
-    im <- nrow(tmp)
-    tmp <- cbind(m = 1:im, tmp)
-    
-    tmp <- signif(tmp, digits)
-    print(knitr::kable(tmp, format = format, ...))
+    tab <- mk_boot_table(self$wcb_ht)
+    print(knitr::kable(tab, format = format, row.names = FALSE, ...))
+    cat("\n")
   }
   
   invisible(self)

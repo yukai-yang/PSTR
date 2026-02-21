@@ -211,9 +211,8 @@ PSTR <- R6::R6Class(
     wcb_test=NULL, wcb_sqtest=NULL,
     
     # estimation results
-    imm=NULL, iq=NULL, par=NULL,
-    delta=NULL, gamma=NULL, c=NULL, convergence=NULL,
-    vg=NULL, beta=NULL, mXX=NULL,
+    delta=NULL, gamma=NULL, c=NULL,
+    vg=NULL, beta=NULL,
     vM=NULL, vU=NULL, s2=NULL,
     cov=NULL, se=NULL, est=NULL,
     mbeta=NULL, mse=NULL,
@@ -230,6 +229,10 @@ PSTR <- R6::R6Class(
   private = list(
     iT=NULL, vY_name=NULL, mX_name=NULL, mK_name=NULL, mQ_name=NULL,
     vY=NULL, mX=NULL, mK=NULL, mQ=NULL, im=NULL, iN=NULL,
-    vYb=NULL, mXb=NULL
+    vYb=NULL, mXb=NULL,
+    
+    # estimation results
+    imm=NULL, iq=NULL, par=NULL, convergence=NULL,
+    mXX=NULL
   )
 )

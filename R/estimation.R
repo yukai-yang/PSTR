@@ -2,7 +2,6 @@
 ## package name: PSTR
 ## author: Yukai Yang
 ## Statistiska Inst., Uppsala Universitet
-## Sep 2017
 #################################################################################
 
 
@@ -205,40 +204,40 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
     }
     
     # return value (store to private)
-    private$delta <- opt$par[1]
-    private$gamma <- exp(private$delta)
-    private$c <- opt$par[2:length(opt$par)]
+    self$delta <- opt$par[1]
+    self$gamma <- exp(self$delta)
+    self$c <- opt$par[2:length(opt$par)]
     private$convergence <- opt$convergence
     
-    vg <- fTF(vx=mQ, gamma=private$gamma, vc=private$c) # g_it
-    private$vg <- vg
+    vg <- fTF(vx=mQ, gamma=self$gamma, vc=self$c) # g_it
+    self$vg <- vg
     
     mXX <- mK * vg
     aXX <- array(c(mXX), dim=c(iT,iN,ik))
     mXXb <- cbind(mXb, matrix(c(apply(aXX, c(2,3), ftmp)), iT*iN, ik))
     
     tmp <- chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb
-    private$beta <- c(tmp)
-    names(private$beta) <- c(paste0(private$mX_name,'_0'),
+    self$beta <- c(tmp)
+    names(self$beta) <- c(paste0(private$mX_name,'_0'),
                              paste0(private$mK_name,'_1'))
     
     mXX <- cbind(mX, mXX)
     private$mXX <- mXX
     
     mtmp <- matrix(c(vY - mXX %*% tmp), iT, iN)
-    private$vM <- c(apply(mtmp, 2, mean))
-    private$vU <- c(apply(mtmp, 2, ftmp))
-    private$s2 <- c(private$vU %*% private$vU) / (iT*iN)
+    self$vM <- c(apply(mtmp, 2, mean))
+    self$vU <- c(apply(mtmp, 2, ftmp))
+    self$s2 <- c(self$vU %*% self$vU) / (iT*iN)
     
     # computing standard errors
-    tg <- Der2GFunc(vg=vg, vs=vQ, vp=c(private$gamma, private$c))
+    tg <- Der2GFunc(vg=vg, vs=vQ, vp=c(self$gamma, self$c))
     de1 <- tg$de1
     de2 <- tg$de2
     
-    beta1 <- private$beta[(ncol(mX)+1):length(private$beta)]
+    beta1 <- self$beta[(ncol(mX)+1):length(self$beta)]
     
     dedp <- -mXXb
-    d2edp2 <- array(0, dim=c(iT*iN, length(private$beta)+1+im, length(private$beta)+1+im))
+    d2edp2 <- array(0, dim=c(iT*iN, length(self$beta)+1+im, length(self$beta)+1+im))
     
     tcnt <- 1
     for(iter in 1:ncol(de1)){
@@ -248,21 +247,21 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
       
       dedp <- cbind(dedp, -mKK %*% beta1)
       
-      d2edp2[,(ncol(mX)+1):length(private$beta), length(private$beta)+iter] <- -mKK
-      d2edp2[, length(private$beta)+iter, (ncol(mX)+1):length(private$beta)] <- -mKK
+      d2edp2[,(ncol(mX)+1):length(self$beta), length(self$beta)+iter] <- -mKK
+      d2edp2[, length(self$beta)+iter, (ncol(mX)+1):length(self$beta)] <- -mKK
       
       for(jter in iter:ncol(de1)){
         mKK <- mK * de2[,tcnt]
         aKK <- array(c(mKK), dim=c(iT,iN,ik))
         mKK <- matrix(c(apply(aKK, c(2,3), ftmp)), iT*iN, ik)
         
-        d2edp2[, length(private$beta)+iter, length(private$beta)+jter] <- -mKK %*% beta1
-        d2edp2[, length(private$beta)+jter, length(private$beta)+iter] <- -mKK %*% beta1
+        d2edp2[, length(self$beta)+iter, length(self$beta)+jter] <- -mKK %*% beta1
+        d2edp2[, length(self$beta)+jter, length(self$beta)+iter] <- -mKK %*% beta1
         tcnt <- tcnt + 1
       }
     }
     
-    mh <- 2 * private$vU * dedp
+    mh <- 2 * self$vU * dedp
     ah <- array(c(mh), dim=c(iT,iN,ncol(dedp)))
     hi <- matrix(c(apply(ah, c(2,3), sum)), iN, ncol(dedp))
     
@@ -271,7 +270,7 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
     
     invA <- 0
     for(iter in 1:(iT*iN))
-      invA <- invA + (dedp[iter,] %*% t(dedp[iter,]) + d2edp2[iter,,] * private$vU[iter]) * 2
+      invA <- invA + (dedp[iter,] %*% t(dedp[iter,]) + d2edp2[iter,,] * self$vU[iter]) * 2
     
     ttmp <- try(solve(invA), silent=TRUE)
     if(inherits(ttmp, 'try-error')){
@@ -281,12 +280,12 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
       invA <- ttmp
     }
     
-    private$cov <- invA %*% mB %*% t(invA)
-    private$se <- sqrt(diag(private$cov))
-    names(private$se) <- c(names(private$beta), 'gamma', paste0('c_', 1:im))
+    self$cov <- invA %*% mB %*% t(invA)
+    self$se <- sqrt(diag(self$cov))
+    names(self$se) <- c(names(self$beta), 'gamma', paste0('c_', 1:im))
     
-    private$est <- c(private$beta, private$gamma, private$c)
-    names(private$est) <- names(private$se)
+    self$est <- c(self$beta, self$gamma, self$c)
+    names(self$est) <- names(self$se)
     
     mM <- NULL
     mname <- NULL
@@ -302,27 +301,27 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
     
     if(!is.null(mM)){
       mM <- cbind(mM, matrix(0, nrow(mM), 1+im))
-      private$mbeta <- c(mM %*% private$est)
-      names(private$mbeta) <- mname
-      private$mse <- sqrt(diag(mM %*% private$cov %*% t(mM)))
-      names(private$mse) <- mname
+      self$mbeta <- c(mM %*% self$est)
+      names(self$mbeta) <- mname
+      self$mse <- sqrt(diag(mM %*% self$cov %*% t(mM)))
+      names(self$mse) <- mname
     }
     
   } else {
     
     tmp <- chol2inv(chol(t(mXb)%*%mXb)) %*% t(mXb) %*% vYb
     
-    private$beta <- c(tmp)
-    names(private$beta) <- private$mX_name
+    self$beta <- c(tmp)
+    names(self$beta) <- private$mX_name
     
     mtmp <- matrix(c(vY - mX %*% tmp), iT, iN)
-    private$vM <- c(apply(mtmp, 2, mean))
-    private$vU <- c(apply(mtmp, 2, ftmp))
-    private$s2 <- c(private$vU %*% private$vU) / (iT*iN)
+    self$vM <- c(apply(mtmp, 2, mean))
+    self$vU <- c(apply(mtmp, 2, ftmp))
+    self$s2 <- c(self$vU %*% self$vU) / (iT*iN)
     
     # computing standard errors
     dedp <- -mXb
-    mh <- 2 * private$vU * dedp
+    mh <- 2 * self$vU * dedp
     ah <- array(c(mh), dim=c(iT,iN,ncol(dedp)))
     hi <- matrix(c(apply(ah, c(2,3), sum)), iN, ncol(dedp))
     
@@ -341,12 +340,12 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
       invA <- ttmp
     }
     
-    private$cov <- invA %*% mB %*% t(invA)
-    private$se <- sqrt(diag(private$cov))
-    names(private$se) <- names(private$beta)
+    self$cov <- invA %*% mB %*% t(invA)
+    self$se <- sqrt(diag(self$cov))
+    names(self$se) <- names(self$beta)
     
-    private$est <- private$beta
-    names(private$est) <- names(private$se)
+    self$est <- self$beta
+    names(self$est) <- names(self$se)
   }
   
   invisible(self)

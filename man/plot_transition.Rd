@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{plot_transition}
 \alias{plot_transition}
-\title{Plot the transition function of the estimated PSTR model.}
+\title{Plot the transition function of an estimated PSTR model}
 \usage{
 plot_transition(
   obj,
@@ -15,55 +15,50 @@ plot_transition(
 )
 }
 \arguments{
-\item{obj}{an object of the class PSTR returned from some functions in the package. Note that the corresponding PSTR model must be estimated first.}
+\item{obj}{An object of class \code{"PSTR"}.}
 
-\item{size}{the size of the circle.}
+\item{size}{Point size.}
 
-\item{color}{the color of the circle.}
+\item{color}{Point colour.}
 
-\item{xlim}{a numeric vector of dimension 2 specifying the limits of x-axis.}
+\item{xlim}{Optional numeric vector of length 2 specifying x-axis limits.}
 
-\item{ylim}{a numeric vector of dimension 2 specifying the limits of y-axis.}
+\item{ylim}{Optional numeric vector of length 2 specifying y-axis limits.}
 
-\item{fill}{the color used to fill the area on the transition curve with observations, \code{NULL} for not fill, see ggplot2.}
+\item{fill}{Optional colour for highlighting the support of observed q.}
 
-\item{alpha}{a number controlling the transparency of the points and filled area, \code{NULL} for default, see ggplot2.}
+\item{alpha}{Transparency level for points and shading.}
 }
 \value{
-A ggplot object. The user can plot it simply by print the object.
+A \code{ggplot2} object.
 }
 \description{
-This function plots the transition function of the estimated PSTR model.
+This function plots the estimated transition function
+\eqn{g(q;\gamma,c)} of a fitted PSTR model.
 }
 \details{
-The funciton uses some functions in the ggplot2 package and aims to give a quick plot of the transtion function.
-The user can customize the title, subtitle, caption, x and y labels, for details, read the help file for the \code{labs} function in ggplot2.
+Observed transition values are displayed together with the
+fitted transition curve. For models with multiple switches,
+multiple curves are shown.
+
+In addition to the exported function
+\code{plot_transition(obj = ...)}, the same functionality is
+available as an R6 method via \code{obj$plot_transition(...)}.
 }
 \examples{
 \donttest{
-pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-    tvars=c('vala'), iT=14) # create a new PSTR object
+pstr <- NewPSTR(Hansen99, dep = "inva", indep = 4:20,
+                indep_k = c("vala","debta","cfa","sales"),
+                tvars = c("vala"), iT = 14)
 
-# estimate the PSTR model
-pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
+pstr <- EstPSTR(use = pstr, im = 1, iq = 1,
+                useDelta = TRUE, par = c(.63,0), method = "CG")
 
-# plot the transition function
+# Exported function
+plot_transition(pstr)
 
-ret = plot_transition(pstr)
-# plot by running
-ret
-
-ret = plot_transition(pstr, fill='blue', xlim=c(-2,20), color = "dodgerblue4", size = 2, alpha=.3)
-ret
+# R6 method
+pstr$plot_transition()
 }
 
 }
-\seealso{
-Functions which return an object of the class PSTR and can be input into this function
-
-\code{\link{EstPSTR}}
-}
-\author{
-Yukai Yang, \email{yukai.yang@statistik.uu.se}
-}
-\keyword{utils}

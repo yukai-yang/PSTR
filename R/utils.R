@@ -531,6 +531,7 @@ PSTR$set("public", ".get_iq", function() private$iq)
 PSTR$set("public", ".get_mQ", function() private$mQ)
 PSTR$set("public", ".get_mQ_name", function() private$mQ_name)
 PSTR$set("public", ".get_imm", function() private$imm)
+PSTR$set("public", ".get_mK_name", function() private$mK_name)
 
 
 #' Plot the transition function of the estimated PSTR model.
@@ -775,64 +776,118 @@ plot_transition <- function(obj, size = 1.5, color = "blue",
 #' }
 #'
 #' @export
-plot_response <- function(obj, vars, log_scale=FALSE, length.out=20, color="blue", size=1.5)
-{
-  if(!inherits(obj, 'PSTR'))
+plot_response <- function(obj, vars, log_scale = FALSE, length.out = 20,
+                          color = "blue", size = 1.5) {
+  if (!inherits(obj, "PSTR"))
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
-  if(is.null(obj$vg)) stop(simpleError("The PSTR model is not estimated yet."))
-
-  if(length(length.out)==1) length.out = rep(length.out,2)
-  if(length(log_scale)==1) log_scale = rep(log_scale,2)
-
-  tvar = obj$mQ[,obj$iq]
-
-  vy = seq(from=min(tvar), to=max(tvar), length.out=length.out[2])
-  vg = fTF(vx=t(matrix(vy,length(vy),obj$imm)),gamma=obj$gamma,vc=obj$c)
-  tvarname = obj$mQ_name[obj$iq]
-
-  vyy = rep(obj$c, length.out[1])
-  vgg = rep(.5, length.out[1])
-
-  ftmp <- function(vu) (phi0 + phi1*vu[2])*vu[1]
-
-  ret = list()
-  for(vter in vars){
-    vK = try(obj$mK[,vter],silent=T)
-    if(inherits(vK, 'try-error') || length(vK)==0) next
+  if (is.null(obj$vg))
+    stop(simpleError("The PSTR model is not estimated yet."))
+  
+  if (length(length.out) == 1) length.out <- rep(length.out, 2)
+  if (length(log_scale) == 1)  log_scale  <- rep(log_scale, 2)
+  
+  # ---- private members via getters ----
+  iq <- obj$.get_iq()
+  if (is.null(iq) || length(iq) != 1 || !is.finite(iq))
+    stop(simpleError("No transition variable selected (iq is NULL)."))
+  
+  mQ <- obj$.get_mQ()
+  if (is.null(mQ) || !is.matrix(mQ))
+    stop(simpleError("Transition variables (mQ) are not available."))
+  
+  if (iq < 1 || iq > ncol(mQ))
+    stop(simpleError("Invalid iq (out of range for mQ)."))
+  
+  tvar <- as.numeric(mQ[, iq])
+  tvar <- tvar[is.finite(tvar)]
+  if (length(tvar) == 0)
+    stop(simpleError("Transition variable contains no finite values."))
+  
+  imm <- obj$.get_imm()  # NOTE: getter returns private$imm (not private$im)
+  if (is.null(imm) || length(imm) != 1 || !is.finite(imm) || imm < 1)
+    stop(simpleError("Invalid imm."))
+  
+  mQ_name <- obj$.get_mQ_name()
+  if (is.null(mQ_name) || length(mQ_name) < iq)
+    stop(simpleError("mQ_name is not available or has wrong length."))
+  
+  tvarname <- mQ_name[iq]
+  
+  mK <- obj$.get_mK()
+  if (is.null(mK) || !is.matrix(mK))
+    stop(simpleError("Nonlinear regressors (mK) are not available."))
+  
+  mK_name <- obj$.get_mK_name()
+  if (is.null(mK_name) || length(mK_name) != ncol(mK))
+    stop(simpleError("mK_name is not available or has wrong length."))
+  # -------------------------------------
+  
+  vy <- seq(from = min(tvar), to = max(tvar), length.out = length.out[2])
+  
+  # build matrix for fTF: imm x length(vy), each row is vy
+  mx <- matrix(rep(vy, times = imm), nrow = imm, byrow = TRUE)
+  
+  # NOTE: gamma, c, beta, vg are results stored as public in your current design
+  vg_grid <- fTF(vx = mx, gamma = obj$gamma, vc = obj$c)
+  
+  ftmp <- function(vu) (phi0 + phi1 * vu[2]) * vu[1]
+  
+  ret <- list()
+  
+  for (vter in vars) {
     
-    varname = obj$mK_name[vter]
-    phi0 = obj$beta[paste0(varname,'_0')]
-    phi1 = obj$beta[paste0(varname,'_1')]
-
-    if(varname != tvarname){
-      vx = seq(from=min(vK), to=max(vK), length.out=length.out[1])
-      mz = t(matrix(apply(expand.grid(vx, vg),1,ftmp), nrow=length(vx)))
-      vzz = c(apply(cbind(vx, vgg), 1, ftmp))
-
-      tmpp = list(xaxis=list(title=paste0(varname,"_x")),
-                  yaxis=list(title=paste0(tvarname,"_y")),zaxis=list(title="response"))
-      if(log_scale[1]) tmpp$xaxis$type = "log"
-      if(log_scale[2]) tmpp$yaxis$type = "log"
-
-      tmp = add_surface(plot_ly(x=vx, y=vy, z=mz))
-
-      tmp = tmp %>% layout(scene=tmpp)
-
-
-      eval(parse(text=paste0("ret$",varname," = tmp")))
-    }else{
-      vz = c(apply(cbind(vy, vg),1,ftmp))
-
-      tmp = ggplot(tibble(vy=vy,vz=vz), aes(x=vy,y=vz)) +
-        labs(y="response", x=varname) + geom_line(color=color,size=size)
-      if(log_scale[2]) tmp = tmp + scale_x_log10()
-
-      eval(parse(text=paste0("ret$",varname," = tmp")))
+    if (!is.numeric(vter) || length(vter) != 1) next
+    if (vter < 1 || vter > ncol(mK)) next
+    
+    vK <- as.numeric(mK[, vter])
+    vK <- vK[is.finite(vK)]
+    if (length(vK) == 0) next
+    
+    varname <- mK_name[vter]
+    
+    phi0 <- obj$beta[paste0(varname, "_0")]
+    phi1 <- obj$beta[paste0(varname, "_1")]
+    if (!is.finite(phi0) || !is.finite(phi1)) next
+    
+    # Use the first row if fTF returns imm x length(vy)
+    vg1 <- vg_grid
+    if (is.matrix(vg_grid)) vg1 <- as.numeric(vg_grid[1, ])
+    
+    if (!identical(varname, tvarname)) {
+      
+      vx <- seq(from = min(vK), to = max(vK), length.out = length.out[1])
+      
+      mz <- t(matrix(apply(expand.grid(vx, vg1), 1, ftmp), nrow = length(vx)))
+      
+      scene <- list(
+        xaxis = list(title = paste0(varname, "_x")),
+        yaxis = list(title = paste0(tvarname, "_y")),
+        zaxis = list(title = "response")
+      )
+      if (isTRUE(log_scale[1])) scene$xaxis$type <- "log"
+      if (isTRUE(log_scale[2])) scene$yaxis$type <- "log"
+      
+      tmp <- plotly::plot_ly(x = vx, y = vy, z = mz) |> plotly::add_surface()
+      tmp <- plotly::layout(tmp, scene = scene)
+      
+      ret[[varname]] <- tmp
+      
+    } else {
+      
+      vz <- as.numeric(apply(cbind(vy, vg1), 1, ftmp))
+      
+      tmp <- ggplot2::ggplot(tibble::tibble(vy = vy, vz = vz),
+                             ggplot2::aes(x = vy, y = vz)) +
+        ggplot2::labs(y = "response", x = varname) +
+        ggplot2::geom_line(color = color, linewidth = size)
+      
+      if (isTRUE(log_scale[2])) tmp <- tmp + ggplot2::scale_x_log10()
+      
+      ret[[varname]] <- tmp
     }
-
   }
-
-  return(ret)
+  
+  ret
 }
 
 
@@ -998,53 +1053,120 @@ plot_target <- function(obj,im=1,iq=NULL,par=NULL,basedon=c(1,2),from,to,length.
 #' }
 #'
 #' @export
-plot_coefficients <- function(obj, vars, length.out=100, color="blue", size=1.5)
-{
-  if(!inherits(obj, 'PSTR'))
+plot_coefficients <- function(obj, vars, length.out = 100, color = "blue", size = 1.5) {
+  
+  if (!inherits(obj, "PSTR"))
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'"))
-  if(is.null(obj$vg)) stop(simpleError("The PSTR model is not estimated yet."))
+  if (is.null(obj$vg))
+    stop(simpleError("The PSTR model is not estimated yet."))
+  if (is.null(obj$est) || is.null(obj$cov))
+    stop(simpleError("Estimates or covariance matrix are not available."))
   
-  tvar = obj$mQ[,obj$iq]
-  tvarname = obj$mQ_name[obj$iq]
+  # ---- private members via getters ----
+  iq <- obj$.get_iq()
+  if (is.null(iq) || length(iq) != 1 || !is.finite(iq))
+    stop(simpleError("No transition variable selected (iq is NULL)."))
   
-  pp = seq(from=min(tvar), to=max(tvar), length.out=length.out)
-  mx = t(matrix(pp,length(pp),obj$imm))
-  ratio = fTF(mx, obj$gamma, obj$c)
+  mQ <- obj$.get_mQ()
+  if (is.null(mQ) || !is.matrix(mQ))
+    stop(simpleError("Transition variables (mQ) are not available."))
   
-  tnames = names(obj$est)
+  if (iq < 1 || iq > ncol(mQ))
+    stop(simpleError("Invalid iq (out of range for mQ)."))
   
-  ret = list()
-  for(vter in vars){
-    vK = try(obj$mK[,vter],silent=T)
-    if(inherits(vK, 'try-error') || length(vK)==0) next
+  mQ_name <- obj$.get_mQ_name()
+  if (is.null(mQ_name) || length(mQ_name) < iq)
+    stop(simpleError("mQ_name is not available or has wrong length."))
+  
+  tvarname <- mQ_name[iq]
+  
+  tvar <- as.numeric(mQ[, iq])
+  tvar <- tvar[is.finite(tvar)]
+  if (length(tvar) == 0)
+    stop(simpleError("Transition variable contains no finite values."))
+  
+  imm <- obj$.get_imm()
+  if (is.null(imm) || length(imm) != 1 || !is.finite(imm) || imm < 1)
+    stop(simpleError("Invalid imm."))
+  
+  mK <- obj$.get_mK()
+  if (is.null(mK) || !is.matrix(mK))
+    stop(simpleError("Nonlinear regressors (mK) are not available."))
+  
+  mK_name <- obj$.get_mK_name()
+  if (is.null(mK_name) || length(mK_name) != ncol(mK))
+    stop(simpleError("mK_name is not available or has wrong length."))
+  # -------------------------------------
+  
+  if (!is.numeric(length.out) || length(length.out) != 1 || length.out < 2)
+    stop(simpleError("length.out must be a single number >= 2."))
+  
+  pp <- seq(from = min(tvar), to = max(tvar), length.out = length.out)
+  
+  mx <- matrix(rep(pp, times = imm), nrow = imm, byrow = TRUE)
+  ratio_grid <- fTF(mx, obj$gamma, obj$c)
+  
+  # use the first row if fTF returns imm x length(pp)
+  ratio <- ratio_grid
+  if (is.matrix(ratio_grid)) ratio <- as.numeric(ratio_grid[1, ])
+  ratio <- as.numeric(ratio)
+  
+  tnames <- names(obj$est)
+  if (is.null(tnames) || length(tnames) != length(obj$est))
+    stop(simpleError("obj$est must be a named vector."))
+  
+  ret <- list()
+  
+  for (vter in vars) {
     
-    if(is.numeric(vter)) tchar = obj$mK_name[vter]
-    else tchar = vter
-    
-    tmp = rep(0, length(obj$est))
-    tmp[match(paste0(tchar,"_0"), tnames)] = 1
-    kter = match(paste0(tchar,"_1"), tnames)
-    
-    bb = NULL; se = NULL
-    for(jter in ratio){
-      tmp[kter] = jter
-      bb = c(bb, crossprod(tmp, obj$est))
-      se = c(se, sqrt(t(tmp)%*%obj$cov%*%tmp))
+    # resolve variable name in nonlinear part
+    if (is.numeric(vter)) {
+      if (length(vter) != 1 || vter < 1 || vter > ncol(mK)) next
+      tchar <- mK_name[vter]
+    } else {
+      tchar <- as.character(vter)
+      if (length(tchar) != 1) next
     }
-    pv = 1-pchisq((bb/se)**2,df=1)
     
-    dtmp = data.frame(xx=rep(pp,3), yy=c(bb, se, pv),
-                  gg=factor(c( rep("\u03b2", length(bb)), rep("s.e.", length(se)),
-                               rep("p-val", length(pv))), levels=c("\u03b2", "s.e.", "p-val")) ) 
+    idx0 <- match(paste0(tchar, "_0"), tnames)
+    idx1 <- match(paste0(tchar, "_1"), tnames)
+    if (is.na(idx0) || is.na(idx1)) next
     
-    tmp = with(dtmp, ggplot(dtmp, aes(x=xx,y=yy))) + geom_line(col=color,size=size) +
-      with(dtmp,facet_grid(rows = vars(gg), scales = "free")) +
-      geom_hline(data=with(dtmp, subset(dtmp, gg=='p-val')), aes(yintercept=.05), col='red', linetype=2) +
-      labs(x=tvarname, y='', title=paste("coefficient",tchar))
+    tmp <- rep(0, length(obj$est))
+    tmp[idx0] <- 1
     
-    eval(parse(text=paste0("ret$",tchar," = tmp")))
+    bb <- numeric(length(ratio))
+    se <- numeric(length(ratio))
     
+    for (i in seq_along(ratio)) {
+      tmp[idx1] <- ratio[i]
+      bb[i] <- as.numeric(crossprod(tmp, obj$est))
+      se[i] <- sqrt(as.numeric(t(tmp) %*% obj$cov %*% tmp))
+    }
+    
+    pv <- 1 - stats::pchisq((bb / se)^2, df = 1)
+    
+    dtmp <- data.frame(
+      xx = rep(pp, 3),
+      yy = c(bb, se, pv),
+      gg = factor(
+        c(rep("\u03b2", length(bb)), rep("s.e.", length(se)), rep("p-val", length(pv))),
+        levels = c("\u03b2", "s.e.", "p-val")
+      )
+    )
+    
+    p <- ggplot2::ggplot(dtmp, ggplot2::aes(x = xx, y = yy)) +
+      ggplot2::geom_line(color = color, linewidth = size) +
+      ggplot2::facet_grid(rows = ggplot2::vars(gg), scales = "free") +
+      ggplot2::geom_hline(
+        data = subset(dtmp, gg == "p-val"),
+        ggplot2::aes(yintercept = 0.05),
+        colour = "red", linetype = 2
+      ) +
+      ggplot2::labs(x = tvarname, y = "", title = paste("coefficient", tchar))
+    
+    ret[[tchar]] <- p
   }
   
-  return(ret)
+  ret
 }

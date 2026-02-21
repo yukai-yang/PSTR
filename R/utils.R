@@ -120,37 +120,28 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
 })
 
 
-PSTR$set("private", "print_summary", function(format, ...) {
+PSTR$set("private", "print_summary", function(...) {
   cli::cli_h2("Summary of the model")
   
-  summ = matrix(paste0("Dependent variable:"),1,1)
-  summ = rbind(summ, private$vY_name)
+  cli::cli_text(
+    "The long format panel is {private$iT} × {private$iN} (time × individual)."
+  )
   
-  tmp = length(private$mX_name)
-  if(tmp == 1)
-    summ = rbind(summ, paste0("Explanatory variable in the linear part:"))
-  if(tmp > 1)
-    summ = rbind(summ, paste0("Explanatory variables (",tmp,") in the linear part:"))
-  summ = rbind(summ, paste0(private$mX_name,collapse=" "))
+  cli::cli_rule()
   
-  tmp = length(private$mK_name)
-  if(tmp == 1)
-    summ = rbind(summ, paste0("Explanatory variable in the non-linear part:"))
-  if(tmp > 1)
-    summ = rbind(summ, paste0("Explanatory variables (",tmp,") in the non-linear part:"))
-  summ = rbind(summ, paste0(private$mK_name,collapse=" "))
+  cli::cli_h3("Dependent variable")
+  cli::cli_text("{private$vY_name}")
   
-  tmp = length(private$mQ_name)
-  if(tmp == 1)
-    summ = rbind(summ, paste0("Potential transition variable to be tested:"))
-  if(tmp > 1)
-    summ = rbind(summ, paste0("Potential transition variables (",tmp,") to be tested:"))
-  summ = rbind(summ, paste0(private$mQ_name,collapse=" "))
+  cli::cli_h3("Explanatory variables in the linear part ({length(private$mX_name)})")
+  cli::cli_text("{paste(private$mX_name, collapse = ', ')}")
   
-  colnames(summ) = paste0("The long format panel is ",private$iT,
-                          " × ",private$iN, " (time × individual).")
+  cli::cli_h3("Explanatory variables in the non-linear part ({length(private$mK_name)})")
+  cli::cli_text("{paste(private$mK_name, collapse = ', ')}")
   
-  print(knitr::kable(summ, format=format, ...))
+  cli::cli_h3("Potential transition variable(s) to be tested ({length(private$mQ_name)})")
+  cli::cli_text("{paste(private$mQ_name, collapse = ', ')}")
+  
+  invisible(self)
 })
 
 

@@ -185,14 +185,18 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
   tmp = mD * tmp
   mV = cbind(private$mXX, tmp)
   mV2 = mM %*% mV
-  invVV = chol2inv(chol(crossprod(mV2)))
+  invVV = svd_pinv(crossprod(mV2))
   
   ftmp_wb <- function(bter){# WB
     ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
     ruse$.set_vY(eY + ve1)
     EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
     vu1 = EST$.get_vU(); ss1 = EST$.get_s2() # sigma^2
-    tmp = c(EST$.get_mK() %*%EST$.get_beta()[(ncol(EST$.get_mX())+1):length(EST$.get_beta())])
+    
+    mK <- EST$.get_mK(); beta <- EST$.get_beta()
+    beta_k <- tail(beta, ncol(mK))
+    tmp <- c(mK %*% beta_k)
+    
     tmp = mD * tmp
     mV11 = cbind(EST$.get_mXX(), tmp)
     mV12 = mM %*% mV11
@@ -205,7 +209,11 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
     ruse$.set_vY(eY + ve2)
     EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
     vu2 = EST$.get_vU(); ss2 = EST$.get_s2() # sigma^2
-    tmp = c(EST$.get_mK() %*%EST$.get_beta()[(ncol(EST$.get_mX())+1):length(EST$.get_beta())])
+    
+    mK <- EST$.get_mK(); beta <- EST$.get_beta()
+    beta_k <- tail(beta, ncol(mK))
+    tmp <- c(mK %*% beta_k)
+    
     tmp = mD * tmp
     mV21 = cbind(EST$.get_mXX(), tmp)
     mV22 = mM %*% mV21

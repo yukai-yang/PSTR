@@ -40,30 +40,66 @@ svd_pinv <- function(A, tol = 1e-10) {
 }
 
 
-# Print the object of the class PSTR.
-#
-# This function prints the object of the class PSTR.
-#
-# @param format argument passed to knitr::kable.
-# @param mode a vector of character strings specifying which results to print. It takes the values c('summary', 'tests', 'estimates', 'evaluation'). By default 'su' and 'e' which means all.
-# @param digits integer indicating the number of decimal places (for the \code{round} function inside) to be used. Negative values are allowed (see \code{round}).
-# @param ... further arguments passed to knitr::kable.
-#
-# @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
-# @seealso Functions which return an object of the class PSTR:
-#
-# \code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}}, \code{\link{EstPSTR}}, \code{\link{EvalTest}}, \code{\link{WCB_TVTest}} and \code{\link{WCB_HETest}}
-# @keywords utils
-#
-# @examples
-# pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-#     tvars=c('vala','debta','cfa','sales'), iT=14)
-#
-# pstr
-# print(pstr, mode="tests", format="simple")
-# print(pstr, mode="tests", format="pipe",caption="The test results")
-# print(pstr, mode="tests", format = "latex", caption = "The test results")
-#
+#' Print a PSTR model object
+#'
+#' Print method for objects of class \code{"PSTR"}.
+#'
+#' The print output is organised into four sections:
+#' \describe{
+#'   \item{\code{"summary"}}{Data summary: panel dimensions, dependent variable, linear/non-linear regressors, transition variables.}
+#'   \item{\code{"tests"}}{Specification tests: linearity (homogeneity) tests and the sequence of homogeneity tests (optionally with WB/WCB p-values if available).}
+#'   \item{\code{"estimates"}}{Estimation results: coefficient estimates with standard errors and t-ratios, printed in chunks to fit the console width.}
+#'   \item{\code{"evaluation"}}{Evaluation tests: parameter constancy and no-remaining-nonlinearity tests (optionally with WB/WCB p-values if available).}
+#' }
+#'
+#' In addition to calling \code{print(x, ...)}, the same functionality is available
+#' as an R6 method via \code{x$print(...)}.
+#'
+#' @param x An object of class \code{"PSTR"}.
+#' @param ... Further arguments passed to the underlying print routine.
+#'   See \strong{Arguments} below.
+#'
+#' @section Arguments:
+#' The following arguments are supported (they are forwarded to the R6 method \code{x$print()}):
+#' \describe{
+#'   \item{\code{format}}{Character. Output format passed to \code{knitr::kable()} (for example \code{"simple"}, \code{"pipe"}, \code{"latex"}). Default is \code{"simple"}.}
+#'   \item{\code{mode}}{Character vector specifying which sections to print. It is matched (partially) against \code{c("summary","tests","estimates","evaluation")}. Default is \code{"summary"}.}
+#'   \item{\code{digits}}{Integer. Number of significant digits used in printed tables. Default is \code{4}.}
+#' }
+#'
+#' @return Invisibly returns \code{x}.
+#'
+#' @seealso \code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}},
+#'   \code{\link{EstPSTR}}, \code{\link{EvalTest}}, \code{\link{WCB_TVTest}},
+#'   \code{\link{WCB_HETest}}.
+#'
+#' @examples
+#' \donttest{
+#' pstr <- NewPSTR(Hansen99, dep = "inva", indep = 4:20,
+#'                indep_k = c("vala","debta","cfa","sales"),
+#'                tvars = c("vala","debta","cfa","sales"), iT = 14)
+#'
+#' # default: summary only
+#' pstr
+#'
+#' # specification tests
+#' print(pstr, mode = "tests", format = "simple")
+#' print(pstr, mode = "tests", format = "pipe", caption = "The test results")
+#'
+#' # estimates
+#' print(pstr, mode = "estimates")
+#'
+#' # evaluation
+#' print(pstr, mode = "evaluation")
+#'
+#' # R6 method interface (same output)
+#' pstr$print(mode = c("summary","tests"))
+#' }
+#'
+#' @name print.PSTR
+NULL
+
+
 PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=4, ...){
   cli::cli_h1(paste0("R package PSTR ", vnum, " ",packname))
   

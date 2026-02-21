@@ -76,6 +76,8 @@ González, A., Teräsvirta, T., van Dijk, D. and Yang, Y. (2005) "\href{http://s
 
 \code{\link{plot_transition}} plots the transition function of an estimated PSTR model.
 
+\code{\link{plot_coefficients}} plots coefficients, standard errors, and p-values against the transition variable.
+
 \code{\link{plot_response}} plots curve or surfaces of the expected reponse agaist the corresponding variable.
 
 \code{\link{plot_target}} plots the surface of the target function for the nonlinear least square estimation.

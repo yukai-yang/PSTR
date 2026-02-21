@@ -225,6 +225,9 @@ PSTR <- R6::R6Class(
     mbeta=NULL, mse=NULL,
     
     # assigned by EvalTest
-    tv=NULL, ht=NULL
+    tv=NULL, ht=NULL,
+    
+    # assigned by WCB_TVTest
+    wcb_tv=NULL
   )
 )

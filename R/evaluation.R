@@ -148,34 +148,32 @@ EvalTest <- function(use, type = c("time-varying", "heterogeneity"), vq = NULL) 
 }
 
 
-
-#' @rdname EvalTest
-#' @export
-WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
-{
-  if(!inherits(use, 'PSTR'))
-    stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
-  if(is.null(use$iq))
-    stop(simpleError("Estimate the PSTR model first!"))
-  ret = use; ruse = use
-  im = use$im
+PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) {
   
-  iT = use$iT; iN = use$iN
-  vU = use$vU; eY = use$vY - vU
+  if (is.null(private$iq)) {
+    stop(simpleError("Estimate the PSTR model first!"))
+  }
+  
+  # IMPORTANT: use a deep clone so we don't overwrite the original object
+  ruse <- self$clone(deep = TRUE)
+  im = private$im
+  
+  iT = private$iT; iN = private$iN
+  vU = private$vU; eY = private$vY - vU
   
   mD = diag(1,iN) %x% rep(1,iT)
   mM = diag(1, iN*iT) - tcrossprod(mD)/iT
   
-  tmp = c(use$mK %*% use$beta[(ncol(use$mX)+1):length(use$beta)])
-  tmp = use$mD * tmp
-  mV = cbind(use$mXX, tmp)
+  tmp = c(private$mK %*% private$beta[(ncol(private$mX)+1):length(private$beta)])
+  tmp = private$mD * tmp
+  mV = cbind(private$mXX, tmp)
   mV2 = mM %*% mV
   invVV = chol2inv(chol(crossprod(mV2)))
   
   ftmp_wb <- function(bter){# WB
     ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
     ruse$vY = eY + ve1
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),useDelta=T,vLower=1,vUpper=1)
+    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
     vu1 = EST$vU; ss1 = EST$s2 # sigma^2
     tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
     tmp = EST$mD * tmp
@@ -188,7 +186,7 @@ WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
   ftmp_wcb <- function(bter){# WCB
     ve2 = c(t(matrix(sample(c(1,-1),iN,replace=T),iN,iT)))*vU
     ruse$vY = eY + ve2
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(use$delta,use$c),useDelta=T,vLower=1,vUpper=1)
+    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
     vu2 = EST$vU; ss2 = EST$s2 # sigma^2
     tmp = c(EST$mK%*%EST$beta[(ncol(EST$mX)+1):length(EST$beta)])
     tmp = EST$mD * tmp
@@ -198,27 +196,38 @@ WCB_TVTest <- function(use, iB=100, parallel=F, cpus=4)
     return(sLMTEST(iT=iT,iN=iN,vU=vu2,mX=mV21,mW=mW,mM=mM,s2=ss2,mX2=mV22,invXX=invVV2))
   }
   
-  ret$wcb_tv = NULL
+  private$wcb_tv = NULL
   vt = 1:iT/iT
   mW = NULL
   
   for(mter in 1:im){
-    mW = cbind(mW, use$mXX*(vt**mter))
-    LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mV,mW=mW,mM=mM,s2=use$s2,mX2=mV2,invXX=invVV)
+    mW = cbind(mW, private$mXX*(vt**mter))
+    LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mV,mW=mW,mM=mM,s2=private$s2,mX2=mV2,invXX=invVV)
     
     sfInit(parallel=parallel,cpus=cpus)
     qLM1 = sfSapply(1:iB,ftmp_wb)
     qLM2 = sfSapply(1:iB,ftmp_wcb)
     sfStop()
     
-    ret$wcb_tv = rbind(ret$wcb_tv,c(LM, mean(LM<=qLM1), mean(LM<=qLM2)))
+    private$wcb_tv = rbind(private$wcb_tv,c(LM, mean(LM<=qLM1), mean(LM<=qLM2)))
   }
   
-  ret$wcb_tv = matrix(ret$wcb_tv, nrow=im)
+  private$wcb_tv = matrix(private$wcb_tv, nrow=im)
   
-  return(ret)
-}
+  cli::cli_alert_success("Done!")
+  invisible(self)
+})
 
+
+#' @rdname EvalTest
+#' @export
+WCB_TVTest <- function(use, iB = 100, parallel = FALSE, cpus = 4) {
+  if (!inherits(use, "PSTR")) {
+    stop(simpleError("The argument 'use' is not an object of class 'PSTR'"))
+  }
+  use$WCB_TVTest(iB = iB, parallel = parallel, cpus = cpus)
+  invisible(use)
+}
 
 
 #' @rdname EvalTest

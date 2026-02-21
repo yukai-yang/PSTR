@@ -102,7 +102,7 @@ PSTR$set("public", "EvalTest", function(type = c("time-varying", "heterogeneity"
   mD = diag(1,private$iN) %x% rep(1,private$iT)
   mM = diag(1, private$iN*private$iT) - tcrossprod(mD)/private$iT
   
-  tmp = c(private$mK %*% private$beta[(ncol(private$mX)+1):length(private$beta)])
+  tmp = c(private$mK %*% self$beta[(ncol(private$mX)+1):length(self$beta)])
   tmp = mD * tmp ## pp.14
   mV = cbind(private$mXX, tmp)
   mV2 = mM %*% mV
@@ -117,8 +117,8 @@ PSTR$set("public", "EvalTest", function(type = c("time-varying", "heterogeneity"
     mW = NULL
     for(mter in 1:im){
       mW = cbind(mW, private$mXX*(vt**mter))
-      self$tv[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=private$vU,mX=mV,
-                              mW=mW,mM=mM,s2=private$s2,mX2=mV2,invXX=invVV)
+      self$tv[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=self$vU,mX=mV,
+                              mW=mW,mM=mM,s2=self$s2,mX2=mV2,invXX=invVV)
     }
   }
   
@@ -128,8 +128,8 @@ PSTR$set("public", "EvalTest", function(type = c("time-varying", "heterogeneity"
     mW = NULL
     for(mter in 1:im){
       mW = cbind(mW, private$mXX*(vq**mter))
-      self$ht[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=private$vU,mX=mV,
-                              mW=mW,mM=mM,s2=private$s2,mX2=mV2,invXX=invVV)
+      self$ht[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=self$vU,mX=mV,
+                              mW=mW,mM=mM,s2=self$s2,mX2=mV2,invXX=invVV)
     }
   }
   
@@ -153,13 +153,13 @@ PSTR$set("public", ".set_vY", function(vY_new) {
   invisible(self)
 })
 
-PSTR$set("public", ".get_vU", function() { private$vU })
+PSTR$set("public", ".get_vU", function() { self$vU })
 
-PSTR$set("public", ".get_s2", function() { private$s2 })
+PSTR$set("public", ".get_s2", function() { self$s2 })
 
 PSTR$set("public", ".get_mK", function() { private$mK })
 
-PSTR$set("public", ".get_beta", function() { private$beta })
+PSTR$set("public", ".get_beta", function() { self$beta })
 
 PSTR$set("public", ".get_mX", function() { private$mX })
 
@@ -176,12 +176,12 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
   im = private$im
   
   iT = private$iT; iN = private$iN
-  vU = private$vU; eY = private$vY - vU
+  vU = self$vU; eY = private$vY - vU
   
   mD = diag(1,iN) %x% rep(1,iT)
   mM = diag(1, iN*iT) - tcrossprod(mD)/iT
   
-  tmp = c(private$mK %*% private$beta[(ncol(private$mX)+1):length(private$beta)])
+  tmp = c(private$mK %*% self$beta[(ncol(private$mX)+1):length(self$beta)])
   tmp = mD * tmp
   mV = cbind(private$mXX, tmp)
   mV2 = mM %*% mV
@@ -190,7 +190,7 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
   ftmp_wb <- function(bter){# WB
     ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
     ruse$.set_vY(eY + ve1)
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
+    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(self$delta,self$c),useDelta=T,vLower=1,vUpper=1)
     vu1 = EST$.get_vU(); ss1 = EST$.get_s2() # sigma^2
     
     mK <- EST$.get_mK(); beta <- EST$.get_beta()
@@ -207,7 +207,7 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
   ftmp_wcb <- function(bter){# WCB
     ve2 = c(t(matrix(sample(c(1,-1),iN,replace=T),iN,iT)))*vU
     ruse$.set_vY(eY + ve2)
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(private$delta,private$c),useDelta=T,vLower=1,vUpper=1)
+    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(self$delta,self$c),useDelta=T,vLower=1,vUpper=1)
     vu2 = EST$.get_vU(); ss2 = EST$.get_s2() # sigma^2
     
     mK <- EST$.get_mK(); beta <- EST$.get_beta()
@@ -227,7 +227,7 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
   
   for(mter in 1:im){
     mW = cbind(mW, private$mXX*(vt**mter))
-    LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mV,mW=mW,mM=mM,s2=private$s2,mX2=mV2,invXX=invVV)
+    LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mV,mW=mW,mM=mM,s2=self$s2,mX2=mV2,invXX=invVV)
     
     sfInit(parallel=parallel,cpus=cpus)
     qLM1 = sfSapply(1:iB,ftmp_wb)
@@ -279,7 +279,7 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
   iT <- private$iT
   iN <- private$iN
   
-  vU <- private$vU
+  vU <- self$vU
   eY <- private$vY - vU
   
   mD <- diag(1, iN) %x% rep(1, iT)
@@ -287,7 +287,7 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
   
   # build V for the auxiliary regression (pp.14)
   mK0 <- private$mK
-  beta0 <- private$beta
+  beta0 <- self$beta
   beta_k0 <- tail(beta0, ncol(mK0))
   tmp <- c(mK0 %*% beta_k0)
   
@@ -302,7 +302,7 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
     
     EST <- EstPSTR(
       use = ruse, im = 1, iq = ruse$iq,
-      par = c(private$delta, private$c),
+      par = c(self$delta, self$c),
       useDelta = TRUE, vLower = 1, vUpper = 1
     )
     
@@ -332,7 +332,7 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
     
     EST <- EstPSTR(
       use = ruse, im = 1, iq = ruse$iq,
-      par = c(private$delta, private$c),
+      par = c(self$delta, self$c),
       useDelta = TRUE, vLower = 1, vUpper = 1
     )
     
@@ -366,7 +366,7 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
     LM <- sLMTEST(
       iT = iT, iN = iN, vU = vU,
       mX = mV, mW = mW, mM = mM,
-      s2 = private$s2, mX2 = mV2, invXX = invVV
+      s2 = self$s2, mX2 = mV2, invXX = invVV
     )
     
     sfInit(parallel = parallel, cpus = cpus)

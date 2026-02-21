@@ -153,11 +153,11 @@ PSTR$set("public", ".set_vY", function(vY_new) {
   invisible(self)
 })
 
+
 PSTR$set("public", ".get_mK", function() { private$mK })
-
 PSTR$set("public", ".get_mX", function() { private$mX })
-
 PSTR$set("public", ".get_mXX", function() { private$mXX })
+
 
 PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) {
   

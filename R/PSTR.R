@@ -228,6 +228,9 @@ PSTR <- R6::R6Class(
     tv=NULL, ht=NULL,
     
     # assigned by WCB_TVTest
-    wcb_tv=NULL
+    wcb_tv=NULL,
+    
+    # assigned by WCB_HETest
+    wcb_ht = NULL
   )
 )

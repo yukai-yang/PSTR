@@ -527,6 +527,12 @@ PSTR$set("private", "print_evaluation", function(format, digits, ...) {
 })
 
 
+PSTR$set("public", ".get_iq", function() private$iq)
+PSTR$set("public", ".get_mQ", function() private$mQ)
+PSTR$set("public", ".get_mQ_name", function() private$mQ_name)
+PSTR$set("public", ".get_imm", function() private$imm)
+
+
 #' Plot the transition function of the estimated PSTR model.
 #'
 #' This function plots the transition function of the estimated PSTR model.
@@ -569,43 +575,145 @@ PSTR$set("private", "print_evaluation", function(format, digits, ...) {
 #' }
 #'
 #' @export
-plot_transition <- function(obj, size=1.5, color="blue", xlim=NULL, ylim=NULL, fill=NULL, alpha=NULL)
-{
-  if(!inherits(obj, 'PSTR'))
+plot_transition <- function(obj, size = 1.5, color = "blue",
+                            xlim = NULL, ylim = NULL,
+                            fill = NULL, alpha = NULL) {
+  if (!inherits(obj, "PSTR")) {
     stop(simpleError("The argument 'obj' is not an object of class 'PSTR'."))
-  if(is.null(obj$vg)) stop(simpleError("The PSTR model is not estimated yet."))
-  
-  qq=obj$mQ[,obj$iq]
-
-  ###### new
-  if(is.null(xlim)){ xlim = c(min(min(qq), obj$c - log(1/0.002472623 - 1)/obj$gamma),
-                             max(max(qq), obj$c - log(1/0.9975274 - 1)/obj$gamma)) 
-  }else{
-    if(length(xlim)!=2) stop(simpleError("xlim must be a 2-vector."))
-    if(!is.numeric(xlim)) stop(simpleError("xlim must be numeric."))
+  }
+  if (is.null(obj$vg)) {
+    stop(simpleError("The PSTR model is not estimated yet."))
   }
   
-  if(is.null(ylim)){ ylim = c(0, 1)
-  }else{
-    if(length(ylim)!=2) stop(simpleError("ylim must be a 2-vector."))
-    if(!is.numeric(ylim)) stop(simpleError("ylim must be numeric."))
+  # --- required getters you said you already have ---
+  iq <- obj$.get_iq()
+  if (is.null(iq)) stop(simpleError("No transition variable selected (iq is NULL)."))
+  
+  mQ <- obj$.get_mQ()
+  qname <- obj$.get_mQ_name()
+  
+  if (is.null(mQ) || is.null(dim(mQ))) stop(simpleError("Invalid mQ in obj."))
+  if (!is.numeric(iq) || length(iq) != 1) stop(simpleError("Invalid iq in obj."))
+  if (iq < 1 || iq > ncol(mQ)) stop(simpleError("iq is out of bounds for mQ."))
+  
+  qq <- mQ[, iq]
+  
+  # --- imm is private: you MUST expose it with a getter and read it here ---
+  if (!(".get_imm" %in% names(obj))) {
+    stop(simpleError("Missing getter .get_imm(). Define PSTR$set('public', '.get_imm', function() private$imm)."))
+  }
+  imm <- obj$.get_imm()
+  if (is.null(imm) || !is.numeric(imm) || length(imm) != 1 || !is.finite(imm) || imm < 1) {
+    stop(simpleError("Invalid obj$imm (via .get_imm)."))
+  }
+  imm <- as.integer(imm)
+  
+  if (is.null(alpha)) alpha <- 0.2
+  
+  if (!is.null(xlim)) {
+    if (length(xlim) != 2 || !is.numeric(xlim)) stop(simpleError("xlim must be a numeric 2-vector."))
+  }
+  if (!is.null(ylim)) {
+    if (length(ylim) != 2 || !is.numeric(ylim)) stop(simpleError("ylim must be a numeric 2-vector."))
+  } else {
+    ylim <- c(0, 1)
   }
   
-  if(is.null(alpha)) alpha = .2
+  # default xlim: qq range plus a soft extension implied by (gamma, c)
+  if (is.null(xlim)) {
+    g <- obj$gamma
+    cc <- obj$c
+    
+    if (is.null(g) || length(g) != 1 || !is.finite(g) || g <= 0 ||
+        is.null(cc) || any(!is.finite(cc))) {
+      xlim <- range(qq, na.rm = TRUE)
+    } else {
+      z_lo <- -log(1 / 0.002472623 - 1) / g
+      z_hi <- -log(1 / 0.9975274 - 1) / g
+      cc_rng <- range(cc, na.rm = TRUE)
+      xlim <- range(c(qq, cc_rng + z_lo, cc_rng + z_hi), na.rm = TRUE)
+    }
+  }
   
-  vx = seq(xlim[1],xlim[2],length.out=1001)
-  mx = t(matrix(vx,length(vx),obj$imm))
-  vy = fTF(mx, obj$gamma, obj$c)
+  vx <- seq(xlim[1], xlim[2], length.out = 1001)
   
-  ret = ggplot() + ggplot2::xlim(xlim) + ggplot2::ylim(ylim)
-  if(!is.null(fill)) ret = ret + geom_rect(aes(xmin=min(qq),ymin=0,xmax=max(qq),ymax=1), alpha=alpha/2, fill=fill) 
-  ret = ret + geom_line(aes(x=vx,y=vy),color='red') +
-    geom_rug(aes(x=qq, y=obj$vg), sides = "b", color=color) +
-    geom_point(aes(x=qq, y= obj$vg), size=size, stroke=T, alpha=alpha, color=color) +
-    labs(y="transition function", x=obj$mQ_name[obj$iq])
-  ######
-
-  return(ret)
+  # curve data
+  if (imm == 1L) {
+    vy <- fTF(vx, obj$gamma, obj$c)
+    curve_df <- data.frame(x = vx, y = as.numeric(vy), m = 1L)
+  } else {
+    mx <- t(matrix(vx, nrow = length(vx), ncol = imm))  # imm x length(vx)
+    vy <- fTF(mx, obj$gamma, obj$c)
+    
+    if (is.matrix(vy) && nrow(vy) == imm && ncol(vy) == length(vx)) {
+      curve_df <- data.frame(
+        x = rep(vx, times = imm),
+        y = as.numeric(t(vy)),
+        m = rep(seq_len(imm), each = length(vx))
+      )
+    } else if (is.numeric(vy) && length(vy) == length(vx)) {
+      curve_df <- data.frame(x = vx, y = as.numeric(vy), m = 1L)
+      imm <- 1L
+    } else {
+      stop(simpleError("Unexpected output shape from fTF for imm > 1."))
+    }
+  }
+  
+  # point data from observed (qq, vg)
+  vg <- obj$vg
+  if (is.vector(vg) && length(vg) == length(qq)) {
+    point_df <- data.frame(x = qq, y = as.numeric(vg), m = 1L)
+  } else if (is.matrix(vg) && ncol(vg) == length(qq)) {
+    point_df <- data.frame(
+      x = rep(qq, times = nrow(vg)),
+      y = as.numeric(t(vg)),
+      m = rep(seq_len(nrow(vg)), each = length(qq))
+    )
+  } else {
+    stop(simpleError("obj$vg has incompatible length/dim with the transition variable."))
+  }
+  
+  xlab <- if (!is.null(qname) && length(qname) >= iq) qname[iq] else paste0("q[", iq, "]")
+  
+  ret <- ggplot2::ggplot() +
+    ggplot2::xlim(xlim) +
+    ggplot2::ylim(ylim)
+  
+  if (!is.null(fill)) {
+    ret <- ret + ggplot2::geom_rect(
+      ggplot2::aes(
+        xmin = min(qq, na.rm = TRUE),
+        ymin = 0,
+        xmax = max(qq, na.rm = TRUE),
+        ymax = 1
+      ),
+      alpha = alpha / 2,
+      fill = fill
+    )
+  }
+  
+  ret <- ret +
+    ggplot2::geom_line(
+      data = curve_df,
+      ggplot2::aes(x = x, y = y, group = m),
+      color = "red"
+    ) +
+    ggplot2::geom_rug(
+      data = point_df,
+      ggplot2::aes(x = x),
+      sides = "b",
+      color = color
+    ) +
+    ggplot2::geom_point(
+      data = point_df,
+      ggplot2::aes(x = x, y = y),
+      size = size,
+      alpha = alpha,
+      color = color
+    ) +
+    ggplot2::labs(y = "transition function", x = xlab)
+  
+  ret
 }
 
 

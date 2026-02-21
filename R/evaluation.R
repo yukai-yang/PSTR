@@ -185,9 +185,9 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
     ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
     ruse$.set_vY(eY + ve1)
     EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(self$delta,self$c),useDelta=T,vLower=1,vUpper=1)
-    vu1 = EST$vU(); ss1 = EST$s2() # sigma^2
+    vu1 = EST$vU; ss1 = EST$s2 # sigma^2
     
-    mK <- EST$.get_mK(); beta <- EST$beta()
+    mK <- EST$.get_mK(); beta <- EST$beta
     beta_k <- tail(beta, ncol(mK))
     tmp <- c(mK %*% beta_k)
     
@@ -202,9 +202,9 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
     ve2 = c(t(matrix(sample(c(1,-1),iN,replace=T),iN,iT)))*vU
     ruse$.set_vY(eY + ve2)
     EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(self$delta,self$c),useDelta=T,vLower=1,vUpper=1)
-    vu2 = EST$vU(); ss2 = EST$s2() # sigma^2
+    vu2 = EST$vU; ss2 = EST$s2 # sigma^2
     
-    mK <- EST$.get_mK(); beta <- EST$beta()
+    mK <- EST$.get_mK(); beta <- EST$beta
     beta_k <- tail(beta, ncol(mK))
     tmp <- c(mK %*% beta_k)
     
@@ -293,11 +293,11 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
       useDelta = TRUE, vLower = 1, vUpper = 1
     )
     
-    vu1 <- EST$vU()
-    ss1 <- EST$s2()
+    vu1 <- EST$vU
+    ss1 <- EST$s2
     
     mK <- EST$.get_mK()
-    beta <- EST$beta()
+    beta <- EST$beta
     beta_k <- tail(beta, ncol(mK))
     tmp1 <- c(mK %*% beta_k)
     
@@ -323,11 +323,11 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
       useDelta = TRUE, vLower = 1, vUpper = 1
     )
     
-    vu2 <- EST$vU()
-    ss2 <- EST$s2()
+    vu2 <- EST$vU
+    ss2 <- EST$s2
     
     mK <- EST$.get_mK()
-    beta <- EST$beta()
+    beta <- EST$beta
     beta_k <- tail(beta, ncol(mK))
     tmp2 <- c(mK %*% beta_k)
     

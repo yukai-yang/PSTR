@@ -4,7 +4,7 @@
 \alias{EvalTest}
 \alias{WCB_TVTest}
 \alias{WCB_HETest}
-\title{Conduct the evaluation tests.}
+\title{Evaluate an estimated PSTR model}
 \usage{
 EvalTest(use, type = c("time-varying", "heterogeneity"), vq = NULL)
 
@@ -13,92 +13,78 @@ WCB_TVTest(use, iB = 100, parallel = FALSE, cpus = 4)
 WCB_HETest(use, vq, iB = 100, parallel = FALSE, cpus = 4)
 }
 \arguments{
-\item{use}{an object of the class PSTR, created by \code{\link{EstPSTR}} function.}
+\item{use}{An object of class \code{"PSTR"} returned by \code{\link{EstPSTR}}.
+The model must be estimated (nonlinear PSTR) before evaluation tests can be run.}
 
-\item{type}{a character vector specifying the types of the evaluation tests to be conducted. The value can be taken either or both of \code{"time-varying"} \code{"heterogeneity"}. By default, do both.}
+\item{type}{Character vector. Which evaluation tests to run in \code{EvalTest}.
+Must be a subset of \code{c("time-varying","heterogeneity")}. Default is both.}
 
-\item{vq}{a vector of a new transition variable for the no remaining nonlinearity test.}
+\item{vq}{Numeric vector. Candidate transition variable used by the no remaining nonlinearity
+test. Required if \code{"heterogeneity"} is included in \code{type}, and required for
+\code{WCB_HETest}.}
 
-\item{iB}{specify the number of repetitions in the bootstrap procedure. By default, it is 100.}
+\item{iB}{Integer. Number of bootstrap replications. Default is \code{100}.}
 
-\item{parallel}{a boolean value showing if the parallel computation is applied.}
+\item{parallel}{Logical. Whether to use parallel computation (via the \pkg{snowfall} backend).}
 
-\item{cpus}{number of cores used in the parallel computation. The value will be ignored if \code{parallel=F}.}
+\item{cpus}{Integer. Number of CPU cores used if \code{parallel = TRUE}.}
 }
 \value{
-a new object of the class PSTR containing the results from the evaluation tests.
-
-The return object from \code{EvalTest} contains the following new components:
-\item{tv}{a list of the time-varying evaluation tests. The length of the list is the maximal number of switches. Each element of the list corresponds to the time-varying evaluation test results based on different number of switches.}
-\item{ht}{a list of the no remaining nonlinearity (no remaining heterogeneity) evaluation tests. The length of the list is the maximal number of switches. Each element of the list corresponds to the time-varying evaluation test results based on different number of switches. The input vector of a new transition variable is used to compute the tests.}
-
-The return object from \code{WCB_TVTest} contains the following new component:
-\item{wcb_tv}{a matrix containing the results from the WB and WCB time-varying tests. Each row of the matrix contains the p-value of the WB and WCB tests.}
-
-The return object from \code{WCB_HETest} contains the following new component:
-\item{wcb_ht}{a matrix containing the results from the WB and WCB no remaining nonlinearity (heterogeneity) tests. Each row of the matrix contains the p-value of the WB and WCB tests.}
+Invisibly returns \code{use} with evaluation results added.
+\describe{
+  \item{\code{tv}}{A list of parameter-constancy (time-varying) test results, one element per \eqn{m}.}
+  \item{\code{ht}}{A list of no remaining nonlinearity (heterogeneity) test results, one element per \eqn{m}.}
+  \item{\code{wcb_tv}}{A numeric matrix of WB/WCB p-values for parameter-constancy tests (one row per \eqn{m}).}
+  \item{\code{wcb_ht}}{A numeric matrix of WB/WCB p-values for no remaining nonlinearity tests (one row per \eqn{m}).}
+}
+The individual list elements in \code{tv} and \code{ht} contain LM-type test statistics and
+p-values (including HAC variants), consistent with the output from \code{\link{LinTest}}.
 }
 \description{
-These functions conduct the evaluation tests against two alternatives: 1. the parameters are time-varying and 2. there is remaining nonlinearity (remaining heterogeneity).
+\code{EvalTest} provides post-estimation evaluation tests for an estimated PSTR model.
+It supports two null hypotheses:
+\describe{
+  \item{Parameter constancy}{No time variation in parameters (labelled \code{"time-varying"}).}
+  \item{No remaining nonlinearity}{No remaining nonlinearity/heterogeneity given a candidate transition variable (labelled \code{"heterogeneity"}).}
+}
 }
 \details{
-\code{EvalTest} implements the evaluation tests.
+Wild bootstrap (WB) and wild cluster bootstrap (WCB) versions are available via
+\code{WCB_TVTest} (parameter constancy) and \code{WCB_HETest} (no remaining nonlinearity).
 
-\code{WCB_TVTest} implements the wild bootstrap (WB) and the wild cluster bootstrap (WCB) evaluation test of no time-varying parameters.
-
-\code{WCB_HETest} implements the wild bootstrap (WB) and the wild cluster bootstrap (WCB) evaluation test of no remaining nonlinearity (no remaining heterogeneity).
-
-The functions need the return value (an object of the class PSTR) from the \code{\link{EstPSTR}}. Note that the PSTR model should be estimated before conducting the evaluation tests. They copy the object, reuse its contents, especially the estimates, to produce the evaluation test results, and then return a new object of the class PSTR. The user can choose to save the return value to a new object or simply to overwrite the object returned from \code{\link{EstPSTR}}. See the example below.
-
-The functions conduct two kinds of evaluation tests.
-The first kind of tests does the time-varying evaluation tests.
-The second kind of tests does the no remaining nonlinearity (no remaining heterogeneity) evaluation tests based on the vector of a new transition variable that the user input in the arguments.
-
-The results of the evaluation tests include four kinds of tests
-\itemize{
-  \item \eqn{\chi^2}-version LM test: the LM test with asymptotically \eqn{\chi^2} distribution under the null hypothesis.
-  \item F-version LM test: the LM test with asymptotically \eqn{F} distribution under the null hypothesis. The finite sample actual size is supposed to be improved.
-  \item \eqn{\chi^2}-version HAC test: the HAC LM test with asymptotically \eqn{\chi^2} distribution under the null hypothesis, which is heteroskedasticity and autocorrelation consistent.
-  \item F-version HAC test: the HAC LM test with asymptotically \eqn{F} distribution under the null hypothesis, which is heteroskedasticity and autocorrelation consistent. The finite sample actual size is supposed to be improved.
+Two equivalent interfaces are available for each test:
+\enumerate{
+  \item Wrapper function, for example \code{EvalTest(use = obj, ...)}.
+  \item R6 method, for example \code{obj$EvalTest(...)}.
 }
+Each wrapper calls the corresponding R6 method and returns \code{use} invisibly.
 
-The wild bootstrap (WB) evaluation tests are heteroskedasticity robust, while the wild cluster bootstrap (WCB) ones are both cluster-dependency and heteroskedasticity robust. Cluster-dependency implies that there can be dependency (autocorrelation) within individual, but no correlation across individuals. The WB and WCB tests may take quite a long time to run which depends on the model specification and the number of repetitions \code{iB}. It is strongly recommended to use super-computation server with many cores to run the code instead of a personal computer. The user may first try a small number of repetitions \code{iB} and estimate the time consumed for a larger number of \code{iB}.
-
-The functions never change the existing values in the input PSTR object. They add more values (attributes) into the input object and return.
+The bootstrap variants are computationally intensive. WB is robust to heteroskedasticity,
+while WCB is additionally robust to within-individual dependence (cluster dependence).
+Parallel execution can be enabled via \code{parallel} and \code{cpus}.
 }
 \examples{
 \donttest{
-pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-    tvars=c('vala'), iT=14) # create a new PSTR object
+pstr <- NewPSTR(Hansen99, dep = "inva", indep = 4:20,
+               indep_k = c("vala","debta","cfa","sales"),
+               tvars = c("vala"), iT = 14)
 
-# Estimate the model first
-pstr = EstPSTR(use=pstr, im=1, iq=1, useDelta=TRUE, par=c(.63,0), method='CG')
+# estimate first
+pstr <- EstPSTR(use = pstr, im = 1, iq = 1, useDelta = TRUE, par = c(.63, 0), method = "CG")
 
-# Then you can evaluate the model
-pstr = EvalTest(use=pstr, vq=pstr$mQ[,1])
+# evaluation tests
+pstr <- EvalTest(use = pstr, type = c("time-varying","heterogeneity"), vq = pstr$mQ[, 1])
+print(pstr, mode = "evaluation")
 
-print(pstr, "eval")
-
-# You can do the wild bootstrap and wild cluster bootstrap
-
+# bootstrap variants (requires snowfall)
 library(snowfall)
-
-pstr = WCB_TVTest(use=pstr, iB=4, parallel=TRUE, cpus=2)
-
-# pstr$mQ[,1] is the transition variable stored in the object
-# You can also try other transition variables.
-pstr = WCB_HETest(use=pstr, vq=pstr$mQ[,1], iB=4, parallel=TRUE, cpus=2)
-
-print(pstr, "eval")
-
-# Don't forget to change the values of iB and cpus during experiments.
+pstr <- WCB_TVTest(use = pstr, iB = 4, parallel = TRUE, cpus = 2)
+pstr <- WCB_HETest(use = pstr, vq = pstr$mQ[, 1], iB = 4, parallel = TRUE, cpus = 2)
+print(pstr, mode = "evaluation")
 }
 
 }
 \seealso{
-\code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}} and \code{\link{EstPSTR}}
+\code{\link{NewPSTR}}, \code{\link{LinTest}}, \code{\link{WCB_LinTest}},
+  \code{\link{EstPSTR}}.
 }
-\author{
-Yukai Yang, \email{yukai.yang@statistik.uu.se}
-}
-\keyword{evaluation}

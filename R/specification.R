@@ -94,74 +94,86 @@ sLMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
 }
 
 
-#' Conduct the linearity tests.
+#' Linearity (homogeneity) tests for PSTR models
 #'
-#' These functions conduct the linearity tests against the alternative of a logistic smooth transition nonlinear component.
+#' These functions conduct linearity (homogeneity) tests against the alternative of
+#' a logistic smooth transition component in a Panel Smooth Transition Regression (PSTR) model.
 #'
-#' \code{LinTest} and \code{obj$LinTest} implements the linearity tests, where \code{obj} is an object of the PSTR class, see \code{\link{NewPSTR}}.
+#' \strong{Two equivalent interfaces are available:}
+#' \enumerate{
+#'   \item \strong{Wrapper functions:} \code{LinTest(use = obj)} and \code{WCB_LinTest(use = obj, ...)}.
+#'   \item \strong{R6 methods:} \code{obj$LinTest()} and \code{obj$WCB_LinTest(...)}.
+#' }
+#' The wrapper functions call the corresponding R6 methods and return the (mutated) object invisibly.
 #'
-#' \code{WCB_LinTest} implements the wild bootstrap (WB) and the wild cluster bootstrap (WCB) linearity tests.
+#' The tests are carried out for each potential transition variable specified in \code{tvars}
+#' when creating the model via \code{\link{NewPSTR}}. For each transition variable, tests are computed
+#' for the number of switches \eqn{m = 1, \ldots, im}, where \eqn{im} is the maximal number of switches.
 #'
-#' The functions need the return value (an object of the class PSTR) from the \code{\link{NewPSTR}}. They copy the object, reuse its contents to produce the linearity test results, and then return a new object of the class PSTR. The user can choose to save the return value to a new object or simply to overwrite the object returned from \code{NewPSTR}. See the example below.
-#'
-#' The functions conduct two kinds of linearity tests.
-#'
-#' The first kind of tests does the linearity tests based on each potential transition variable specified in the argument \code{tvars} when the user calls the \code{\link{NewPSTR}} function. For each potential transition variable, the function conducts linearity tests for numbers of switches from 1 up to \code{im}. The linearity tests has the null hypothesis
-#' \deqn{H_0^i: \beta_{i} = \beta_{i-1} = \beta_{i-2} = ... = \beta_{1} = 0}
-#' for \eqn{i = 1, ..., m}, where \eqn{m} is the maximal number of switches \code{im}.
-#'
-#' The second kind does the linearity tests for selecting the number of switches based on each potential transition variable. The linearity tests for selecting the number of switches has the null hypothesis
-#' \deqn{H_0^i: \beta_{i} = 0 | \beta_{i+1} = \beta_{i+2} = ... = \beta_{m} = 0}
-#' for \eqn{i = 1, ..., m}, where \eqn{m} is the maximal number of switches \code{im}.
-#'
-#' The results of the linearity tests include four kinds of tests
-#' \itemize{
-#'   \item \eqn{\chi^2}-version Linearity test: the linearity LM test with asymptotically \eqn{\chi^2} distribution under the null hypothesis of linearity.
-#'   \item F-version Linearity test: the linearity LM test with asymptotically \eqn{F} distribution under the null hypothesis of linearity. The finite sample actual size is supposed to be improved.
-#'   \item \eqn{\chi^2}-version HAC Linearity test: the linearity LM test with asymptotically \eqn{\chi^2} distribution under the null hypothesis of linearity, which is heteroskedasticity and autocorrelation consistent.
-#'   \item F-version HAC Linearity test: the linearity LM test with asymptotically \eqn{F} distribution under the null hypothesis of linearity, which is heteroskedasticity and autocorrelation consistent. The finite sample actual size is supposed to be improved.
+#' The procedures produce two families of tests:
+#' \describe{
+#'   \item{(i) Linearity tests for each \eqn{m}}{
+#'     For a fixed \eqn{m}, the null hypothesis is
+#'     \deqn{H_0^i: \beta_{i} = \beta_{i-1} = \cdots = \beta_{1} = 0, \qquad i = 1, \ldots, m.}
+#'   }
+#'   \item{(ii) Sequence tests for selecting \eqn{m}}{
+#'     These are conditional tests with null
+#'     \deqn{H_0^i: \beta_{i} = 0 \mid \beta_{i+1} = \cdots = \beta_{m} = 0, \qquad i = 1, \ldots, m.}
+#'   }
 #' }
 #'
-#' The wild bootstrap (WB) tests are heteroskedasticity robust, while the wild cluster bootstrap (WCB) ones are both cluster-dependency and heteroskedasticity robust. Cluster-dependency implies that there can be dependency (autocorrelation) within individual, but no correlation across individuals. The WB and WCB tests may take quite a long time to run which depends on the model specification and the number of repetitions \code{iB}. It is strongly recommended to use super-computation server with many cores to run the code instead of a personal computer. The user may first try a small number of repetitions \code{iB} and estimate the time consumed for a larger number of \code{iB}.
+#' For each hypothesis, four asymptotic LM-type tests are reported:
+#' \itemize{
+#'   \item \eqn{\chi^2}-version LM test.
+#'   \item F-version LM test.
+#'   \item \eqn{\chi^2}-version HAC LM test (heteroskedasticity and autocorrelation consistent).
+#'   \item F-version HAC LM test.
+#' }
 #'
-#' The two functions never change the existing values in the input PSTR object. They add more values (attributes) into the input object and return.
-#' 
-#' \code{LinTest} and \code{WCB_LinTest} are wrappers of \code{obj$LinTest} and \code{obj$WCB_LinTest}, respectively.
+#' \code{WCB_LinTest} additionally reports wild bootstrap (WB) and wild cluster bootstrap (WCB) p-values.
+#' WB is robust to heteroskedasticity, while WCB is robust to both heteroskedasticity and within-individual
+#' dependence (cluster dependence). The bootstrap routines can be computationally expensive; parallel execution
+#' can be enabled via \code{parallel = TRUE}.
 #'
-#' @param use an object of the class PSTR, created by \code{\link{NewPSTR}} function.
-#' @param iB specify the number of repetitions in the bootstrap procedure. By default, it is 100.
-#' @param parallel a boolean value showing if the parallel computation is applied.
-#' @param cpus number of cores used in the parallel computation. The value will be ignored if \code{parallel=F}.
+#' Results are stored in the returned object (see \strong{Value}).
 #'
-#' @return an object of the class PSTR containing the results from the linearity tests.
+#' @param use An object of class \code{"PSTR"} created by \code{\link{NewPSTR}}.
+#' @param iB Integer. Number of bootstrap repetitions. Default is \code{100}.
+#' @param parallel Logical. Whether to use parallel computation in bootstrap routines.
+#' @param cpus Integer. Number of CPU cores to use when \code{parallel = TRUE}. Ignored otherwise.
 #'
-#' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
-#' @seealso \code{\link{NewPSTR}}
-#' @keywords specification
+#' @return
+#' Both functions return \code{use} invisibly, after adding the following components:
+#' \describe{
+#'   \item{\code{test}}{List. Asymptotic linearity test results for each transition variable and \eqn{m}.}
+#'   \item{\code{sqtest}}{List. Asymptotic sequence test results for each transition variable and \eqn{m}.}
+#'   \item{\code{wcb_test}}{List (only for \code{WCB_LinTest}). WB and WCB p-values for the linearity tests.}
+#'   \item{\code{wcb_sqtest}}{List (only for \code{WCB_LinTest}). WB and WCB p-values for the sequence tests.}
+#' }
+#'
+#' @seealso \code{\link{NewPSTR}}, \code{\link{EstPSTR}}, \code{\link{EvalTest}}.
 #'
 #' @examples
-#' pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
-#'     tvars=c('vala'), iT=14) # create a new PSTR object
+#' pstr <- NewPSTR(Hansen99, dep = "inva", indep = 4:20,
+#'                indep_k = c("vala","debta","cfa","sales"),
+#'                tvars = c("vala"), iT = 14)
 #'
+#' # R6 method interface
 #' pstr$LinTest()
-#' # or
-#' pstr = LinTest(pstr)
 #'
-#' # show the results
-#' print(pstr, "tests")
+#' # Wrapper interface (equivalent)
+#' pstr <- LinTest(pstr)
+#'
+#' # Show results
+#' print(pstr, mode = "tests")
 #'
 #' \donttest{
-#' # Don't forget to attach the package for the parallel computation.
-#' library(snowfall)
-#'
-#' # WCB_LinTest(pstr, iB=5000, parallel=TRUE, cpus=50)
-#'
-#' # a light version for checking on your personal computer.
-#' pstr$WCB_LinTest(iB=4, parallel=TRUE, cpus=2)
+#' # Bootstrap tests (can be slow)
+#' pstr$WCB_LinTest(iB = 200, parallel = TRUE, cpus = 2)
 #' # or
-#' WCB_LinTest(use=pstr, iB=4, parallel=TRUE, cpus=2)
+#' pstr <- WCB_LinTest(use = pstr, iB = 200, parallel = TRUE, cpus = 2)
 #'
-#' print(pstr, "tests")
+#' print(pstr, mode = "tests")
 #' }
 #'
 #' @name LinTest

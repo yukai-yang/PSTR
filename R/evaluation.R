@@ -97,73 +97,38 @@ PSTR$set("public", "EvalTest", function(type = c("time-varying", "heterogeneity"
     stop(simpleError("Estimate the PSTR model first!"))
   }
   
-  iT <- private$iT
-  iN <- private$iN
-  im <- private$im
+  im = private$im
   
-  # Design matrices for within transformation
-  mD <- diag(1, iN) %x% rep(1, iT)
-  mM <- diag(1, iN * iT) - tcrossprod(mD) / iT
+  mD = diag(1,private$iN) %x% rep(1,private$iT)
+  mM = diag(1, private$iN*private$iT) - tcrossprod(mD)/private$iT
   
-  # Build V = [Xtilde, D * (K * beta_nonlinear)]
-  beta <- private$beta
-  k0 <- ncol(private$mX) + 1L
-  k1 <- length(beta)
+  tmp = c(private$mK %*% private$beta[(ncol(private$mX)+1):length(private$beta)])
+  tmp = private$mD * tmp ## pp.14
+  mV = cbind(private$mXX, tmp)
+  mV2 = mM %*% mV
+  invVV = chol2inv(chol(crossprod(mV2)))
   
-  tmp <- c(private$mK %*% beta[k0:k1])
-  tmp <- mD * tmp
-  mV <- cbind(private$mXX, tmp)
-  
-  mV2 <- mM %*% mV
-  invVV <- chol2inv(chol(crossprod(mV2)))
-  
-  vU <- private$vU
-  s2 <- private$s2
-  mXX <- private$mXX
-  
-  # Time-varying test
-  if (any(grepl("time-varying", type))) {
+  if(length(grep("time-varying",type))>0){
+    private$tv = list(); length(private$tv) = im
     
-    private$tvtest <- vector("list", im)
+    vt = 1:private$iT/private$iT
     
-    vt <- rep((1:iT) / iT, times = iN)  # length iT*iN
-    
-    mW <- NULL
-    for (mter in 1:im) {
-      mW <- cbind(mW, mXX * (vt ^ mter))
-      private$tvtest[[mter]] <- LMTEST(
-        iT = iT, iN = iN, vU = vU,
-        mX = mV, mW = mW,
-        mM = mM, s2 = s2,
-        mX2 = mV2, invXX = invVV
-      )
+    mW = NULL
+    for(mter in 1:im){
+      mW = cbind(mW, private$mXX*(vt**mter))
+      private$tv[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=private$vU,mX=mV,
+                              mW=mW,mM=mM,s2=private$s2,mX2=mV2,invXX=invVV)
     }
   }
   
-  # Remaining heterogeneity (remaining nonlinearity) test
-  if (any(grepl("heterogeneity", type))) {
+  if(length(grep("heterogeneity",type))>0){
+    private$ht = list(); length(private$ht) = im
     
-    if (is.null(vq)) {
-      stop(simpleError("Argument 'vq' must be provided for heterogeneity test."))
-    }
-    
-    if (length(vq) == iT) {
-      vq <- rep(vq, times = iN)
-    } else if (length(vq) != iT * iN) {
-      stop(simpleError("Length of 'vq' must be iT or iT*iN."))
-    }
-    
-    private$hetest <- vector("list", im)
-    
-    mW <- NULL
-    for (mter in 1:im) {
-      mW <- cbind(mW, mXX * (vq ^ mter))
-      private$hetest[[mter]] <- LMTEST(
-        iT = iT, iN = iN, vU = vU,
-        mX = mV, mW = mW,
-        mM = mM, s2 = s2,
-        mX2 = mV2, invXX = invVV
-      )
+    mW = NULL
+    for(mter in 1:im){
+      mW = cbind(mW, private$mXX*(vq**mter))
+      private$ht[[mter]] = LMTEST(iT=private$iT,iN=private$iN,vU=private$vU,mX=mV,
+                              mW=mW,mM=mM,s2=private$s2,mX2=mV2,invXX=invVV)
     }
   }
   

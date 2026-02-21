@@ -222,6 +222,9 @@ PSTR <- R6::R6Class(
     vg=NULL, beta=NULL, mXX=NULL,
     vM=NULL, vU=NULL, s2=NULL,
     cov=NULL, se=NULL, est=NULL,
-    mbeta=NULL, mse=NULL
+    mbeta=NULL, mse=NULL,
+    
+    # assigned by EvalTest
+    tv=NULL, ht=NULL
   )
 )

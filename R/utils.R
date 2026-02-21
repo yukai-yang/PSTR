@@ -78,7 +78,7 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
   if(2 %in% tmp){
     private$print_tests(format, digits, ...); cat("\n")
   }else{
-    if(!is.null(private$test) || !is.null(private$wcb_test)){
+    if(!is.null(self$test) || !is.null(self$wcb_test)){
       code = '`print(obj, mode="tests")`'
       cli::cli_alert_info("The results of the linearity tests are ready, run {code} to show the results."); cat("\n")
     }
@@ -87,7 +87,7 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
   if(3 %in% tmp){
     private$print_estimates(format, digits, ...); cat("\n")
   }else{
-    if(!is.null(private$est)){
+    if(!is.null(self$est)){
       code = '`print(obj, mode="estimates")`'
       cli::cli_alert_info("The estimation results are ready, run {code} to show the results."); cat("\n")
     }
@@ -96,7 +96,7 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
   if(4 %in% tmp){
     private$print_evaluation(format, digits, ...); cat("\n")
   }else{ # tv, ht, wcb_tv, wcb_ht
-    if(!is.null(private$tv) || !is.null(private$ht) || !is.null(private$wcb_tv) || !is.null(private$wcb_ht)){
+    if(!is.null(self$tv) || !is.null(self$ht) || !is.null(self$wcb_tv) || !is.null(self$wcb_ht)){
       code = '`print(obj, mode="evaluation")`'
       cli::cli_alert_info("The evaluation results are ready, run {code} to show the results."); cat("\n")
     }
@@ -151,15 +151,15 @@ PSTR$set("private", "print_summary", function(format, ...) {
 PSTR$set("private", "print_tests", function(format, digits, ...) {
   im = private$im
   
-  if(!is.null(private$test) | !is.null(private$wcb_test)){
+  if(!is.null(self$test) | !is.null(self$wcb_test)){
     cli::cli_h2("Results of the linearity (homogeneity) tests:")
     
     tmp = list()
-    if(!is.null(private$test)){
-      length(tmp) = length(private$test)
-      for(iter in 1:length(private$test)){
+    if(!is.null(self$test)){
+      length(tmp) = length(self$test)
+      for(iter in 1:length(self$test)){
         for(jter in 1:im){
-          ttmp = private$test[[iter]][[jter]]
+          ttmp = self$test[[iter]][[jter]]
           tmp[[iter]] = rbind(tmp[[iter]], c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
                              ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
         }
@@ -168,10 +168,10 @@ PSTR$set("private", "print_tests", function(format, digits, ...) {
       }
     }
     
-    if(!is.null(private$wcb_test)){
-      if(length(tmp) == 0) length(tmp) = length(private$wcb_test)
-      for(iter in 1:length(private$wcb_test)){
-        ttmp = private$wcb_test[[iter]][,2:3,drop=F]
+    if(!is.null(self$wcb_test)){
+      if(length(tmp) == 0) length(tmp) = length(self$wcb_test)
+      for(iter in 1:length(self$wcb_test)){
+        ttmp = self$wcb_test[[iter]][,2:3,drop=F]
         colnames(ttmp) = c("WB_PV","WCB_PV")
         tmp[[iter]] = cbind(tmp[[iter]], ttmp)
       }
@@ -183,15 +183,15 @@ PSTR$set("private", "print_tests", function(format, digits, ...) {
     }
   }
   
-  if(!is.null(private$sqtest) | !is.null(private$wcb_sqtest)){
+  if(!is.null(self$sqtest) | !is.null(self$wcb_sqtest)){
     cli::cli_h2("Sequence of homogeneity tests for selecting number of switches 'm':")
     
     tmp = list()
-    if(!is.null(private$sqtest)){
-      length(tmp) = length(private$sqtest)
-      for(iter in 1:length(private$sqtest)){
+    if(!is.null(self$sqtest)){
+      length(tmp) = length(self$sqtest)
+      for(iter in 1:length(self$sqtest)){
         for(jter in 1:im){
-          ttmp = private$sqtest[[iter]][[jter]]
+          ttmp = self$sqtest[[iter]][[jter]]
           tmp[[iter]] = rbind(tmp[[iter]], c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
                                              ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F) )
         }
@@ -200,10 +200,10 @@ PSTR$set("private", "print_tests", function(format, digits, ...) {
       }
     }
     
-    if(!is.null(private$wcb_sqtest)){
-      if(length(tmp) == 0) length(tmp) = length(private$wcb_sqtest)
-      for(iter in 1:length(private$wcb_sqtest)){
-        ttmp = private$wcb_sqtest[[iter]][,2:3,drop=F]
+    if(!is.null(self$wcb_sqtest)){
+      if(length(tmp) == 0) length(tmp) = length(self$wcb_sqtest)
+      for(iter in 1:length(self$wcb_sqtest)){
+        ttmp = self$wcb_sqtest[[iter]][,2:3,drop=F]
         colnames(ttmp) = c("WB_PV","WCB_PV")
         tmp[[iter]] = cbind(tmp[[iter]], ttmp)
       }
@@ -215,8 +215,8 @@ PSTR$set("private", "print_tests", function(format, digits, ...) {
     }
   }
   
-  if(is.null(private$test) & is.null(private$wcb_test) &
-     is.null(private$sqtest) & is.null(private$wcb_sqtest)){
+  if(is.null(self$test) & is.null(self$wcb_test) &
+     is.null(self$sqtest) & is.null(self$wcb_sqtest)){
     code = "`PSTR::LinTest()`"
     cli::cli_alert_warning("The linearity tests have not been conducted yet, run {code}.")
   }
@@ -227,7 +227,7 @@ PSTR$set("private", "print_tests", function(format, digits, ...) {
 PSTR$set("private", "print_estimates", function(format, digits, ...) {
   
   # nothing estimated yet
-  if(is.null(private$est) || is.null(private$se)){
+  if(is.null(self$est) || is.null(self$se)){
     code <- "`PSTR::EstPSTR()`"
     cli::cli_alert_warning("The model has not been estimated yet, run {code}.")
     return(invisible(self))
@@ -247,8 +247,8 @@ PSTR$set("private", "print_estimates", function(format, digits, ...) {
     # linear part (beta_0)
     cli::cli_h3("Parameter estimates in the linear part (first extreme regime)")
     tab0 <- rbind(
-      Est = private$beta[1:kx],
-      `s.e.` = private$se[1:kx]
+      Est = self$beta[1:kx],
+      `s.e.` = self$se[1:kx]
     )
     tab0 <- signif(tab0, digits)
     print(knitr::kable(tab0, format=format, ...))
@@ -256,18 +256,18 @@ PSTR$set("private", "print_estimates", function(format, digits, ...) {
     # nonlinear part (beta_1)
     cli::cli_h3("Parameter estimates in the non-linear part")
     tab1 <- rbind(
-      Est = private$beta[(kx+1):length(private$beta)],
-      `s.e.` = private$se[(kx+1):length(private$beta)]
+      Est = self$beta[(kx+1):length(self$beta)],
+      `s.e.` = self$se[(kx+1):length(self$beta)]
     )
     tab1 <- signif(tab1, digits)
     print(knitr::kable(tab1, format=format, ...))
     
     # second extreme regime (beta_0 + beta_1) if available
-    if(!is.null(private$mbeta) && !is.null(private$mse)){
+    if(!is.null(self$mbeta) && !is.null(self$mse)){
       cli::cli_h3("Parameter estimates in the second extreme regime")
       tab2 <- rbind(
-        Est = private$mbeta,
-        `s.e.` = private$mse
+        Est = self$mbeta,
+        `s.e.` = self$mse
       )
       colnames(tab2) <- paste0(colnames(tab2), "_{0+1}")
       tab2 <- signif(tab2, digits)
@@ -277,15 +277,15 @@ PSTR$set("private", "print_estimates", function(format, digits, ...) {
     # nonlinear parameters (gamma and c's)
     cli::cli_h3("Non-linear parameter estimates")
     tab3 <- rbind(
-      Est = private$est[(length(private$beta)+1):length(private$est)],
-      `s.e.` = private$se[(length(private$beta)+1):length(private$se)]
+      Est = self$est[(length(self$beta)+1):length(self$est)],
+      `s.e.` = self$se[(length(self$beta)+1):length(self$se)]
     )
     tab3 <- signif(tab3, digits)
     print(knitr::kable(tab3, format=format, ...))
     
     cli::cli_alert_info(paste0(
       "Estimated standard deviation of the residuals is ",
-      signif(sqrt(private$s2), digits), "."
+      signif(sqrt(self$s2), digits), "."
     ))
     
   } else {
@@ -295,15 +295,15 @@ PSTR$set("private", "print_estimates", function(format, digits, ...) {
     
     cli::cli_h3("Parameter estimates")
     tab <- rbind(
-      Est = private$est,
-      `s.e.` = private$se
+      Est = self$est,
+      `s.e.` = self$se
     )
     tab <- signif(tab, digits)
     print(knitr::kable(tab, format=format, ...))
     
     cli::cli_alert_info(paste0(
       "Estimated standard deviation of the residuals is ",
-      signif(sqrt(private$s2), digits), "."
+      signif(sqrt(self$s2), digits), "."
     ))
   }
   
@@ -313,8 +313,8 @@ PSTR$set("private", "print_estimates", function(format, digits, ...) {
 
 PSTR$set("private", "print_evaluation", function(format, digits, ...) {
   
-  has_eval <- (!is.null(private$tv) || !is.null(private$wcb_tv) ||
-                 !is.null(private$ht) || !is.null(private$wcb_ht))
+  has_eval <- (!is.null(self$tv) || !is.null(self$wcb_tv) ||
+                 !is.null(self$ht) || !is.null(self$wcb_ht))
   
   if (!has_eval) {
     code <- "`PSTR::EvalTest()`"
@@ -326,13 +326,13 @@ PSTR$set("private", "print_evaluation", function(format, digits, ...) {
   cli::cli_h2("Results of the evaluation tests")
   
   # --- Parameter constancy (time-varying) ---
-  if (!is.null(private$tv)) {
+  if (!is.null(self$tv)) {
     cli::cli_h3("Parameter constancy test")
     
-    im <- length(private$tv)
+    im <- length(self$tv)
     tmp <- NULL
     for (jter in 1:im) {
-      ttmp <- private$tv[[jter]]
+      ttmp <- self$tv[[jter]]
       tmp <- rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
                           ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F))
     }
@@ -343,10 +343,10 @@ PSTR$set("private", "print_evaluation", function(format, digits, ...) {
     print(knitr::kable(tmp, format = format, ...))
   }
   
-  if (!is.null(private$wcb_tv)) {
+  if (!is.null(self$wcb_tv)) {
     cli::cli_h3("WB and WCB parameter constancy test")
     
-    tmp <- private$wcb_tv[, 2:3, drop = FALSE]
+    tmp <- self$wcb_tv[, 2:3, drop = FALSE]
     colnames(tmp) <- c("WB_PV", "WCB_PV")
     
     im <- nrow(tmp)
@@ -357,13 +357,13 @@ PSTR$set("private", "print_evaluation", function(format, digits, ...) {
   }
   
   # --- No remaining nonlinearity / heterogeneity ---
-  if (!is.null(private$ht)) {
+  if (!is.null(self$ht)) {
     cli::cli_h3("No remaining nonlinearity (heterogeneity) test")
     
-    im <- length(private$ht)
+    im <- length(self$ht)
     tmp <- NULL
     for (jter in 1:im) {
-      ttmp <- private$ht[[jter]]
+      ttmp <- self$ht[[jter]]
       tmp <- rbind(tmp, c(jter, ttmp$LM1_X, ttmp$PV1_X, ttmp$LM1_F, ttmp$PV1_F,
                           ttmp$LM2_X, ttmp$PV2_X, ttmp$LM2_F, ttmp$PV2_F))
     }
@@ -374,10 +374,10 @@ PSTR$set("private", "print_evaluation", function(format, digits, ...) {
     print(knitr::kable(tmp, format = format, ...))
   }
   
-  if (!is.null(private$wcb_ht)) {
+  if (!is.null(self$wcb_ht)) {
     cli::cli_h3("WB and WCB no remaining nonlinearity (heterogeneity) test")
     
-    tmp <- private$wcb_ht[, 2:3, drop = FALSE]
+    tmp <- self$wcb_ht[, 2:3, drop = FALSE]
     colnames(tmp) <- c("WB_PV", "WCB_PV")
     
     im <- nrow(tmp)

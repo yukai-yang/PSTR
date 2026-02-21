@@ -9,7 +9,7 @@
 ## utility functions
 #################################################################################
 
-vnum = "1.4.0"
+vnum = "2.0.0"
 packname = "(Green Panel)"
 
 # simple cat
@@ -83,7 +83,7 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
     if(!is.null(self$test) || !is.null(self$wcb_test)){
       #code = '`print(obj, mode="tests")`'
       #cli::cli_alert_info("The results of the linearity tests are ready, run {code} to show the results."); cat("\n")
-      print_message = paste0(print_message, 'The results of the linearity tests are ready, run `print(obj, mode="tests")` to show the results.')
+      print_message = paste0(print_message, '\n The results of the linearity tests are ready, run `print(obj, mode="tests")` to show the results.')
     }
   }
   

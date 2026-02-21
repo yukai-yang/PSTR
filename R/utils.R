@@ -75,12 +75,15 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
   
   if(1 %in% tmp){ private$print_summary(format, ...); cat("\n")}
   
+  print_message = NULL
+  
   if(2 %in% tmp){
     private$print_tests(format, digits, ...); cat("\n")
   }else{
     if(!is.null(self$test) || !is.null(self$wcb_test)){
-      code = '`print(obj, mode="tests")`'
-      cli::cli_alert_info("The results of the linearity tests are ready, run {code} to show the results."); cat("\n")
+      #code = '`print(obj, mode="tests")`'
+      #cli::cli_alert_info("The results of the linearity tests are ready, run {code} to show the results."); cat("\n")
+      print_message = paste0(print_message, 'The results of the linearity tests are ready, run `print(obj, mode="tests")` to show the results.')
     }
   }
   
@@ -88,8 +91,9 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
     private$print_estimates(format, digits, ...); cat("\n")
   }else{
     if(!is.null(self$est)){
-      code = '`print(obj, mode="estimates")`'
-      cli::cli_alert_info("The estimation results are ready, run {code} to show the results."); cat("\n")
+      #code = '`print(obj, mode="estimates")`'
+      #cli::cli_alert_info("The estimation results are ready, run {code} to show the results."); cat("\n")
+      print_message = paste0(print_message, '\n The estimation results are ready, run `print(obj, mode="estimates")` to show the results.')
     }
   }
     
@@ -97,18 +101,18 @@ PSTR$set("public", "print", function(format="simple", mode=c("summary"), digits=
     private$print_evaluation(format, digits, ...); cat("\n")
   }else{ # tv, ht, wcb_tv, wcb_ht
     if(!is.null(self$tv) || !is.null(self$ht) || !is.null(self$wcb_tv) || !is.null(self$wcb_ht)){
-      code = '`print(obj, mode="evaluation")`'
-      cli::cli_alert_info("The evaluation results are ready, run {code} to show the results."); cat("\n")
+      #code = '`print(obj, mode="evaluation")`'
+      #cli::cli_alert_info("The evaluation results are ready, run {code} to show the results."); cat("\n")
+      print_message = paste0(print_message, '\n The evaluation results are ready, run `print(obj, mode="evaluation")` to show the results.')
     }
   }
-  
-  #{ print_evaluation(x,digits); cat("\n")}
   
   if(length(tmp)==0){
     cli::cli_alert_info("The argument 'mode' only accepts the values:")
     cat0("  'summary', 'tests', 'estimates' or 'evaluation'.")
     cat0("  Incomplete words, such as 'su' or 'mm' for 'summary', are allowed.")
   }else{
+    cli::cli_alert_info(print_message)
   }
   
 })

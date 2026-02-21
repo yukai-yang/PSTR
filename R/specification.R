@@ -177,8 +177,8 @@ PSTR$set("public", "LinTest", function(){
   mX = private$mX; mXb = private$mXb
   mK = private$mK
   
-  private$test = list(); length(private$test) = ncol(private$mQ)
-  private$sqtest = list(); length(private$sqtest) = ncol(private$mQ)
+  self$test = list(); length(self$test) = ncol(private$mQ)
+  self$sqtest = list(); length(self$sqtest) = ncol(private$mQ)
   
   mD = diag(1,iN) %x% rep(1,iT)
   mM = diag(1, iN*iT) - tcrossprod(mD)/iT
@@ -194,12 +194,12 @@ PSTR$set("public", "LinTest", function(){
   for(qter in 1:ncol(private$mQ)){
     vQ = private$mQ[,qter]
     
-    private$test[[qter]] = list(); length(private$test[[qter]]) = im
-    private$sqtest[[qter]] = list(); length(private$sqtest[[qter]]) = im
+    self$test[[qter]] = list(); length(self$test[[qter]]) = im
+    self$sqtest[[qter]] = list(); length(self$sqtest[[qter]]) = im
     
     mW = mK*vQ
-    private$test[[qter]][[1]] = LMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
-    private$sqtest[[qter]][[1]] = private$test[[qter]][[1]]
+    self$test[[qter]][[1]] = LMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
+    self$sqtest[[qter]][[1]] = self$test[[qter]][[1]]
     
     if(im>1) for(mter in 2:im){
       mXK = cbind(mX,mW); mX2K = mM %*% mXK; invXK = chol2inv(chol(crossprod(mX2K)))
@@ -213,10 +213,10 @@ PSTR$set("public", "LinTest", function(){
       s2K = sum((vUK-mean(vUK))**2)/(iT*iN) # sigma^2
       mWK = mK*(vQ**mter)
       
-      private$sqtest[[qter]][[mter]] = LMTEST(iT=iT,iN=iN,vU=vUK,mX=mXK,mW=mWK,mM=mM,s2=s2K,mX2=mX2K,invXX=invXK)
+      self$sqtest[[qter]][[mter]] = LMTEST(iT=iT,iN=iN,vU=vUK,mX=mXK,mW=mWK,mM=mM,s2=s2K,mX2=mX2K,invXX=invXK)
       
       mW = cbind(mW, mWK)
-      private$test[[qter]][[mter]] = LMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
+      self$test[[qter]][[mter]] = LMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
     }
   }
   
@@ -247,8 +247,8 @@ PSTR$set("public", "WCB_LinTest", function(iB=100, parallel=FALSE, cpus=2){
   mX = private$mX; mXb = private$mXb
   mK = private$mK
   
-  private$wcb_test = list(); length(private$wcb_test) = ncol(private$mQ)
-  private$wcb_sqtest = list(); length(private$wcb_sqtest) = ncol(private$mQ)
+  self$wcb_test = list(); length(self$wcb_test) = ncol(private$mQ)
+  self$wcb_sqtest = list(); length(self$wcb_sqtest) = ncol(private$mQ)
   
   beta = chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb,vYb)
   vU = matrix(vY-mX%*%beta, iT, iN)
@@ -362,8 +362,8 @@ PSTR$set("public", "WCB_LinTest", function(iB=100, parallel=FALSE, cpus=2){
       rtmp = rbind( rtmp, c(LM, mean(LM<=qLM1), mean(LM<=qLM2)) )
     }
     
-    private$wcb_test[[qter]] = matrix(rtmp, nrow=im)
-    private$wcb_sqtest[[qter]] = matrix(rrtmp, nrow=im)
+    self$wcb_test[[qter]] = matrix(rtmp, nrow=im)
+    self$wcb_sqtest[[qter]] = matrix(rrtmp, nrow=im)
     
   }
   

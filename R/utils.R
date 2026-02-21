@@ -33,6 +33,13 @@ version <- function(){
 }
 
 
+svd_pinv <- function(A, tol = 1e-10) {
+  s <- svd(A)
+  d_inv <- ifelse(s$d > tol * max(s$d), 1 / s$d, 0)
+  s$v %*% diag(d_inv, nrow = length(d_inv)) %*% t(s$u)
+}
+
+
 # Print the object of the class PSTR.
 #
 # This function prints the object of the class PSTR.

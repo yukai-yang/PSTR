@@ -8,7 +8,7 @@
 \usage{
 EvalTest(use, type = c("time-varying", "heterogeneity"), vq = NULL)
 
-WCB_TVTest(use, iB = 100, parallel = F, cpus = 4)
+WCB_TVTest(use, iB = 100, parallel = FALSE, cpus = 4)
 
 WCB_HETest(use, vq, iB = 100, parallel = F, cpus = 4)
 }

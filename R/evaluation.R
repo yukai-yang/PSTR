@@ -106,7 +106,8 @@ PSTR$set("public", "EvalTest", function(type = c("time-varying", "heterogeneity"
   tmp = mD * tmp ## pp.14
   mV = cbind(private$mXX, tmp)
   mV2 = mM %*% mV
-  invVV = chol2inv(chol(crossprod(mV2)))
+  #invVV = chol2inv(chol(crossprod(mV2)))
+  invVV = svd_pinv(crossprod(mV2))
   
   if(length(grep("time-varying",type))>0){
     private$tv = list(); length(private$tv) = im

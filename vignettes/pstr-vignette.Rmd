@@ -20,14 +20,7 @@ knitr::opts_chunk$set(
 
 # PSTR version 2.0.0 (Green Panel)
 
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PSTR)](https://cran.r-project.org/package=PSTR)
-![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR) 
-![](http://cranlogs.r-pkg.org/badges/PSTR) 
-![](http://cranlogs.r-pkg.org/badges/last-week/PSTR) 
-
-The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling. You can find the package on CRAN, see
-
-[PSTR@CRAN](https://CRAN.R-project.org/package=PSTR)
+The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.
 
 The modelling procedure consists of three stages: Specification, Estimation and Evaluation. The package offers tools helping the users to conduct model specification tests, to do PSTR model estimation, and to do model evaluation.
 
@@ -39,19 +32,15 @@ Parallel computation (as an option) is implemented in some functions, especially
 
 ## How to install
 
-<!--
 You can either install the stable version from CRAN
 ```{r install1, eval=F}
 install.packages("PSTR")
 ```
 or install the development version from GitHub
--->
-You can install the package by running
 ```{r install2, eval=F}
 devtools::install_github("yukai-yang/PSTR")
 ```
 or
-You can install the package by running
 ```{r install3, eval=F}
 remotes::install_github("yukai-yang/PSTR")
 ```
@@ -272,4 +261,22 @@ ret$cfa
 
 ```{r sales, eval=F}
 ret$sales
+```
+
+
+## Citation
+
+If you use the PSTR package in your research, please cite both the software implementation and the underlying methodology.
+
+**Software**
+
+Yang, Y. (2026). PSTR: Panel Smooth Transition Regression Modelling. R package version 2.0.0 (first released in 2017). Available at: https://github.com/yukai-yang/PSTR
+
+**Methodology**
+
+González, A., Teräsvirta, T., van Dijk, D., and Yang, Y. (2005). Panel Smooth Transition Regression Models. EFI Working Paper Series in Economics and Finance, No. 604. Stockholm School of Economics. Revised October 2017. Available at: https://swopec.hhs.se/hastef/papers/hastef0604.pdf
+
+You can obtain the citation information directly from R by running:
+```{r citation}
+citation("PSTR")
 ```

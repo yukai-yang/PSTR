@@ -23,7 +23,7 @@ Imports: tibble,
     ggplot2,
     plotly,
     magrittr
-Suggests: 
+Suggests:
     rmarkdown,
     snowfall,
     testthat (>= 3.0.0)

@@ -151,77 +151,121 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
     stop(simpleError("Estimate the PSTR model first!"))
   }
   
+  # snowfall is only needed when parallel = TRUE
+  if (parallel) {
+    if (!requireNamespace("snowfall", quietly = TRUE)) {
+      stop(
+        "Parallel bootstrap requires the 'snowfall' package. ",
+        "Please install it via install.packages('snowfall').",
+        call. = FALSE
+      )
+    }
+  }
+  
+  # helper: run bootstrap either in parallel (snowfall) or serial (base sapply)
+  .run_boot <- function(FUN) {
+    if (parallel) {
+      snowfall::sfInit(parallel = TRUE, cpus = cpus)
+      on.exit(snowfall::sfStop(), add = TRUE)
+      snowfall::sfSapply(1:iB, FUN)
+    } else {
+      sapply(1:iB, FUN)
+    }
+  }
+  
   # IMPORTANT: use a deep clone so we don't overwrite the original object
   ruse <- self$clone(deep = TRUE)
-  im = private$im
   
-  iT = private$iT; iN = private$iN
-  vU = self$vU; eY = private$vY - vU
+  im <- private$im
+  iT <- private$iT
+  iN <- private$iN
   
-  mD = diag(1,iN) %x% rep(1,iT)
-  mM = diag(1, iN*iT) - tcrossprod(mD)/iT
+  vU <- self$vU
+  eY <- private$vY - vU
   
-  tmp = c(private$mK %*% self$beta[(ncol(private$mX)+1):length(self$beta)])
-  tmp = mD * tmp
-  mV = cbind(private$mXX, tmp)
-  mV2 = mM %*% mV
-  invVV = svd_pinv(crossprod(mV2))
+  mD <- diag(1, iN) %x% rep(1, iT)
+  mM <- diag(1, iN * iT) - tcrossprod(mD) / iT
   
-  ftmp_wb <- function(bter){# WB
-    ve1 = sample(c(1,-1),iT*iN,replace=T)*vU
+  tmp <- c(private$mK %*% self$beta[(ncol(private$mX) + 1):length(self$beta)])
+  tmp <- mD * tmp
+  mV <- cbind(private$mXX, tmp)
+  mV2 <- mM %*% mV
+  invVV <- svd_pinv(crossprod(mV2))
+  
+  ftmp_wb <- function(bter) { # WB
+    ve1 <- sample(c(1, -1), iT * iN, replace = TRUE) * vU
     ruse$.set_vY(eY + ve1)
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(self$delta,self$c),useDelta=T,vLower=1,vUpper=1)
-    vu1 = EST$vU; ss1 = EST$s2 # sigma^2
     
-    mK <- EST$.get_mK(); beta <- EST$beta
+    EST <- EstPSTR(
+      use = ruse, im = 1, iq = ruse$iq,
+      par = c(self$delta, self$c),
+      useDelta = TRUE, vLower = 1, vUpper = 1
+    )
+    vu1 <- EST$vU
+    ss1 <- EST$s2
+    
+    mK <- EST$.get_mK()
+    beta <- EST$beta
     beta_k <- tail(beta, ncol(mK))
-    tmp <- c(mK %*% beta_k)
+    tmp1 <- c(mK %*% beta_k)
     
-    tmp = mD * tmp
-    mV11 = cbind(EST$.get_mXX(), tmp)
-    mV12 = mM %*% mV11
-    invVV1 = chol2inv(chol(t(mV12)%*%mV12))
-    return(sLMTEST(iT=iT,iN=iN,vU=vu1,mX=mV11,mW=mW,mM=mM,s2=ss1,mX2=mV12,invXX=invVV1))
+    tmp1 <- mD * tmp1
+    mV11 <- cbind(EST$.get_mXX(), tmp1)
+    mV12 <- mM %*% mV11
+    invVV1 <- svd_pinv(crossprod(mV12))
+    
+    sLMTEST(iT = iT, iN = iN, vU = vu1, mX = mV11, mW = mW, mM = mM,
+            s2 = ss1, mX2 = mV12, invXX = invVV1)
   }
   
-  ftmp_wcb <- function(bter){# WCB
-    ve2 = c(t(matrix(sample(c(1,-1),iN,replace=T),iN,iT)))*vU
+  ftmp_wcb <- function(bter) { # WCB
+    ve2 <- c(t(matrix(sample(c(1, -1), iN, replace = TRUE), iN, iT))) * vU
     ruse$.set_vY(eY + ve2)
-    EST = EstPSTR(use=ruse,im=1,iq=ruse$iq,par=c(self$delta,self$c),useDelta=T,vLower=1,vUpper=1)
-    vu2 = EST$vU; ss2 = EST$s2 # sigma^2
     
-    mK <- EST$.get_mK(); beta <- EST$beta
+    EST <- EstPSTR(
+      use = ruse, im = 1, iq = ruse$iq,
+      par = c(self$delta, self$c),
+      useDelta = TRUE, vLower = 1, vUpper = 1
+    )
+    vu2 <- EST$vU
+    ss2 <- EST$s2
+    
+    mK <- EST$.get_mK()
+    beta <- EST$beta
     beta_k <- tail(beta, ncol(mK))
-    tmp <- c(mK %*% beta_k)
+    tmp2 <- c(mK %*% beta_k)
     
-    tmp = mD * tmp
-    mV21 = cbind(EST$.get_mXX(), tmp)
-    mV22 = mM %*% mV21
-    invVV2 = chol2inv(chol(t(mV22)%*%mV22))
-    return(sLMTEST(iT=iT,iN=iN,vU=vu2,mX=mV21,mW=mW,mM=mM,s2=ss2,mX2=mV22,invXX=invVV2))
+    tmp2 <- mD * tmp2
+    mV21 <- cbind(EST$.get_mXX(), tmp2)
+    mV22 <- mM %*% mV21
+    invVV2 <- svd_pinv(crossprod(mV22))
+    
+    sLMTEST(iT = iT, iN = iN, vU = vu2, mX = mV21, mW = mW, mM = mM,
+            s2 = ss2, mX2 = mV22, invXX = invVV2)
   }
   
-  self$wcb_tv = NULL
-  vt = 1:iT/iT
-  mW = NULL
+  self$wcb_tv <- NULL
+  vt <- 1:iT / iT
+  mW <- NULL
   
-  for(mter in 1:im){
-    mW = cbind(mW, private$mXX*(vt**mter))
-    LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mV,mW=mW,mM=mM,s2=self$s2,mX2=mV2,invXX=invVV)
+  for (mter in 1:im) {
     
-    sfInit(parallel=parallel,cpus=cpus)
-    qLM1 = sfSapply(1:iB,ftmp_wb)
-    qLM2 = sfSapply(1:iB,ftmp_wcb)
-    sfStop()
+    mW <- cbind(mW, private$mXX * (vt^mter))
+    LM <- sLMTEST(iT = iT, iN = iN, vU = vU, mX = mV, mW = mW, mM = mM,
+                  s2 = self$s2, mX2 = mV2, invXX = invVV)
     
-    self$wcb_tv = rbind(self$wcb_tv,c(LM, mean(LM<=qLM1), mean(LM<=qLM2)))
+    qLM1 <- .run_boot(ftmp_wb)
+    qLM2 <- .run_boot(ftmp_wcb)
+    
+    self$wcb_tv <- rbind(self$wcb_tv, c(LM, mean(LM <= qLM1), mean(LM <= qLM2)))
   }
   
-  self$wcb_tv = matrix(self$wcb_tv, nrow=im)
+  self$wcb_tv <- matrix(self$wcb_tv, nrow = im)
   
   cli::cli_alert_success("Done!")
   invisible(self)
 })
+
 
 
 #' @rdname EvalTest
@@ -243,6 +287,28 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
   
   if (is.null(vq)) {
     stop(simpleError("Please provide 'vq' for the heterogeneity test."))
+  }
+  
+  # snowfall is only needed when parallel = TRUE
+  if (parallel) {
+    if (!requireNamespace("snowfall", quietly = TRUE)) {
+      stop(
+        "Parallel bootstrap requires the 'snowfall' package. ",
+        "Please install it via install.packages('snowfall').",
+        call. = FALSE
+      )
+    }
+  }
+  
+  # helper: run bootstrap either in parallel (snowfall) or serial (base sapply)
+  .run_boot <- function(FUN) {
+    if (parallel) {
+      snowfall::sfInit(parallel = TRUE, cpus = cpus)
+      on.exit(snowfall::sfStop(), add = TRUE)
+      snowfall::sfSapply(1:iB, FUN)
+    } else {
+      sapply(1:iB, FUN)
+    }
   }
   
   # IMPORTANT: use a deep clone so we don't overwrite the original object
@@ -342,10 +408,8 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
       s2 = self$s2, mX2 = mV2, invXX = invVV
     )
     
-    sfInit(parallel = parallel, cpus = cpus)
-    qLM1 <- sfSapply(1:iB, ftmp_wb)
-    qLM2 <- sfSapply(1:iB, ftmp_wcb)
-    sfStop()
+    qLM1 <- .run_boot(ftmp_wb)
+    qLM2 <- .run_boot(ftmp_wcb)
     
     self$wcb_ht <- rbind(self$wcb_ht, c(LM, mean(LM <= qLM1), mean(LM <= qLM2)))
   }
@@ -355,6 +419,7 @@ PSTR$set("public", "WCB_HETest", function(vq, iB = 100, parallel = FALSE, cpus =
   cli::cli_alert_success("Done!")
   invisible(self)
 })
+
 
 #' @rdname EvalTest
 #' @export

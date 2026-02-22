@@ -250,133 +250,156 @@ LinTest <- function(use)
 }
 
 
-PSTR$set("public", "WCB_LinTest", function(iB=100, parallel=FALSE, cpus=2){
-  iT = private$iT; iN = private$iN
-  im = private$im
+PSTR$set("public", "WCB_LinTest", function(iB = 100, parallel = FALSE, cpus = 2) {
+  
+  # snowfall is only needed when parallel = TRUE
+  if (parallel) {
+    if (!requireNamespace("snowfall", quietly = TRUE)) {
+      stop(
+        "Parallel bootstrap requires the 'snowfall' package. ",
+        "Please install it via install.packages('snowfall').",
+        call. = FALSE
+      )
+    }
+  }
+  
+  iT <- private$iT
+  iN <- private$iN
+  im <- private$im
+  
+  # helper: run bootstrap either in parallel (snowfall) or serial (base sapply)
+  .run_boot <- function(FUN) {
+    if (parallel) {
+      snowfall::sfInit(parallel = TRUE, cpus = cpus)
+      on.exit(snowfall::sfStop(), add = TRUE)
+      snowfall::sfSapply(1:iB, FUN)
+    } else {
+      sapply(1:iB, FUN)
+    }
+  }
   
   # get the data here
-  vY = private$vY; vYb = private$vYb
-  mX = private$mX; mXb = private$mXb
-  mK = private$mK
+  vY <- private$vY
+  vYb <- private$vYb
+  mX <- private$mX
+  mXb <- private$mXb
+  mK <- private$mK
   
-  self$wcb_test = list(); length(self$wcb_test) = ncol(private$mQ)
-  self$wcb_sqtest = list(); length(self$wcb_sqtest) = ncol(private$mQ)
+  self$wcb_test <- vector("list", ncol(private$mQ))
+  self$wcb_sqtest <- vector("list", ncol(private$mQ))
   
-  beta = chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb,vYb)
-  vU = matrix(vY-mX%*%beta, iT, iN)
-  mu = apply(vU, 2, mean)
-  vU = c(t(t(vU) - mu))
-  s2 = sum((vU-mean(vU))**2)/(iT*iN) # sigma^2
+  beta <- chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb, vYb)
+  vU <- matrix(vY - mX %*% beta, iT, iN)
+  mu <- apply(vU, 2, mean)
+  vU <- c(t(t(vU) - mu))
+  s2 <- sum((vU - mean(vU))^2) / (iT * iN) # sigma^2
   
-  mD = diag(1,iN) %x% rep(1,iT)
-  mM = diag(1, iN*iT) - tcrossprod(mD)/iT
-  mX2 = mM %*% mX
-  invXX = chol2inv(chol(crossprod(mX2)))
-  eY = mD%*%mu + mX%*%beta
+  mD <- diag(1, iN) %x% rep(1, iT)
+  mM <- diag(1, iN * iT) - tcrossprod(mD) / iT
+  mX2 <- mM %*% mX
+  invXX <- chol2inv(chol(crossprod(mX2)))
+  eY <- mD %*% mu + mX %*% beta
   
-  coln = c(t(matrix(1:iN, iN, iT)))
+  coln <- c(t(matrix(1:iN, iN, iT)))
   
-  ftmp_wb <- function(bter){# WB
-    ve = sample(c(1,-1),iT*iN,replace=T)*vU
-    my = matrix(eY + ve, iT, iN)
-    vyb = c(t(t(my) - apply(my, 2, mean)))
-    tmp = chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb,vyb)
-    vu = matrix(c(c(my)-mX%*%tmp), iT, iN)
-    vu = c(t(t(vu)-apply(vu, 2, mean)))
-    ss = sum((vu-mean(vu))**2)/(iT*iN) # sigma^2
-    return(sLMTEST(iT=iT,iN=iN,vU=vu,mX=mX,mW=mW,mM=mM,s2=ss,mX2=mX2,invXX=invXX))
+  ftmp_wb <- function(bter) { # WB
+    ve <- sample(c(1, -1), iT * iN, replace = TRUE) * vU
+    my <- matrix(eY + ve, iT, iN)
+    vyb <- c(t(t(my) - apply(my, 2, mean)))
+    tmp <- chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb, vyb)
+    vu <- matrix(c(c(my) - mX %*% tmp), iT, iN)
+    vu <- c(t(t(vu) - apply(vu, 2, mean)))
+    ss <- sum((vu - mean(vu))^2) / (iT * iN)
+    sLMTEST(iT = iT, iN = iN, vU = vu, mX = mX, mW = mW, mM = mM, s2 = ss, mX2 = mX2, invXX = invXX)
   }
   
-  ftmp_wcb <- function(bter){# WCB
-    ve = c(t(matrix(sample(c(1,-1),iN,replace=T), iN, iT)))*vU
-    my = matrix(eY + ve, iT, iN)
-    vyb = c(t(t(my) - apply(my, 2, mean)))
-    tmp = chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb,vyb)
-    vu = matrix(c(c(my)-mX%*%tmp), iT, iN)
-    vu = c(t(t(vu)-apply(vu, 2, mean)))
-    ss = sum((vu-mean(vu))**2)/(iT*iN) # sigma^2
-    return(sLMTEST(iT=iT,iN=iN,vU=vu,mX=mX,mW=mW,mM=mM,s2=ss,mX2=mX2,invXX=invXX))
+  ftmp_wcb <- function(bter) { # WCB
+    ve <- c(t(matrix(sample(c(1, -1), iN, replace = TRUE), iN, iT))) * vU
+    my <- matrix(eY + ve, iT, iN)
+    vyb <- c(t(t(my) - apply(my, 2, mean)))
+    tmp <- chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb, vyb)
+    vu <- matrix(c(c(my) - mX %*% tmp), iT, iN)
+    vu <- c(t(t(vu) - apply(vu, 2, mean)))
+    ss <- sum((vu - mean(vu))^2) / (iT * iN)
+    sLMTEST(iT = iT, iN = iN, vU = vu, mX = mX, mW = mW, mM = mM, s2 = ss, mX2 = mX2, invXX = invXX)
   }
   
-  sqftmp_wb <- function(bter){# WB
-    ve = sample(c(1,-1),iT*iN,replace=T)*vUK
-    my = matrix(eYK + ve, iT, iN)
-    vyb = c(t(t(my) - apply(my, 2, mean)))
-    tmp = chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb,vyb)
-    vu = matrix(c(c(my)-mXK%*%tmp), iT, iN)
-    vu = c(t(t(vu)-apply(vu, 2, mean)))
-    ss = sum((vu-mean(vu))**2)/(iT*iN) # sigma^2
-    return(sLMTEST(iT=iT,iN=iN,vU=vu,mX=mXK,mW=mWK,mM=mM,s2=ss,mX2=mX2K,invXX=invXK))
+  sqftmp_wb <- function(bter) { # WB
+    ve <- sample(c(1, -1), iT * iN, replace = TRUE) * vUK
+    my <- matrix(eYK + ve, iT, iN)
+    vyb <- c(t(t(my) - apply(my, 2, mean)))
+    tmp <- chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb, vyb)
+    vu <- matrix(c(c(my) - mXK %*% tmp), iT, iN)
+    vu <- c(t(t(vu) - apply(vu, 2, mean)))
+    ss <- sum((vu - mean(vu))^2) / (iT * iN)
+    sLMTEST(iT = iT, iN = iN, vU = vu, mX = mXK, mW = mWK, mM = mM, s2 = ss, mX2 = mX2K, invXX = invXK)
   }
   
-  sqftmp_wcb <- function(bter){# WCB
-    ve = c(t(matrix(sample(c(1,-1),iN,replace=T), iN, iT)))*vUK
-    my = matrix(eYK + ve, iT, iN)
-    vyb = c(t(t(my) - apply(my, 2, mean)))
-    tmp = chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb,vyb)
-    vu = matrix(c(c(my)-mXK%*%tmp), iT, iN)
-    vu = c(t(t(vu)-apply(vu, 2, mean)))
-    ss = sum((vu-mean(vu))**2)/(iT*iN) # sigma^2
-    return(sLMTEST(iT=iT,iN=iN,vU=vu,mX=mXK,mW=mWK,mM=mM,s2=ss,mX2=mX2K,invXX=invXK))
+  sqftmp_wcb <- function(bter) { # WCB
+    ve <- c(t(matrix(sample(c(1, -1), iN, replace = TRUE), iN, iT))) * vUK
+    my <- matrix(eYK + ve, iT, iN)
+    vyb <- c(t(t(my) - apply(my, 2, mean)))
+    tmp <- chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb, vyb)
+    vu <- matrix(c(c(my) - mXK %*% tmp), iT, iN)
+    vu <- c(t(t(vu) - apply(vu, 2, mean)))
+    ss <- sum((vu - mean(vu))^2) / (iT * iN)
+    sLMTEST(iT = iT, iN = iN, vU = vu, mX = mXK, mW = mWK, mM = mM, s2 = ss, mX2 = mX2K, invXX = invXK)
   }
   
-  for(qter in 1:ncol(private$mQ)){
-    vQ = private$mQ[,qter]
+  for (qter in 1:ncol(private$mQ)) {
     
-    mW = mK*vQ
-    LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
+    vQ <- private$mQ[, qter]
     
-    sfInit(parallel=parallel,cpus=cpus)
-    #sfExport(list=c('sLMTEST'))
-    qLM1 = sfSapply(1:iB,ftmp_wb)
-    qLM2 = sfSapply(1:iB,ftmp_wcb)
-    sfStop()
+    mW <- mK * vQ
+    LM <- sLMTEST(iT = iT, iN = iN, vU = vU, mX = mX, mW = mW, mM = mM, s2 = s2, mX2 = mX2, invXX = invXX)
     
-    rtmp = c(LM, mean(LM<=qLM1), mean(LM<=qLM2))
-    rrtmp = rtmp
+    qLM1 <- .run_boot(ftmp_wb)
+    qLM2 <- .run_boot(ftmp_wcb)
     
-    if(im>1) for(mter in 2:im){
+    rtmp <- c(LM, mean(LM <= qLM1), mean(LM <= qLM2))
+    rrtmp <- rtmp
+    
+    if (im > 1) for (mter in 2:im) {
       
-      mXK = cbind(mX,mW); mX2K = mM %*% mXK; invXK = chol2inv(chol(crossprod(mX2K)))
-      mXKb = NULL; for(nter in 1:iN){
-        tmp = coln==nter; mXKb = rbind(mXKb, t(t(mW[tmp,])-apply(t(mW[tmp,]),1,mean)))
+      mXK <- cbind(mX, mW)
+      mX2K <- mM %*% mXK
+      invXK <- chol2inv(chol(crossprod(mX2K)))
+      
+      mXKb <- NULL
+      for (nter in 1:iN) {
+        tmp <- coln == nter
+        mXKb <- rbind(mXKb, t(t(mW[tmp, ]) - apply(t(mW[tmp, ]), 1, mean)))
       }
-      mXKb = cbind(mXb, mXKb)
-      tmp = chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb,vYb)
-      vUK = matrix(c(vY-mXK%*%tmp), iT, iN)
-      muK = apply(vUK, 2, mean)
-      vUK = c(t(t(vUK) - muK))
-      s2K = sum((vUK-mean(vUK))**2)/(iT*iN) # sigma^2
-      eYK = mD%*%muK + mXK%*%tmp
+      mXKb <- cbind(mXb, mXKb)
       
-      mWK = mK*(vQ**mter)
+      tmp <- chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb, vYb)
+      vUK <- matrix(c(vY - mXK %*% tmp), iT, iN)
+      muK <- apply(vUK, 2, mean)
+      vUK <- c(t(t(vUK) - muK))
+      s2K <- sum((vUK - mean(vUK))^2) / (iT * iN)
+      eYK <- mD %*% muK + mXK %*% tmp
       
-      sqLM = sLMTEST(iT=iT,iN=iN,vU=vUK,mX=mXK,mW=mWK,mM=mM,s2=s2K,mX2=mX2K,invXX=invXK)
+      mWK <- mK * (vQ^mter)
       
-      sfInit(parallel=parallel,cpus=cpus)
-      #sfExport(list=c('sLMTEST'))
-      sqLM1 = sfSapply(1:iB,sqftmp_wb)
-      sqLM2 = sfSapply(1:iB,sqftmp_wcb)
-      sfStop()
+      sqLM <- sLMTEST(iT = iT, iN = iN, vU = vUK, mX = mXK, mW = mWK, mM = mM, s2 = s2K, mX2 = mX2K, invXX = invXK)
       
-      rrtmp = rbind( rrtmp, c(sqLM, mean(sqLM<=sqLM1), mean(sqLM<=sqLM2)) )
+      sqLM1 <- .run_boot(sqftmp_wb)
+      sqLM2 <- .run_boot(sqftmp_wcb)
       
-      ##
-      mW = cbind(mW, mWK)
-      LM = sLMTEST(iT=iT,iN=iN,vU=vU,mX=mX,mW=mW,mM=mM,s2=s2,mX2=mX2,invXX=invXX)
+      rrtmp <- rbind(rrtmp, c(sqLM, mean(sqLM <= sqLM1), mean(sqLM <= sqLM2)))
       
-      sfInit(parallel=parallel,cpus=cpus)
-      #sfExport(list=c('sLMTEST'))
-      qLM1 = sfSapply(1:iB,ftmp_wb)
-      qLM2 = sfSapply(1:iB,ftmp_wcb)
-      sfStop()
+      # update joint test with expanded W
+      mW <- cbind(mW, mWK)
+      LM <- sLMTEST(iT = iT, iN = iN, vU = vU, mX = mX, mW = mW, mM = mM, s2 = s2, mX2 = mX2, invXX = invXX)
       
-      rtmp = rbind( rtmp, c(LM, mean(LM<=qLM1), mean(LM<=qLM2)) )
+      qLM1 <- .run_boot(ftmp_wb)
+      qLM2 <- .run_boot(ftmp_wcb)
+      
+      rtmp <- rbind(rtmp, c(LM, mean(LM <= qLM1), mean(LM <= qLM2)))
     }
     
-    self$wcb_test[[qter]] = matrix(rtmp, nrow=im)
-    self$wcb_sqtest[[qter]] = matrix(rrtmp, nrow=im)
-    
+    self$wcb_test[[qter]] <- matrix(rtmp, nrow = im)
+    self$wcb_sqtest[[qter]] <- matrix(rrtmp, nrow = im)
   }
   
   cli::cli_alert_success("Done!")

@@ -11,3 +11,4 @@
 ^NEWS\.Rmd$
 ^README\.Rmd$
 ^cran-comments\.md$
+^CRAN-SUBMISSION$

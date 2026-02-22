@@ -103,9 +103,6 @@ NULL
 #' @importFrom plotly add_surface add_trace plot_ly layout
 NULL
 
-#' @importFrom snowfall sfInit sfExport sfSapply sfStop
-NULL
-
 
 #' Create a PSTR model object
 #'

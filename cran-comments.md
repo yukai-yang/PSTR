@@ -1,19 +1,34 @@
-This is an updated version of the existing package "PSTR" on CRAN.
-The corresponding paper has no doi as it is a working paper.
-I mentioned and offered the link of the corresponding paper in the manual of the package.
-That is, the user can find the paper when they run "?PSTR".
-This package has been mentioned explicitly in the paper,
-which means that most of the users find the package after they have read the paper.
+This is a major update of the CRAN package "PSTR".
 
-## Updates and new features
+Version 2.0.0 improves the internal structure and numerical robustness of the package.
+The core implementation has been reorganised using an R6 class structure,
+while exported user-level functions remain available for standard workflows.
 
-* fix the errors in R version 4.
-* change documentation.
+## Main changes in version 2.0.0
+
+* Internal refactoring to an R6-based architecture.
+* Clearer separation of specification, estimation, and evaluation routines.
+* Improved numerical stability in matrix inversion (SVD-based pseudoinverse when necessary).
+* Rewritten bootstrap routines to improve internal consistency.
+* Modernised console output and printing.
+* Standardised internal storage of evaluation results.
+
+The statistical methodology and default user interface remain unchanged.
+Existing user code following documented usage should continue to work as before.
+
+## Reverse dependencies
+
+There are currently no reverse dependencies on CRAN.
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 0 NOTES.
+Platform: aarch64-apple-darwin20  
+R version: 4.5.2  
 
-## Downstream dependencies
+0 ERRORs | 0 WARNINGs | 0 NOTEs.
 
-* I did not test all dependencies, but do not think any of the changes should effect them.
+## Additional notes
+
+The corresponding methodological reference is a working paper
+without a DOI. The full reference and link are provided in the package
+documentation and can be accessed via `?PSTR`.

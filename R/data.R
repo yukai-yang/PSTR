@@ -34,7 +34,7 @@
 #'   \item{cfa}{lagged cash flow to assets ratio}
 #'   \item{sales}{lagged sales during the year (million USD)}
 #' }
-#' @source \url{http://www.ssc.wisc.edu/~bhansen/progs/joe_99.html}
+#' @source \url{https://www.ssc.wisc.edu/~bhansen/progs/joe_99.html}
 "Hansen99"
 
 
@@ -66,5 +66,5 @@
 #' @section References:
 #' Ghaddar, D. K. and Tong, H. (1981) Data transformation and self-exciting threshold autoregression, Applied Statistics, 30, 238–48.
 #' 
-#' @source \url{http://sidc.oma.be/html/sunspot.html}
+#' @source \url{https://www.sidc.be/html/sunspot.html}
 "sunspot"

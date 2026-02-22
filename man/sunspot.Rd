@@ -21,7 +21,7 @@ A tibble with 270 rows and 11 variables:
 }
 }
 \source{
-\url{http://sidc.oma.be/html/sunspot.html}
+\url{https://www.sidc.be/html/sunspot.html}
 }
 \usage{
 sunspot

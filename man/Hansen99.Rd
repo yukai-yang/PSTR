@@ -30,7 +30,7 @@ A tibble with 7840 rows and 20 variables:
 }
 }
 \source{
-\url{http://www.ssc.wisc.edu/~bhansen/progs/joe_99.html}
+\url{https://www.ssc.wisc.edu/~bhansen/progs/joe_99.html}
 }
 \usage{
 Hansen99

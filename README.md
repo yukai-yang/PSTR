@@ -189,9 +189,9 @@ set) based on another object by running
 pstr0 = pstr$clone()
 ```
 
-By doing so, the new PSTR object `pstr0` refers to another model, and
-when you do something on either of the two objects (`pstr` or `pstr0`),
-the other one remains unchanged.
+By doing so, the new PSTR object `pstr0` is an independent copy of the
+original object, and when you do something on either of the two objects
+(`pstr` or `pstr0`), the other one remains unchanged.
 
 You can do, for example, the wild bootstrap and wild cluster bootstrap
 by running the following code.
@@ -364,10 +364,11 @@ print(pstr0, mode="estimates")
 
 ### Evaluation
 
-The evaluation tests can be done based on the estimated model
+The evaluation tests can be conducted after estimating a nonlinear PSTR
+model.
 
 ``` r
-## evaluatio tests
+## evaluation tests
 EvalTest(use=pstr,vq=as.matrix(Hansen99[,'vala'])[,1])
 ```
 
@@ -384,7 +385,7 @@ resources are available.
 iB = 5000
 cpus = 50
 
-## wild bootstrap time-varyint evaluation test 
+## wild bootstrap time-varying evaluation test 
 WCB_TVTest(use=pstr,iB=iB,parallel=T,cpus=cpus)
 
 ## wild bootstrap heterogeneity evaluation test
@@ -430,24 +431,25 @@ ret[[1]]
 ![](rmd_files/README-plot_coef-1.png)
 
 The plotting function `plot_response`, which depicts the relationship
-between which I called response, some explanatory variable
-*x*<sub>*i**t*</sub> and the transition variable *q*<sub>*i**t*</sub> in
-the PSTR model.
+between which we refer to as the response, as a function of an
+explanatory variable *x*<sub>*i**t*</sub> and the transition variable
+*q*<sub>*i**t*</sub>.
 
 The response
 \[*ϕ*<sub>0</sub> + *ϕ*<sub>1</sub>*g*<sub>*i**t*</sub>(*q*<sub>*i**t*</sub>; *γ*, *c*)\]*x*<sub>*i**t*</sub>
-is actually the contribution that the varabile *x*<sub>*i**t*</sub>
-makes to the conditional expectation of the dependent
-*y*<sub>*i**t*</sub> through the smooth transition mechanism.
+is actually the contribution of the variable *x*<sub>*i**t*</sub> to the
+conditional expectation of the dependent variable *y*<sub>*i**t*</sub>
+through the smooth transition mechanism.
 
 We can see that the response against the variable is a straight line if
-there is no nonlinearity. We can plot a surface if the variable
-*x*<sub>*i**t*</sub> and the transition variable *q*<sub>*i**t*</sub>
-are distinct, with z-axis the response, x- and y- axises the two
-variables. And it becomes a curve if the variable *x*<sub>*i**t*</sub>
-and the transition variable *q*<sub>*i**t*</sub> are identical.
+there is no nonlinearity. If *x*<sub>*i**t*</sub> and
+*q*<sub>*i**t*</sub> are distinct, the response can be visualised as a
+surface over (*x*<sub>*i**t*</sub>, *q*<sub>*i**t*</sub>), where the
+vertical axis represents the response. And it becomes a curve if the
+variable *x*<sub>*i**t*</sub> and the transition variable
+*q*<sub>*i**t*</sub> are identical.
 
-We make the graph by running
+You can generate these plots by running
 
 ``` r
 ret = plot_response(obj=pstr, vars=1:4, log_scale = c(F,T), length.out=100)
@@ -457,22 +459,22 @@ ret = plot_response(obj=pstr, vars=1:4, log_scale = c(F,T), length.out=100)
 the four variables in nonlinear part by using `vars=1:4` (variable names
 can also be used for specification). Note that we do not do it for the
 variables in the linear part, as they produce straight lines or planes.
-`log_scale` is a 2-vector of booleans specifying, for each graph,
-whether the first (some variable in the nonlinear part) or the second
-(the transition variable) should be log scaled. `length.out` gives the
-number of points in the grid for producing the surface or curve. A
-`length.out` of 100 points looks fine enough.
+`log_scale` is a length-2 logical vector indicating whether to apply a
+log scale to (i) *x*<sub>*i**t*</sub> and (ii) *q*<sub>*i**t*</sub>,
+respectively. `length.out` gives the number of points in the grid for
+producing the surface or curve. A `length.out` of 100 points looks fine
+enough.
 
-You may think of “what if I don’t wanna make all the variables log
-scaled?”. The solution is to make the graphs separately by running
-something like
+You might ask: what if you want different log-scaling choices for
+different variables? The solution is to make the graphs separately by
+running something like
 
 ``` r
 ret1 = plot_response(obj=pstr, vars=1, log_scale = c(F,T), length.out=100)
 ret2 = plot_response(obj=pstr, vars=2, log_scale = c(T,T), length.out=100)
 ```
 
-Let us take a look the elements in `ret`
+Let us take a look at the elements in `ret`
 
 ``` r
 attributes(ret)
@@ -483,8 +485,8 @@ attributes(ret)
 We see that `ret` is a list containing elements whose names are the
 variables’ names that we specified when running `plot_response`.
 
-Yes, but they are now plottable objects in the sense that you can simply
-plot them by running
+Yes, but each element is a ggplot object, so you can display it
+directly, for example:
 
 ``` r
 ret$vala
@@ -496,7 +498,7 @@ The numbers on the x-axis look not so good as it is difficult to find
 where the turning-point is.
 
 The `ggplot2` package allows us to manually paint the numbers (the PSTR
-package collaborates very well with some prevailling packages), and even
+package collaborates very well with some prevailing packages), and even
 the label on x-axis (and many more).
 
 ``` r
@@ -506,12 +508,12 @@ ret$vala + ggplot2::scale_x_log10(breaks=c(.02,.05,.1,.2,.5,1,2,5,10,20)) +
 
 ![](rmd_files/README-vala2-1.png)
 
-Now we see very clearly that the turning-point approximately 0.5 cut the
-curve into two regimes, and the two regimes behave so differently. This
-graph is about the lagged Tobin’s Q’s contribution to the expected
-investment. Low Q firms (whose potentials are evaluated to be low by the
-financial market) look rather reluctant to change their future
-investment plan, or maybe get changed.
+Now we see very clearly that the estimated turning-point approximately
+0.5 splits the curve into two regimes, and the two regimes behave so
+differently. This graph is about the lagged Tobin’s Q’s contribution to
+the expected investment. Low Q firms (whose potentials are evaluated to
+be low by the financial market) look rather reluctant to change their
+future investment plan, or maybe get changed.
 
 Then let us proceed to the surfaces. Check the response from the debta
 by running
@@ -520,17 +522,17 @@ by running
 ret$debta
 ```
 
-The graph is “living” and you can scracth on it by using your mouse.
-“vala_y” shows that the y-axis is the Q, and “debta_x” shows that the
-x-axis is the debt. The tool bar on up-right helps you to rotate, pan,
-zoom and save the graph.
+In an interactive R session, the surface can be rotated and zoomed using
+the mouse. “vala_y” shows that the y-axis is the Q, and “debta_x” shows
+that the x-axis is the debt. The tool bar on up-right helps you to
+rotate, pan, zoom and save the graph.
 
 Note that the transition variable Q is in log scale while debt is not.
 
 It is very clear that low Q firms’ future investment will be affected by
 the current debt situation. The more debt there is, the less investment
-there will be. However, it is not the case for high Q firms who has good
-potential and is not sensitive to the debt.
+there will be. However, this is not the case for high-Q firms, which
+appear to have better growth prospects and are less sensitive to debt.
 
 The following two living graphs are for the cash flow and the sales.
 

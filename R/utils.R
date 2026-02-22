@@ -2,10 +2,6 @@
 ## package name: PSTR
 ## author: Yukai Yang
 ## Statistiska Inst., Uppsala Universitet
-## May 2018
-#################################################################################
-
-#################################################################################
 ## utility functions
 #################################################################################
 
@@ -160,7 +156,7 @@ PSTR$set("private", "print_summary", function(...) {
   cli::cli_h2("Summary of the model")
   
   cli::cli_text(
-    "The long format panel is {private$iT} × {private$iN} (time × individual)."
+    "The long format panel is {private$iT} x {private$iN} (time x individual)."
   )
   
   cli::cli_rule()

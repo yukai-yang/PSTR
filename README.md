@@ -29,19 +29,29 @@ running many cores on super-computation servers.
 
 ## How to install
 
+<!--
 You can either install the stable version from CRAN
 
 ``` r
 install.packages("PSTR")
 ```
-
 or install the development version from GitHub
+-->
+
+You can install the package by running
 
 ``` r
 devtools::install_github("yukai-yang/PSTR")
 ```
 
-provided that the package “devtools” has been installed beforehand.
+or You can install the package by running
+
+``` r
+remotes::install_github("yukai-yang/PSTR")
+```
+
+provided that the package `devtools` or `remotes` has been installed
+beforehand.
 
 ## Example
 
@@ -57,7 +67,7 @@ running
 
 ``` r
 version()
-#> PSTR version 1.3.0 (Yellow Panel)
+#> PSTR version 2.0.0 (Green Panel)
 ```
 
 Then you can take a look at all the available functions and data in the
@@ -74,7 +84,7 @@ ls( grep("PSTR", search()) )
 
 ### The data
 
-In the package, a data set called “Hansen99” is offered to give prompt
+In the package, a data set called `Hansen99` is offered to give prompt
 example. For details of the data set, you can run
 
 ``` r
@@ -88,45 +98,41 @@ You can create a new object of the class PSTR by doing
 ``` r
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
                tvars=c('vala'), im=1, iT=14)
-print(pstr)
-#> ################################################################################
-#> ## PSTR 1.3.0 (Yellow Panel)
-#> ################################################################################
-#> ********************************************************************************
-#> Summary of the model:
-#> --------------------------------------------------------------------------------
-#>   time horizon sample size = 14,  number of individuals = 560
-#> --------------------------------------------------------------------------------
-#> Dependent variable:  inva
-#> --------------------------------------------------------------------------------
-#> Explanatory variables in the linear part:
-#>   dt_75 dt_76 dt_77 dt_78 dt_79 dt_80 dt_81 dt_82 dt_83 dt_84 dt_85 dt_86 dt_87 vala debta cfa sales
-#> --------------------------------------------------------------------------------
-#> Explanatory variables in the non-linear part:
-#>   vala debta cfa sales
-#> --------------------------------------------------------------------------------
-#> Potential transition variable(s) to be tested:
-#>   vala
-#> ################################################################################
-#> ********************************************************************************
-#> Results of the linearity (homogeneity) tests:
-#> ********************************************************************************
-#> Sequence of homogeneity tests for selecting number of switches 'm':
-#> ********************************************************************************
-#> ################################################################################
+#> ✔ The PSTR model is ready.
+pstr
+#> 
+#> ── R package PSTR 2.0.0 (Green Panel) ──────────────────────────────────────────
+#> 
+#> ── Summary of the model ──
+#> 
+#> The long format panel is 14 × 560 (time × individual).
+#> ────────────────────────────────────────────────────────────────────────────────
+#> 
+#> ── Dependent variable
+#> inva
+#> 
+#> ── Explanatory variables in the linear part (17)
+#> dt_75, dt_76, dt_77, dt_78, dt_79, dt_80, dt_81, dt_82, dt_83, dt_84, dt_85,
+#> dt_86, dt_87, vala, debta, cfa, sales
+#> 
+#> ── Explanatory variables in the non-linear part (4)
+#> vala, debta, cfa, sales
+#> 
+#> ── Potential transition variable(s) to be tested (1)
+#> vala
 ```
 
-It says that the data set “Hansen99” is used, the dependent variable is
-“inva”, the variables in the data from column 4 to 20 are the
+It says that the data set `Hansen99` is used, the dependent variable is
+`inva`, the variables in the data from column 4 to 20 are the
 explanatory variables in the linear part (though you can write down the
 names of them), the explanatory variables in the nonlinear part are the
-four ones in “indep_k”, and the potential transition variable is “vala”
+four ones in `indep_k`, and the potential transition variable is `vala`
 (Tobin’s Q).
 
-Now you can see that the “NewPSTR” is basically defining the settings of
+Now you can see that the `NewPSTR` is basically defining the settings of
 the model.
 
-Note that you can print the object of the class PSTR. By default, it
+Note that you can print the object of the class `PSTR`. By default, it
 gives you a summary of the PSTR model. They are mainly about which one
 is the dependent variable, which ones are explanatory variables and
 etc..
@@ -136,151 +142,224 @@ etc..
 The following code does linearity tests
 
 ``` r
-pstr = LinTest(use=pstr) 
-print(pstr, "tests")
-#> ################################################################################
-#> ## PSTR 1.3.0 (Yellow Panel)
-#> ################################################################################
-#> ********************************************************************************
-#> Results of the linearity (homogeneity) tests:
-#> --------------------------------------------------------------------------------
-#> LM tests based on transition variable 'vala'
-#>   m  LM_X PV  LM_F PV HAC_X        PV HAC_F        PV
-#>   1 125.3  0 28.99  0 30.03 4.819e-06 6.952 1.396e-05
-#> ********************************************************************************
-#> Sequence of homogeneity tests for selecting number of switches 'm':
-#> --------------------------------------------------------------------------------
-#> LM tests based on transition variable 'vala'
-#>   m  LM_X PV  LM_F PV HAC_X        PV HAC_F        PV
-#>   1 125.3  0 28.99  0 30.03 4.819e-06 6.952 1.396e-05
-#> ********************************************************************************
-#> ################################################################################
+LinTest(pstr) 
+#> ✔ Done!
+print(pstr, mode="tests")
+#> 
+#> ── R package PSTR 2.0.0 (Green Panel) ──────────────────────────────────────────
+#> 
+#> ── Results of the linearity (homogeneity) tests ──
+#> 
+#> ── LM tests based on transition variable 'vala'
+#> 
+#> 
+#> m            LM_X      LM_F    HAC_X    HAC_F
+#> ------  ---------  --------  -------  -------
+#> 1        125.2509   28.9922   30.033   6.9518
+#> p-val      0.0000    0.0000    0.000   0.0000
+#> 
+#> ── Sequence of homogeneity tests for selecting number of switches 'm' ──
+#> 
+#> ── LM tests based on transition variable 'vala'
+#> 
+#> 
+#> m            LM_X      LM_F    HAC_X    HAC_F
+#> ------  ---------  --------  -------  -------
+#> 1        125.2509   28.9922   30.033   6.9518
+#> p-val      0.0000    0.0000    0.000   0.0000
 ```
 
-You can see that the function “LinTest” takes the PSTR object “pstr” and
-overwrites it when return. This is the way I recommend as the functions
-handling the PSTR object in the package update the object by adding new
-atrributes or members. However, the same function will change the values
-of the attributes it adds. You can of course create new PSTR objects to
-take the return values in order to save the results from different
-settings of the model.
+or
 
-You can do the wild bootstrap and wild cluster bootstrap by running the
-following code. (Warning! Don’t run it except that you have at least 50
-cores!)
+``` r
+pstr$LinTest() 
+print(pstr, mode="tests")
+```
+
+`LinTest(pstr)` modifies the object in place (R6 uses reference
+semantics). The function returns `pstr` invisibly, so you may call it
+either for its side effects or in an assignment. The reference semantics
+means that the pass of the object to the function leads to a change of
+the values inside the object.
+
+You can create a new PSTR objects (the same model with the same data
+set) based on another object by running
+
+``` r
+pstr0 = pstr$clone()
+```
+
+By doing so, the new PSTR object `pstr0` refers to another model, and
+when you do something on either of the two objects (`pstr` or `pstr0`),
+the other one remains unchanged.
+
+You can do, for example, the wild bootstrap and wild cluster bootstrap
+by running the following code.
 
 ``` r
 iB = 5000 # the number of repetitions in the bootstrap
 library(snowfall)
-pstr = WCB_LinTest(use=pstr,iB=iB,parallel=T,cpus=50)
+WCB_LinTest(pstr,iB=iB,parallel=T,cpus=50)
 ```
 
 It takes a long long time to run the bootstrap. This function is
 developed for those who work on some super-computation server with many
 cores and a large memory. Note that you will have to attach the
-“snowfall” package manually.
+`snowfall` package manually.
 
-But of course, you can try the function on your personal computer by
-reducing the number of repetitions and the cores.
+You can try the following code on your own computer by reducing the
+number of repetitions and cores.
 
 ``` r
-pstr = WCB_LinTest(use=pstr,iB=4,parallel=T,cpus=2)
+WCB_LinTest(pstr,iB=4,parallel=T,cpus=2)
 ```
 
 ### Estimation
 
-When you determine which transition variable to use for the estimation,
-in this case “inva”, you can estimate the PSTR model
+After selecting the transition variable (in this example, `vala`), you
+can estimate the PSTR model.
 
 ``` r
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), vLower=4, vUpper=4)
-print(pstr,"estimates")
+EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), vLower=4, vUpper=4)
+print(pstr, mode="estimates")
 ```
 
-By default, the “optim” method “L-BFGS-B” is used, but you can change
+By default, the `optim` method `L-BFGS-B` is used, but you can change
 the method for estimation by doing
 
 ``` r
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
-print(pstr,"estimates")
-#> ################################################################################
-#> ## PSTR 1.3.0 (Yellow Panel)
-#> ################################################################################
-#> ********************************************************************************
-#> Results of the PSTR estimation:
-#> --------------------------------------------------------------------------------
-#> Transition variable 'vala' is used in the estimation.
-#> --------------------------------------------------------------------------------
-#> Parameter estimates in the linear part (first extreme regime) are
-#>        dt_75_0   dt_76_0   dt_77_0   dt_78_0  dt_79_0  dt_80_0   dt_81_0
-#> Est  -0.002827 -0.007512 -0.005812 0.0003951 0.002464 0.006085 0.0004164
-#> s.e.  0.002431  0.002577  0.002649 0.0027950 0.002708 0.002910 0.0029220
-#>        dt_82_0   dt_83_0    dt_84_0  dt_85_0   dt_86_0   dt_87_0  vala_0
-#> Est  -0.007802 -0.014410 -0.0009146 0.003467 -0.001591 -0.008606 0.11500
-#> s.e.  0.002609  0.002701  0.0030910 0.003232  0.003202  0.003133 0.04073
-#>       debta_0   cfa_0  sales_0
-#> Est  -0.03392 0.10980 0.002978
-#> s.e.  0.03319 0.04458 0.008221
-#> --------------------------------------------------------------------------------
-#> Parameter estimates in the non-linear part are
-#>        vala_1 debta_1    cfa_1  sales_1
-#> Est  -0.10370 0.02892 -0.08801 0.005945
-#> s.e.  0.03981 0.04891  0.05672 0.012140
-#> --------------------------------------------------------------------------------
-#> Parameter estimates in the second extreme regime are
-#>      vala_{0+1} debta_{0+1} cfa_{0+1} sales_{0+1}
-#> Est    0.011300    -0.00500   0.02183    0.008923
-#> s.e.   0.001976     0.01739   0.01885    0.004957
-#> --------------------------------------------------------------------------------
-#> Non-linear parameter estimates are
-#>       gamma        c_1
-#> Est  0.6299 -0.0002008
-#> s.e. 0.1032  0.7252000
-#> --------------------------------------------------------------------------------
-#> Estimated standard deviation of the residuals is 0.04301
-#> ********************************************************************************
-#> ################################################################################
+EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
+print(pstr, mode="estimates")
+#> 
+#> ── R package PSTR 2.0.0 (Green Panel) ──────────────────────────────────────────
+#> 
+#> ── Results of the PSTR estimation: ──
+#> 
+#> ℹ Transition variable 'vala' is used in the estimation.
+#> 
+#> ── Parameter estimates in the linear part (first extreme regime)
+#> 
+#> 
+#>              dt_75_0     dt_76_0     dt_77_0     dt_78_0    dt_79_0
+#> --------  ----------  ----------  ----------  ----------  ---------
+#> Est        -0.002827   -0.007512   -0.005812   0.0003951   0.002464
+#> s.e.        0.002431    0.002577    0.002649   0.0027950   0.002708
+#> t-ratio    -1.163000   -2.915000   -2.193000   0.1414000   0.909700
+#> 
+#> 
+#> 
+#>             dt_80_0     dt_81_0     dt_82_0     dt_83_0      dt_84_0
+#> --------  ---------  ----------  ----------  ----------  -----------
+#> Est        0.006085   0.0004164   -0.007802   -0.014410   -0.0009146
+#> s.e.       0.002910   0.0029220    0.002609    0.002701    0.0030910
+#> t-ratio    2.091000   0.1425000   -2.990000   -5.337000   -0.2959000
+#> 
+#> 
+#> 
+#>             dt_85_0     dt_86_0     dt_87_0    vala_0    debta_0
+#> --------  ---------  ----------  ----------  --------  ---------
+#> Est        0.003467   -0.001591   -0.008606   0.11500   -0.03392
+#> s.e.       0.003232    0.003202    0.003133   0.04073    0.03319
+#> t-ratio    1.073000   -0.496900   -2.747000   2.82200   -1.02200
+#> 
+#> 
+#> 
+#>              cfa_0    sales_0
+#> --------  --------  ---------
+#> Est        0.10980   0.002978
+#> s.e.       0.04458   0.008221
+#> t-ratio    2.46400   0.362200
+#> 
+#> ── Parameter estimates in the non-linear part
+#> 
+#> 
+#>              vala_1   debta_1      cfa_1    sales_1
+#> --------  ---------  --------  ---------  ---------
+#> Est        -0.10370   0.02892   -0.08801   0.005945
+#> s.e.        0.03981   0.04891    0.05672   0.012140
+#> t-ratio    -2.60300   0.59140   -1.55200   0.489600
+#> 
+#> ── Parameter estimates in the second extreme regime
+#> 
+#> 
+#>            vala_{0+1}   debta_{0+1}   cfa_{0+1}   sales_{0+1}
+#> --------  -----------  ------------  ----------  ------------
+#> Est          0.011300      -0.00500     0.02183      0.008923
+#> s.e.         0.001976       0.01739     0.01885      0.004957
+#> t-ratio      5.718000      -0.28750     1.15800      1.800000
+#> 
+#> ── Non-linear parameter estimates
+#> 
+#> 
+#>             gamma          c_1
+#> --------  -------  -----------
+#> Est        0.6299   -0.0002008
+#> s.e.       0.1032    0.7252000
+#> t-ratio    6.1040   -0.0002769
+#> ℹ Estimated standard deviation of the residuals is 0.04301.
+#> ℹ The specification results are ready, run `print(obj, mode="tests")` to show
+#>   the results.
 ```
 
-The argument “useDelta” determines the type of the initial value for the
-smoothness parameter. By default “useDelta = F” means that the first
-initial value in “par” is the “gamma” instead of “delta”. Here we use
-the settings “useDelta = T” and “par = c(1.6, .5)” means that the first
-value of “par” is the “delta” and its value is 1.6. Note that “delta”
-and “gamma” has the relationship “gamma = exp(delta)”. Thus, the
-following two sentences are equivalent
+The argument `useDelta` determines the type of the initial value for the
+smoothness parameter. By default `useDelta = FALSE` means that the first
+initial value in `par` is the `gamma` instead of `delta`. Here we use
+the settings `useDelta = TRUE` and `par = c(1.6, .5)` means that the
+first value of `par` is the `delta` and its value is 1.6. Note that
+`delta` and `gamma` have the relationship `gamma = exp(delta)`. Thus,
+the following two sentences are equivalent
 
 ``` r
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
-pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(-0.462),0), method="CG")
+EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
+EstPSTR(use=pstr,im=1,iq=1,par=c(exp(-0.462),0), method="CG")
 ```
 
 Note that the estimation of a linear panel regression model is also
 implemented. The user can do it by simply running
 
 ``` r
-pstr0 = EstPSTR(use=pstr)
-print(pstr0,"estimates")
-#> ################################################################################
-#> ## PSTR 1.3.0 (Yellow Panel)
-#> ################################################################################
-#> ********************************************************************************
-#> A linear panel regression with fixed effects is estimated.
-#> --------------------------------------------------------------------------------
-#> Parameter estimates are
-#>          dt_75     dt_76     dt_77    dt_78    dt_79    dt_80    dt_81
-#> Est  -0.007759 -0.008248 -0.004296 0.002356 0.004370 0.008246 0.004164
-#> s.e.  0.002306  0.002544  0.002718 0.002820 0.002753 0.002959 0.002992
-#>          dt_82     dt_83    dt_84    dt_85    dt_86     dt_87     vala
-#> Est  -0.005294 -0.010040 0.006864 0.009740 0.007027 0.0004091 0.008334
-#> s.e.  0.002664  0.002678 0.003092 0.003207 0.003069 0.0030080 0.001259
-#>          debta     cfa    sales
-#> Est  -0.016380 0.06506 0.007957
-#> s.e.  0.005725 0.01079 0.002412
-#> --------------------------------------------------------------------------------
-#> Estimated standard deviation of the residuals is 0.04375
-#> ********************************************************************************
-#> ################################################################################
+EstPSTR(use=pstr0)
+print(pstr0, mode="estimates")
+#> 
+#> ── R package PSTR 2.0.0 (Green Panel) ──────────────────────────────────────────
+#> 
+#> ── A linear panel regression with fixed effects is estimated. ──
+#> 
+#> ── Parameter estimates
+#> 
+#> 
+#>                dt_75       dt_76       dt_77      dt_78      dt_79
+#> --------  ----------  ----------  ----------  ---------  ---------
+#> Est        -0.007759   -0.008248   -0.004296   0.002356   0.004370
+#> s.e.        0.002306    0.002544    0.002718   0.002820   0.002753
+#> t-ratio    -3.365000   -3.242000   -1.581000   0.835600   1.587000
+#> 
+#> 
+#> 
+#>               dt_80      dt_81       dt_82       dt_83      dt_84
+#> --------  ---------  ---------  ----------  ----------  ---------
+#> Est        0.008246   0.004164   -0.005294   -0.010040   0.006864
+#> s.e.       0.002959   0.002992    0.002664    0.002678   0.003092
+#> t-ratio    2.786000   1.391000   -1.987000   -3.749000   2.220000
+#> 
+#> 
+#> 
+#>               dt_85      dt_86       dt_87       vala       debta
+#> --------  ---------  ---------  ----------  ---------  ----------
+#> Est        0.009740   0.007027   0.0004091   0.008334   -0.016380
+#> s.e.       0.003207   0.003069   0.0030080   0.001259    0.005725
+#> t-ratio    3.037000   2.290000   0.1360000   6.619000   -2.861000
+#> 
+#> 
+#> 
+#>                cfa      sales
+#> --------  --------  ---------
+#> Est        0.06506   0.007957
+#> s.e.       0.01079   0.002412
+#> t-ratio    6.02800   3.299000
+#> ℹ Estimated standard deviation of the residuals is 0.04375.
+#> ℹ The specification results are ready, run `print(obj, mode="tests")` to show
+#>   the results.
 ```
 
 ### Evaluation
@@ -289,33 +368,33 @@ The evaluation tests can be done based on the estimated model
 
 ``` r
 ## evaluatio tests
-pstr1 = EvalTest(use=pstr,vq=pstr$mQ[,1])
+EvalTest(use=pstr,vq=as.matrix(Hansen99[,'vala'])[,1])
 ```
 
-Note that in the “EvalTest”, only one transition variable is taken each
-time for the no remaining nonlinearity test. This is different from the
-“LinTest” function which can take several transition variables. This is
-the reason why I save the results into new PSTR objects “pstr1” instead
-of overwriting. By doing so, I can save more test results from different
-transition variables in new objects.
+Note that `EvalTest` takes one transition variable `vq` at a time for
+the no remaining nonlinearity (heterogeneity) test. This differs from
+`LinTest`, which can evaluate several candidate transition variables
+through `tvars`.
 
-The user can also do the wild bootstrap and wild cluster bootstrap in
-the following way, provided that he or she has the super-computation
-resources.
+The user can also run the wild bootstrap (WB) and wild cluster bootstrap
+(WCB) versions of the evaluation tests, provided that suitable computing
+resources are available.
 
 ``` r
 iB = 5000
 cpus = 50
 
 ## wild bootstrap time-varyint evaluation test 
-pstr = WCB_TVTest(use=pstr,iB=iB,parallel=T,cpus=cpus)
+WCB_TVTest(use=pstr,iB=iB,parallel=T,cpus=cpus)
 
 ## wild bootstrap heterogeneity evaluation test
-pstr1 = WCB_HETest(use=pstr1,vq=pstr$mQ[,1],iB=iB,parallel=T,cpus=cpus)
+WCB_HETest(use=pstr,vq=as.matrix(Hansen99[,'vala'])[,1],iB=iB,parallel=T,cpus=cpus)
+
+print(pstr, mode="evaluation")
 ```
 
 Note that the evaluation functions do not accept the returned object
-“pstr0” from a linear panel regression model, as the evaluation tests
+`pstr0` from a linear panel regression model, as the evaluation tests
 are designed for the estimated PSTR model but not a linear one.
 
 ### Plotting
@@ -356,7 +435,7 @@ between which I called response, some explanatory variable
 the PSTR model.
 
 The response
-\[*ϕ*<sub>0</sub>+*ϕ*<sub>1</sub>*g*<sub>*i**t*</sub>(*q*<sub>*i**t*</sub>;*γ*,*c*)\]*x*<sub>*i**t*</sub>
+\[*ϕ*<sub>0</sub> + *ϕ*<sub>1</sub>*g*<sub>*i**t*</sub>(*q*<sub>*i**t*</sub>; *γ*, *c*)\]*x*<sub>*i**t*</sub>
 is actually the contribution that the varabile *x*<sub>*i**t*</sub>
 makes to the conditional expectation of the dependent
 *y*<sub>*i**t*</sub> through the smooth transition mechanism.

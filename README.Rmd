@@ -51,7 +51,7 @@ You can install the package by running
 ```{r install3, eval=F}
 remotes::install_github("yukai-yang/PSTR")
 ```
-provided that the package "devtools" or "remotes" has been installed beforehand.
+provided that the package `devtools` or `remotes` has been installed beforehand.
 
 ## Example
 
@@ -72,7 +72,7 @@ ls( grep("PSTR", search()) )
 
 ### The data
 
-In the package, a data set called "Hansen99" is offered to give prompt example. For details of the data set, you can run
+In the package, a data set called `Hansen99` is offered to give prompt example. For details of the data set, you can run
 ```{r data, eval=F}
 ?Hansen99 
 ```
@@ -85,32 +85,32 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
                tvars=c('vala'), im=1, iT=14)
 pstr
 ```
-It says that the data set "Hansen99" is used, the dependent variable is "inva", the variables in the data from column 4 to 20 are the explanatory variables in the linear part (though you can write down the names of them), the explanatory variables in the nonlinear part are the four ones in "indep_k", and the potential transition variable is "vala" (Tobin's Q).
+It says that the data set `Hansen99` is used, the dependent variable is `inva`, the variables in the data from column 4 to 20 are the explanatory variables in the linear part (though you can write down the names of them), the explanatory variables in the nonlinear part are the four ones in `indep_k`, and the potential transition variable is `vala` (Tobin's Q).
 
-Now you can see that the "NewPSTR" is basically defining the settings of the model.
+Now you can see that the `NewPSTR` is basically defining the settings of the model.
 
-Note that you can print the object of the class PSTR. By default, it gives you a summary of the PSTR model. They are mainly about which one is the dependent variable, which ones are explanatory variables and etc..
+Note that you can print the object of the class `PSTR`. By default, it gives you a summary of the PSTR model. They are mainly about which one is the dependent variable, which ones are explanatory variables and etc..
 
 ### Specification
 
 The following code does linearity tests
 ```{r lintest1}
 LinTest(pstr) 
-print(pstr, "tests")
+print(pstr, mode="tests")
 ```
 or
 ```{r lintest2, eval=F}
 pstr$LinTest() 
-print(pstr, "tests")
+print(pstr, mode="tests")
 ```
-The function "LinTest" takes the PSTR object "pstr" and overwrites it due to that the class PSTR is using reference semantics.
+`LinTest(pstr)` modifies the object in place (R6 uses reference semantics). The function returns `pstr` invisibly, so you may call it either for its side effects or in an assignment.
 The reference semantics means that the pass of the object to the function leads to a change of the values inside the object.
 
 You can create a new PSTR objects (the same model with the same data set) based on another object by running
-```{r clone, eval=F}
+```{r clone}
 pstr0 = pstr$clone()
 ```
-By doing so, the new PSTR object pstr0 refers to another model, and when you do something on either of the two objects (pstr or pstr0), the other one remains unchanged.
+By doing so, the new PSTR object `pstr0` refers to another model, and when you do something on either of the two objects (`pstr` or `pstr0`), the other one remains unchanged.
 
 You can do, for example, the wild bootstrap and wild cluster bootstrap by running the following code.
 ```{r lintest3, eval=F}
@@ -118,37 +118,38 @@ iB = 5000 # the number of repetitions in the bootstrap
 library(snowfall)
 WCB_LinTest(pstr,iB=iB,parallel=T,cpus=50)
 ```
-It takes a long long time to run the bootstrap. This function is developed for those who work on some super-computation server with many cores and a large memory. Note that you will have to attach the "snowfall" package manually.
+It takes a long long time to run the bootstrap. This function is developed for those who work on some super-computation server with many cores and a large memory. Note that you will have to attach the `snowfall` package manually.
 
 You can try the following code on your own computer by reducing the number of repetitions and cores.
 ```{r lintest4, eval=F}
 WCB_LinTest(pstr,iB=4,parallel=T,cpus=2)
 ```
 
+
 ### Estimation
 
-When you determine which transition variable to use for the estimation, in this case "inva", you can estimate the PSTR model
+After selecting the transition variable (in this example, `vala`), you can estimate the PSTR model.
 ```{r estimate, eval=F}
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), vLower=4, vUpper=4)
-print(pstr,"estimates")
+EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), vLower=4, vUpper=4)
+print(pstr, mode="estimates")
 ```
 
-By default, the "optim" method "L-BFGS-B" is used, but you can change the method for estimation by doing
+By default, the `optim` method `L-BFGS-B` is used, but you can change the method for estimation by doing
 ```{r estimate1}
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
-print(pstr,"estimates")
+EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
+print(pstr, mode="estimates")
 ```
 
-The argument "useDelta" determines the type of the initial value for the smoothness parameter. By default "useDelta = F" means that the first initial value in "par" is the "gamma" instead of "delta". Here we use the settings "useDelta = T" and "par = c(1.6, .5)" means that the first value of "par" is the "delta" and its value is 1.6. Note that "delta" and "gamma" has the relationship "gamma = exp(delta)". Thus, the following two sentences are equivalent
+The argument `useDelta` determines the type of the initial value for the smoothness parameter. By default `useDelta = FALSE` means that the first initial value in `par` is the `gamma` instead of `delta`. Here we use the settings `useDelta = TRUE` and `par = c(1.6, .5)` means that the first value of `par` is the `delta` and its value is 1.6. Note that `delta` and `gamma` have the relationship `gamma = exp(delta)`. Thus, the following two sentences are equivalent
 ```{r estimate2, eval=F}
-pstr = EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
-pstr = EstPSTR(use=pstr,im=1,iq=1,par=c(exp(-0.462),0), method="CG")
+EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
+EstPSTR(use=pstr,im=1,iq=1,par=c(exp(-0.462),0), method="CG")
 ```
 
 Note that the estimation of a linear panel regression model is also implemented. The user can do it by simply running
 ```{r estimate3}
-pstr0 = EstPSTR(use=pstr)
-print(pstr0,"estimates")
+EstPSTR(use=pstr0)
+print(pstr0, mode="estimates")
 ```
 
 ### Evaluation
@@ -156,23 +157,25 @@ print(pstr0,"estimates")
 The evaluation tests can be done based on the estimated model
 ```{r evaluation, eval=F}
 ## evaluatio tests
-pstr1 = EvalTest(use=pstr,vq=pstr$mQ[,1])
+EvalTest(use=pstr,vq=as.matrix(Hansen99[,'vala'])[,1])
 ```  
-Note that in the "EvalTest", only one transition variable is taken each time for the no remaining nonlinearity test. This is different from the "LinTest" function which can take several transition variables. This is the reason why I save the results into new PSTR objects "pstr1" instead of overwriting. By doing so, I can save more test results from different transition variables in new objects. 
+Note that `EvalTest` takes one transition variable `vq` at a time for the no remaining nonlinearity (heterogeneity) test. This differs from `LinTest`, which can evaluate several candidate transition variables through `tvars`.
 
-The user can also do the wild bootstrap and wild cluster bootstrap in the following way, provided that he or she has the super-computation resources.
+The user can also run the wild bootstrap (WB) and wild cluster bootstrap (WCB) versions of the evaluation tests, provided that suitable computing resources are available.
 ```{r evaluation1, eval=F}
 iB = 5000
 cpus = 50
 
 ## wild bootstrap time-varyint evaluation test 
-pstr = WCB_TVTest(use=pstr,iB=iB,parallel=T,cpus=cpus)
+WCB_TVTest(use=pstr,iB=iB,parallel=T,cpus=cpus)
 
 ## wild bootstrap heterogeneity evaluation test
-pstr1 = WCB_HETest(use=pstr1,vq=pstr$mQ[,1],iB=iB,parallel=T,cpus=cpus)
-```
+WCB_HETest(use=pstr,vq=as.matrix(Hansen99[,'vala'])[,1],iB=iB,parallel=T,cpus=cpus)
 
-Note that the evaluation functions do not accept the returned object "pstr0" from a linear panel regression model, as the evaluation tests are designed for the estimated PSTR model but not a linear one.
+print(pstr, mode="evaluation")
+```
+Note that the evaluation functions do not accept the returned object `pstr0` from a linear panel regression model, as the evaluation tests are designed for the estimated PSTR model but not a linear one.
+
 
 ### Plotting
 

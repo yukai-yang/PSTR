@@ -1,12 +1,11 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.git$
-^_config\.yml$
-^rmd_files$
 ^\.github$
 ^\.gitignore$
+^\.DS_Store$
+^config\.yml$
 ^CODE_OF_CONDUCT\.md$
-^LICENSE$
 ^NEWS\.Rmd$
 ^README\.Rmd$
 ^cran-comments\.md$

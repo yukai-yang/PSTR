@@ -105,7 +105,7 @@ pstr
 #> 
 #> ── Summary of the model ──
 #> 
-#> The long format panel is 14 × 560 (time × individual).
+#> The long format panel is 14 x 560 (time x individual).
 #> ────────────────────────────────────────────────────────────────────────────────
 #> 
 #> ── Dependent variable
@@ -544,7 +544,7 @@ ret$cfa
 ret$sales
 ```
 
-# Citation
+## Citation
 
 If you use the PSTR package in your research, please cite both the
 software implementation and the underlying methodology.

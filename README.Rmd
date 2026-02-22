@@ -273,7 +273,7 @@ ret$sales
 
 
 
-# Citation
+## Citation
 
 If you use the PSTR package in your research, please cite both the software implementation and the underlying methodology.
 

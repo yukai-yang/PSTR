@@ -4,7 +4,9 @@
 ^\.github$
 ^\.gitignore$
 ^\.DS_Store$
-^_?config\.yml$
+^_config\.yml$
+^build$
+^rmd_files$
 ^CODE_OF_CONDUCT\.md$
 ^NEWS\.Rmd$
 ^README\.Rmd$

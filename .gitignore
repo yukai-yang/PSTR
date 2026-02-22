@@ -9,7 +9,4 @@ cran-comments.md
 *.swp
 *.Rmd
 
-**/vignettes
-**/tests
-
 .DS_Store

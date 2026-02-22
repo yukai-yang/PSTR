@@ -73,13 +73,13 @@ pstr <- NewPSTR(Hansen99, dep = "inva", indep = 4:20,
 pstr <- EstPSTR(use = pstr, im = 1, iq = 1, useDelta = TRUE, par = c(.63, 0), method = "CG")
 
 # evaluation tests
-pstr <- EvalTest(use = pstr, type = c("time-varying","heterogeneity"), vq = pstr$mQ[, 1])
+pstr <- EvalTest(use = pstr, type = c("time-varying","heterogeneity"), vq = as.matrix(Hansen99[,'vala'])[,1])
 print(pstr, mode = "evaluation")
 
 # bootstrap variants (requires snowfall)
 library(snowfall)
 pstr <- WCB_TVTest(use = pstr, iB = 4, parallel = TRUE, cpus = 2)
-pstr <- WCB_HETest(use = pstr, vq = pstr$mQ[, 1], iB = 4, parallel = TRUE, cpus = 2)
+pstr <- WCB_HETest(use = pstr, vq = as.matrix(Hansen99[,'vala'])[,1], iB = 4, parallel = TRUE, cpus = 2)
 print(pstr, mode = "evaluation")
 }
 

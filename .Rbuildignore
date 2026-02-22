@@ -5,7 +5,6 @@
 ^\.gitignore$
 ^\.DS_Store$
 ^_config\.yml$
-^build/(?!vignette\.rds$).+
 ^rmd_files$
 ^CODE_OF_CONDUCT\.md$
 ^NEWS\.Rmd$

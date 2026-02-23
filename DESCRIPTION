@@ -12,7 +12,7 @@ Description: Implements the Panel Smooth Transition Regression (PSTR) framework 
     Parallel computation (as an option) is implemented in some functions, especially the bootstrap tests.
     The package supports parallel computation, which is useful for large-scale bootstrap procedures.
 Depends: R (>= 4.1.0)
-License: GPL-3 + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3

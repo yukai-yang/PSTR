@@ -5,9 +5,7 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PSTR)](https://cran.r-project.org/package=PSTR)
 ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR)
 ![](http://cranlogs.r-pkg.org/badges/PSTR)
-![](http://cranlogs.r-pkg.org/badges/last-week/PSTR)
-[![R-CMD-check](https://github.com/yourname/PSTR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yourname/PSTR/actions)
-[![License:
+![](http://cranlogs.r-pkg.org/badges/last-week/PSTR) [![License:
 GPL-3](https://img.shields.io/badge/License-GPL--3-blue.svg)](...)
 
 The PSTR package implements the Panel Smooth Transition Regression

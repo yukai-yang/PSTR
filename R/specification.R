@@ -16,11 +16,24 @@
 # gamma the smoothness parameter.
 # vc a vector of the location parameters, whose length is the number of switches in the transition function.
 # return If vx is a vector, then a scalor retured, otherwise a vector.
-fTF <- function(vx, gamma, vc)
-{
-  tmp = matrix(vx-vc, nrow=length(vc))
-  tmp = -apply(tmp,2,prod)*gamma
-  return(1 / ( exp(tmp) + 1 ))
+fTF <- function(vx, gamma, vc, clip = 35, eps_d = 1e-12) {
+  m <- length(vc)
+  if (m < 1L) stop("vc must have length >= 1.")
+  
+  d <- matrix(vx - vc, nrow = m)
+  
+  # protect near-zero differences
+  d <- sign(d) * pmax(abs(d), eps_d)
+  
+  # stable product: prod(d) = sign * exp(sum(log(abs(d))))
+  logabs <- log(abs(d))
+  sgn    <- apply(sign(d), 2L, prod)
+  p      <- sgn * exp(colSums(logabs))
+  
+  eta <- gamma * p
+  eta <- pmin(pmax(eta, -clip), clip)
+  
+  plogis(eta)
 }
  
 

@@ -11,24 +11,45 @@
 #	vs, vector of the transition variables
 #	vp, est. of nonlinear parameters, vp[1] gamma, otherwise c
 # output: matrix of derivatives, row=length
-DerGFunc <- function(vg,vs,vp)
-{
-  gamma = vp[1]; cc = vp[2:length(vp)]
-  tmp1 = vg * (1-vg)
-  tmp2 = matrix(vs, length(vs), length(cc))
-  tmp2 = t(tmp2) - cc
+DerGFunc <- function(vg, vs, vp, eps_g = 1e-12, eps_d = 1e-12) {
+  gamma <- vp[1]
+  cc <- vp[-1]
+  m <- length(cc)
+  n <- length(vs)
+  if (m < 1L) stop("Need at least one switch (length(cc) >= 1).")
   
-  ret = tmp1 * apply(tmp2,2,prod)
+  # clamp g away from 0/1
+  g <- pmin(pmax(vg, eps_g), 1 - eps_g)
+  tmp1 <- g * (1 - g)
   
-  ftmp <- function(iter){
-    tmp3 = tmp2; tmp3[iter,] = 1
-    return(- tmp1 * apply(tmp3,2,prod) * gamma)
-  }
+  # d_{j,t} = s_t - c_j, as m x n
+  d <- outer(cc, vs, FUN = function(cj, s) s - cj)
+  d <- sign(d) * pmax(abs(d), eps_d)
   
-  ret = cbind(ret, sapply(1:length(cc),ftmp))
-  return(ret)
+  # log-abs products for P and P_{-k}
+  logabs_d <- log(abs(d))
+  sign_d <- sign(d)
+  
+  # P = prod_j d_j
+  logabs_P <- colSums(logabs_d)
+  sign_P <- apply(sign_d, 2, prod)
+  P <- sign_P * exp(logabs_P)
+  
+  # P_{-k}: prod of all except k
+  # logabs_Pmink[k,] = logabs_P - logabs_d[k,]
+  logabs_Pmink <- matrix(logabs_P, nrow = m, ncol = n, byrow = TRUE) - logabs_d
+  sign_Pmink <- matrix(sign_P, nrow = m, ncol = n, byrow = TRUE) / sign_d
+  Pmink <- sign_Pmink * exp(logabs_Pmink)
+  
+  # Derivatives
+  # dg/dgamma = g(1-g) * P
+  dg_dgamma <- tmp1 * P
+  
+  # dg/dc_k = - g(1-g) * gamma * P_{-k}
+  dg_dck <- -tmp1 * gamma * t(Pmink)  # n x m
+  
+  cbind(dg_dgamma, dg_dck)
 }
-
 
 
 # compute the first and second order derivative of dg/dgamma, dg/dc
@@ -37,39 +58,106 @@ DerGFunc <- function(vg,vs,vp)
 #	vs, vector of the transition variables
 #	vp, est. of nonlinear parameters, vp[1] gamma, otherwise c
 # output: matrix of derivatives, row=length
-Der2GFunc <- function(vg,vs,vp)
-{
-  gamma = vp[1]; cc = vp[2:length(vp)]
-  tmp1 = vg * (1-vg) # g^2 * zeta
-  tmp2 = t(matrix(vs, length(vs), length(cc))) - cc # s - c
-  tmp3 = apply(tmp2,2,prod) # prod all
+Der2GFunc <- function(vg, vs, vp, eps_g = 1e-12, eps_d = 1e-12) {
+  gamma <- vp[1]
+  cc <- vp[-1]
+  m <- length(cc)
+  n <- length(vs)
+  if (m < 1L) stop("Need at least one switch (length(cc) >= 1).")
   
-  de1 = tmp1 * tmp3
+  # clamp g away from 0/1
+  g <- pmin(pmax(vg, eps_g), 1 - eps_g)
+  tmp1 <- g * (1 - g)
   
-  ftmp <- function(iter){
-    tmp = tmp2; tmp[iter,] = 1
-    return(apply(tmp,2,prod))
+  # d_{j,t} = s_t - c_j, as m x n, protected
+  d <- outer(cc, vs, FUN = function(cj, s) s - cj)
+  d <- sign(d) * pmax(abs(d), eps_d)
+  
+  logabs_d <- log(abs(d))
+  sign_d <- sign(d)
+  
+  # P and P_{-k}
+  logabs_P <- colSums(logabs_d)
+  sign_P <- apply(sign_d, 2, prod)
+  P <- sign_P * exp(logabs_P)
+  
+  logabs_Pmink <- matrix(logabs_P, nrow = m, ncol = n, byrow = TRUE) - logabs_d
+  sign_Pmink <- matrix(sign_P, nrow = m, ncol = n, byrow = TRUE) / sign_d
+  Pmink <- sign_Pmink * exp(logabs_Pmink)  # m x n
+  
+  # First derivatives: de1 columns are (gamma, c1..cm)
+  de1_gamma <- tmp1 * P
+  de1_c <- -tmp1 * gamma * t(Pmink)   # n x m
+  de1 <- cbind(de1_gamma, de1_c)      # n x (1+m)
+  
+  # Helpful factor: d/dx logistic = tmp1, d2/dx2 logistic = tmp1*(1-2g)
+  # where x = gamma * P, and P depends on c's but not gamma.
+  d2sig_dx2 <- tmp1 * (1 - 2 * g)
+  
+  # Second derivatives in the same packed order you used:
+  # 1) d2g/dgamma2
+  d2_gammagamma <- d2sig_dx2 * (P^2)
+  
+  # 2) d2g/dgamma d c_k
+  # x = gamma P
+  # dx/dgamma = P
+  # dx/dc_k = -gamma P_{-k}
+  # d2x/(dgamma dc_k) = d/dc_k(P) = -P_{-k}
+  # So:
+  # d2g/(dgamma dc_k) = d2sig_dx2 * (dx/dgamma)(dx/dc_k) + dsig_dx * d2x/(dgamma dc_k)
+  #                   = d2sig_dx2 * (P)(-gamma P_{-k}) + tmp1 * (-P_{-k})
+  #                   = -(gamma d2sig_dx2 * P * P_{-k} + tmp1 * P_{-k})
+  d2_gammack <- matrix(0, nrow = n, ncol = m)
+  for (k in 1:m) {
+    Pk <- Pmink[k, ]  # length n
+    d2_gammack[, k] <- -(gamma * d2sig_dx2 * P * Pk + tmp1 * Pk)
   }
-  tmp4 = sapply(1:length(cc),ftmp) # prod without k
-  tmp4c = c(tmp4) # vector version of tmp4
   
-  de1 = cbind(de1, - tmp1 * tmp4c * gamma) # columns are the parameters
+  # 3) d2g/dc_k dc_l (half vectorisation: k=1..m, l=k..m)
+  # dx/dc_k = -gamma P_{-k}
+  # d2x/dc_k^2 = gamma * d/dc_k(P_{-k})
+  # but P_{-k} = prod_{j!=k}(s-c_j), so derivative wrt c_k is 0
+  # hence d2x/dc_k^2 = 0
+  # For k != l: d2x/(dc_k dc_l) = gamma * P_{-k,-l}
+  # because derivative of P_{-k} wrt c_l gives -P_{-k,-l}, and there is a minus already: d/dc_l(-gamma P_{-k}) = gamma P_{-k,-l}
+  #
+  # Then:
+  # if k==l:
+  # d2g/dc_k^2 = d2sig_dx2 * (dx/dc_k)^2 + tmp1 * d2x/dc_k^2
+  #           = d2sig_dx2 * (gamma^2 P_{-k}^2)
+  #
+  # if k!=l:
+  # d2g/(dc_k dc_l) = d2sig_dx2 * (dx/dc_k)(dx/dc_l) + tmp1 * d2x/(dc_k dc_l)
+  #                 = d2sig_dx2 * (gamma^2 P_{-k} P_{-l}) + tmp1 * (gamma P_{-k,-l})
   
-  de2 = de1[,1] * (1-2*vg) * tmp3 # d^2 g / d gamma^2
-  
-  # d^2 g / d gamma d c
-  de2 = cbind(de2, 2*(1-vg) * de1[,2:ncol(de1)] * tmp3 + tmp1 * tmp3 * gamma * tmp4c - tmp1 * tmp4c)
-  
-  # d^2 g / dc dc' vec half
-  for(iter in 2:ncol(de1)){
-    de2 = cbind(de2, (2*vg-1) * de1[,iter] * gamma * tmp4[,iter-1]) # d^2 g / d c^2
-    if(iter<ncol(de1)) for(jter in (iter+1):ncol(de1)){
-      de2 = cbind(de2,-2*(1-vg)*de1[,jter]*gamma*tmp4[,iter-1]+de1[,iter]*gamma*tmp4[,jter-1]+(1-vg)*gamma*tmp4[,iter-1]/tmp2[jter-1,])
+  # Precompute P_{-k,-l} safely using log products, no division.
+  # For each pair (k,l), logabs = logabs_P - logabs_d[k] - logabs_d[l]
+  # sign = sign_P / (sign_d[k]*sign_d[l])
+  de2_cc_half <- list()
+  for (k in 1:m) {
+    for (l in k:m) {
+      if (k == l) {
+        Pk <- Pmink[k, ]
+        de2_cc_half[[length(de2_cc_half) + 1L]] <- d2sig_dx2 * (gamma^2) * (Pk^2)
+      } else {
+        logabs_Pminkl <- logabs_P - logabs_d[k, ] - logabs_d[l, ]
+        sign_Pminkl <- sign_P / (sign_d[k, ] * sign_d[l, ])
+        Pminkl <- sign_Pminkl * exp(logabs_Pminkl)
+        
+        Pk <- Pmink[k, ]
+        Pl <- Pmink[l, ]
+        de2_cc_half[[length(de2_cc_half) + 1L]] <-
+          d2sig_dx2 * (gamma^2) * (Pk * Pl) + tmp1 * gamma * Pminkl
+      }
     }
   }
+  de2_cc_half <- do.call(cbind, de2_cc_half)  # n x (m(m+1)/2)
   
-  ret = list(de1=de1,de2=de2)
-  return(ret)
+  # Now pack de2 exactly as your downstream code expects:
+  # [ gammagamma | (gamma,c1..cm) | cc_half ]
+  de2 <- cbind(d2_gammagamma, d2_gammack, de2_cc_half)
+  
+  list(de1 = de1, de2 = de2)
 }
 
 

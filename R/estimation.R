@@ -290,6 +290,9 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
       sum(vE*vE) / iT / iN
     }
     
+    if(!useDelta && !is.null(par) && par[1] <= 0)
+      stop("When useDelta = FALSE, par[1] is gamma and must be > 0.")
+    
     if(is.null(par)){
       useDelta <- TRUE
       tmp <- unname(quantile(vQ, (1:im) / (im+1)))

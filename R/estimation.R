@@ -197,7 +197,7 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
       mXX <- mK * vg
       aXX <- array(c(mXX), dim=c(iT,iN,ik))
       mXXb <- cbind(mXb, matrix(c(apply(aXX, c(2,3), ftmp)), iT*iN, ik))
-      tmp <- chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb
+      tmp <- qr.solve(mXXb, vYb)
       vE <- c(vYb - mXXb %*% tmp)
       sum(vE*vE) / iT / iN
     }
@@ -231,7 +231,7 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
     aXX <- array(c(mXX), dim=c(iT,iN,ik))
     mXXb <- cbind(mXb, matrix(c(apply(aXX, c(2,3), ftmp)), iT*iN, ik))
     
-    tmp <- chol2inv(chol(t(mXXb)%*%mXXb)) %*% t(mXXb) %*% vYb
+    tmp <- qr.solve(mXXb, vYb)
     self$beta <- c(tmp)
     names(self$beta) <- c(paste0(private$mX_name,'_0'),
                              paste0(private$mK_name,'_1'))
@@ -324,7 +324,7 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
     
   } else {
     
-    tmp <- chol2inv(chol(t(mXb)%*%mXb)) %*% t(mXb) %*% vYb
+    tmp <- qr.solve(mXb, vYb)
     
     self$beta <- c(tmp)
     names(self$beta) <- private$mX_name

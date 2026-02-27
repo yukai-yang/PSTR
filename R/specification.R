@@ -196,7 +196,7 @@ PSTR$set("public", "LinTest", function(){
   mM = diag(1, iN*iT) - tcrossprod(mD)/iT
   
   mX2 = mM %*% mX; invXX = chol2inv(chol(crossprod(mX2)))
-  tmp = chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb,vYb)
+  tmp = qr.solve(mXb, vYb)
   vU = matrix(c(vY-mX%*%tmp), iT, iN)
   vU = c(t(t(vU)-apply(t(vU), 1, mean)))
   s2 = sum((vU-mean(vU))**2)/(iT*iN) # sigma^2
@@ -219,7 +219,7 @@ PSTR$set("public", "LinTest", function(){
         tmp = coln==nter; mXKb = rbind(mXKb, t(t(mW[tmp,])-apply(t(mW[tmp,]),1,mean)))
       }
       mXKb = cbind(mXb, mXKb)
-      tmp = chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb,vYb)
+      tmp = qr.solve(mXKb, vYb)
       vUK = matrix(c(vY-mXK%*%tmp), iT, iN)
       vUK = c(t(t(vUK)-apply(t(vUK), 1, mean)))
       s2K = sum((vUK-mean(vUK))**2)/(iT*iN) # sigma^2
@@ -288,7 +288,7 @@ PSTR$set("public", "WCB_LinTest", function(iB = 100, parallel = FALSE, cpus = 2)
   self$wcb_test <- vector("list", ncol(private$mQ))
   self$wcb_sqtest <- vector("list", ncol(private$mQ))
   
-  beta <- chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb, vYb)
+  beta <- qr.solve(mXb, vYb)
   vU <- matrix(vY - mX %*% beta, iT, iN)
   mu <- apply(vU, 2, mean)
   vU <- c(t(t(vU) - mu))
@@ -306,7 +306,7 @@ PSTR$set("public", "WCB_LinTest", function(iB = 100, parallel = FALSE, cpus = 2)
     ve <- sample(c(1, -1), iT * iN, replace = TRUE) * vU
     my <- matrix(eY + ve, iT, iN)
     vyb <- c(t(t(my) - apply(my, 2, mean)))
-    tmp <- chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb, vyb)
+    tmp <- qr.solve(mXb, vyb)
     vu <- matrix(c(c(my) - mX %*% tmp), iT, iN)
     vu <- c(t(t(vu) - apply(vu, 2, mean)))
     ss <- sum((vu - mean(vu))^2) / (iT * iN)
@@ -317,7 +317,7 @@ PSTR$set("public", "WCB_LinTest", function(iB = 100, parallel = FALSE, cpus = 2)
     ve <- c(t(matrix(sample(c(1, -1), iN, replace = TRUE), iN, iT))) * vU
     my <- matrix(eY + ve, iT, iN)
     vyb <- c(t(t(my) - apply(my, 2, mean)))
-    tmp <- chol2inv(chol(crossprod(mXb))) %*% crossprod(mXb, vyb)
+    tmp <- qr.solve(mXb, vyb)
     vu <- matrix(c(c(my) - mX %*% tmp), iT, iN)
     vu <- c(t(t(vu) - apply(vu, 2, mean)))
     ss <- sum((vu - mean(vu))^2) / (iT * iN)
@@ -328,7 +328,7 @@ PSTR$set("public", "WCB_LinTest", function(iB = 100, parallel = FALSE, cpus = 2)
     ve <- sample(c(1, -1), iT * iN, replace = TRUE) * vUK
     my <- matrix(eYK + ve, iT, iN)
     vyb <- c(t(t(my) - apply(my, 2, mean)))
-    tmp <- chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb, vyb)
+    tmp <- qr.solve(mXKb, vyb)
     vu <- matrix(c(c(my) - mXK %*% tmp), iT, iN)
     vu <- c(t(t(vu) - apply(vu, 2, mean)))
     ss <- sum((vu - mean(vu))^2) / (iT * iN)
@@ -339,7 +339,7 @@ PSTR$set("public", "WCB_LinTest", function(iB = 100, parallel = FALSE, cpus = 2)
     ve <- c(t(matrix(sample(c(1, -1), iN, replace = TRUE), iN, iT))) * vUK
     my <- matrix(eYK + ve, iT, iN)
     vyb <- c(t(t(my) - apply(my, 2, mean)))
-    tmp <- chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb, vyb)
+    tmp <- qr.solve(mXKb, vyb)
     vu <- matrix(c(c(my) - mXK %*% tmp), iT, iN)
     vu <- c(t(t(vu) - apply(vu, 2, mean)))
     ss <- sum((vu - mean(vu))^2) / (iT * iN)
@@ -372,7 +372,7 @@ PSTR$set("public", "WCB_LinTest", function(iB = 100, parallel = FALSE, cpus = 2)
       }
       mXKb <- cbind(mXb, mXKb)
       
-      tmp <- chol2inv(chol(crossprod(mXKb))) %*% crossprod(mXKb, vYb)
+      tmp <- qr.solve(mXKb, vYb)
       vUK <- matrix(c(vY - mXK %*% tmp), iT, iN)
       muK <- apply(vUK, 2, mean)
       vUK <- c(t(t(vUK) - muK))

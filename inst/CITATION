@@ -12,7 +12,7 @@ bibentry(
     comment = c(ORCID = "0000-0002-2623-8549")
   ),
   year  = "2017",
-  note  = "R package version 2.0.0 (CRAN release 2026-02-27).",
+  note  = "R package version 2.0.0 (CRAN release 2026-02-27)",
   doi   = "10.32614/CRAN.package.PSTR",
   url   = "https://CRAN.R-project.org/package=PSTR"
 )

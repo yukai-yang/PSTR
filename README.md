@@ -552,9 +552,10 @@ software implementation and the underlying methodology.
 
 **Software**
 
-Yang, Y. (2026). PSTR: Panel Smooth Transition Regression Modelling. R
-package version 2.0.0 (first released in 2017). Available at:
-<https://github.com/yukai-yang/PSTR>
+Yang, Y. (2017). PSTR: Panel Smooth Transition Regression Modelling. R
+package version 2.0.0 (CRAN release 2026-02-27). Comprehensive R Archive
+Network (CRAN). <https://CRAN.R-project.org/package=PSTR>
+<https://doi.org/10.32614/CRAN.package.PSTR>
 
 **Methodology**
 
@@ -571,9 +572,11 @@ citation("PSTR")
 #> To cite the PSTR package or its underlying methodology, please use the
 #> following references:
 #> 
-#>   Yang Y (2026). _PSTR: Panel Smooth Transition Regression Modelling_.
-#>   R package version 2.0.0 (first released in 2017),
-#>   <https://github.com/yukai-yang/PSTR>.
+#>   Yang Y (2017). _PSTR: Panel Smooth Transition Regression Modelling_.
+#>   doi:10.32614/CRAN.package.PSTR
+#>   <https://doi.org/10.32614/CRAN.package.PSTR>, R package version 2.0.0
+#>   (CRAN release 2026-02-27).,
+#>   <https://CRAN.R-project.org/package=PSTR>.
 #> 
 #>   González A, Teräsvirta T, van Dijk D, Yang Y (2005). "Panel Smooth
 #>   Transition Regression Models." Technical Report 604, Stockholm School

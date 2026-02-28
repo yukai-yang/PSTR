@@ -4,14 +4,19 @@ citHeader("To cite the PSTR package or its underlying methodology, please use th
 bibentry(
   bibtype = "Manual",
   title = "PSTR: Panel Smooth Transition Regression Modelling",
-  author = person(given = "Yukai", family = "Yang",
-                  email = "yukai.yang@statistik.uu.se",
-                  role = c("aut", "cre"),
-                  comment = c(ORCID = "0000-0002-2623-8549")),
-  year = "2026",
-  note = "R package version 2.0.0 (first released in 2017)",
-  url = "https://github.com/yukai-yang/PSTR"
+  author = person(
+    given  = "Yukai",
+    family = "Yang",
+    email  = "yukai.yang@statistik.uu.se",
+    role   = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-2623-8549")
+  ),
+  year  = "2017",
+  note  = "R package version 2.0.0 (CRAN release 2026-02-27).",
+  doi   = "10.32614/CRAN.package.PSTR",
+  url   = "https://CRAN.R-project.org/package=PSTR"
 )
+
 
 # working paper
 bibentry(

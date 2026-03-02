@@ -30,3 +30,11 @@ ret
 pstr0 = pstr$clone()
 EstPSTR(use=pstr0)
 print(pstr0, mode="estimates")
+
+#######
+
+pstr = NewPSTR(Hansen99, dep = 'inva', indep = c(4:16, 17:20), indep_k = c('vala'),
+  tvars = c('vala'), im = 1, iT = 14)
+
+LinTest(pstr) 
+print(pstr, mode="tests")

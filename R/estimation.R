@@ -336,59 +336,109 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
     self$s2 <- c(self$vU %*% self$vU) / (iT*iN)
     
     # computing standard errors
-    tg <- Der2GFunc(vg=vg, vs=vQ, vp=c(self$gamma, self$c))
-    de1 <- tg$de1
-    de2 <- tg$de2
+    # NOTE: optimisation is in (delta, c), but Der2GFunc returns derivatives in (gamma, c).
+    # We convert derivatives to (delta, c) via chain rule, then delta-method the covariance
+    # back to (beta, gamma, c) for output.
     
-    beta1 <- self$beta[(ncol(mX)+1):length(self$beta)]
+    tg <- Der2GFunc(vg = vg, vs = vQ, vp = c(self$gamma, self$c))
+    de1_g <- tg$de1     # n x (1+im), columns: (gamma, c1..cm)
+    de2_g <- tg$de2     # n x (1+im + im(im+1)/2), packed: [gg | g,c | cc_half]
+    
+    n  <- length(vQ)
+    m  <- im
+    gam <- self$gamma
+    
+    # ---- Convert first derivatives to (delta, c) ----
+    # dg/ddelta = dg/dgamma * dgamma/ddelta = dg/dgamma * gamma
+    de1_delta <- de1_g[, 1] * gam
+    de1_c     <- de1_g[, -1, drop = FALSE]
+    de1 <- cbind(de1_delta, de1_c)   # n x (1+im), columns: (delta, c1..cm)
+    
+    # ---- Convert second derivatives to (delta, c) in the SAME packing order ----
+    # Mapping:
+    # g_{delta,delta} = g_{gamma,gamma}*gamma^2 + g_{gamma}*gamma
+    # g_{delta,c_k}   = g_{gamma,c_k}*gamma
+    # g_{c_k,c_l}     = unchanged
+    #
+    # de2_g columns are: [1] gg, [2..(1+m)] g,c_k, [rest] cc_half
+    
+    d2_gg     <- de2_g[, 1]
+    d2_g_ck   <- de2_g[, 2:(1 + m), drop = FALSE]
+    d2_cc_half <- de2_g[, (2 + m):ncol(de2_g), drop = FALSE]
+    
+    d2_deltadelta <- d2_gg * (gam^2) + de1_g[, 1] * gam
+    d2_deltack    <- d2_g_ck * gam
+    
+    de2 <- cbind(d2_deltadelta, d2_deltack, d2_cc_half)
+    # de2 now packed as: [deltadelta | delta,c1..cm | cc_half]
+    # which matches your downstream tcnt loop structure.
+    
+    beta1 <- self$beta[(ncol(mX) + 1):length(self$beta)]
     
     dedp <- -mXXb
-    d2edp2 <- array(0, dim=c(iT*iN, length(self$beta)+1+im, length(self$beta)+1+im))
+    d2edp2 <- array(0, dim = c(iT * iN,
+                               length(self$beta) + 1 + im,
+                               length(self$beta) + 1 + im))
     
     tcnt <- 1
-    for(iter in 1:ncol(de1)){
-      mKK <- mK * de1[,iter]
-      aKK <- array(c(mKK), dim=c(iT,iN,ik))
-      mKK <- matrix(c(apply(aKK, c(2,3), ftmp)), iT*iN, ik)
+    for (iter in 1:ncol(de1)) {
+      
+      mKK <- mK * de1[, iter]
+      aKK <- array(c(mKK), dim = c(iT, iN, ik))
+      mKK <- matrix(c(apply(aKK, c(2, 3), ftmp)), iT * iN, ik)
       
       dedp <- cbind(dedp, -mKK %*% beta1)
       
-      d2edp2[,(ncol(mX)+1):length(self$beta), length(self$beta)+iter] <- -mKK
-      d2edp2[, length(self$beta)+iter, (ncol(mX)+1):length(self$beta)] <- -mKK
+      d2edp2[, (ncol(mX) + 1):length(self$beta), length(self$beta) + iter] <- -mKK
+      d2edp2[, length(self$beta) + iter, (ncol(mX) + 1):length(self$beta)] <- -mKK
       
-      for(jter in iter:ncol(de1)){
-        mKK <- mK * de2[,tcnt]
-        aKK <- array(c(mKK), dim=c(iT,iN,ik))
-        mKK <- matrix(c(apply(aKK, c(2,3), ftmp)), iT*iN, ik)
+      for (jter in iter:ncol(de1)) {
         
-        d2edp2[, length(self$beta)+iter, length(self$beta)+jter] <- -mKK %*% beta1
-        d2edp2[, length(self$beta)+jter, length(self$beta)+iter] <- -mKK %*% beta1
+        mKK <- mK * de2[, tcnt]
+        aKK <- array(c(mKK), dim = c(iT, iN, ik))
+        mKK <- matrix(c(apply(aKK, c(2, 3), ftmp)), iT * iN, ik)
+        
+        d2edp2[, length(self$beta) + iter, length(self$beta) + jter] <- -mKK %*% beta1
+        d2edp2[, length(self$beta) + jter, length(self$beta) + iter] <- -mKK %*% beta1
         tcnt <- tcnt + 1
       }
     }
     
     mh <- 2 * self$vU * dedp
-    ah <- array(c(mh), dim=c(iT,iN,ncol(dedp)))
-    hi <- matrix(c(apply(ah, c(2,3), sum)), iN, ncol(dedp))
+    ah <- array(c(mh), dim = c(iT, iN, ncol(dedp)))
+    hi <- matrix(c(apply(ah, c(2, 3), sum)), iN, ncol(dedp))
     
     mB <- 0
-    for(iter in 1:iN) mB <- mB + hi[iter,] %*% t(hi[iter,])
+    for (iter in 1:iN) mB <- mB + hi[iter, ] %*% t(hi[iter, ])
     
     invA <- 0
-    for(iter in 1:(iT*iN))
-      invA <- invA + (dedp[iter,] %*% t(dedp[iter,]) + d2edp2[iter,,] * self$vU[iter]) * 2
+    for (iter in 1:(iT * iN))
+      invA <- invA + (dedp[iter, ] %*% t(dedp[iter, ]) + d2edp2[iter, , ] * self$vU[iter]) * 2
     
-    ttmp <- try(solve(invA), silent=TRUE)
-    if(inherits(ttmp, 'try-error')){
+    ttmp <- try(solve(invA), silent = TRUE)
+    if (inherits(ttmp, "try-error")) {
       s <- svd(invA)
-      invA <- s$u %*% diag(1/s$d) %*% t(s$u)
+      invA <- s$u %*% diag(1 / s$d) %*% t(s$u)
     } else {
       invA <- ttmp
     }
     
-    self$cov <- invA %*% mB %*% t(invA)
+    # cov_theta is covariance for parameters (beta, delta, c)
+    cov_theta <- invA %*% mB %*% t(invA)
+    
+    # ---- Delta method: transform cov from (beta, delta, c) to (beta, gamma, c) ----
+    # gamma = exp(delta), so dgamma/ddelta = gamma
+    p <- length(self$beta) + 1 + im
+    J <- diag(p)
+    idx_delta <- length(self$beta) + 1
+    idx_gamma <- idx_delta  # same position in the output vector
+    J[idx_gamma, idx_delta] <- gam
+    
+    cov_phi <- J %*% cov_theta %*% t(J)
+    
+    self$cov <- cov_phi
     self$se <- sqrt(diag(self$cov))
-    names(self$se) <- c(names(self$beta), 'gamma', paste0('c_', 1:im))
+    names(self$se) <- c(names(self$beta), "gamma", paste0("c_", 1:im))
     
     self$est <- c(self$beta, self$gamma, self$c)
     names(self$est) <- names(self$se)

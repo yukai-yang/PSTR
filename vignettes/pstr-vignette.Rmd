@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 
 
-# PSTR version 2.0.0 (Green Panel)
+# PSTR version 2.1.0 (Green Panel)
 
 The PSTR package implements the Panel Smooth Transition Regression (PSTR) modelling.
 

@@ -14,7 +14,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-# PSTR 2.0.0 'Green Panel'
+# PSTR 2.1.0 'Green Panel'
+
+
+
+# New Features in PSTR 2.0.0 'Green Panel'
 
 ## Breaking changes
 

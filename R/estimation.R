@@ -492,10 +492,15 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
     for(iter in 1:(iT*iN))
       invA <- invA + dedp[iter,] %*% t(dedp[iter,]) * 2
     
-    ttmp <- try(solve(invA), silent=TRUE)
-    if(inherits(ttmp, 'try-error')){
+    ttmp <- try(solve(invA), silent = TRUE)
+    if (inherits(ttmp, "try-error")) {
       s <- svd(invA)
-      invA <- s$u %*% diag(1/s$d) %*% t(s$u)
+      
+      # Truncated SVD pseudo-inverse for numerical stability
+      tol <- max(dim(invA)) * .Machine$double.eps * max(s$d)
+      dinv <- ifelse(s$d > tol, 1 / s$d, 0)
+      
+      invA <- s$u %*% diag(dinv, nrow = length(dinv)) %*% t(s$u)
     } else {
       invA <- ttmp
     }

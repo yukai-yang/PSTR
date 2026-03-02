@@ -281,7 +281,10 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
     
     ResiduleSumSquare <- function(vp){
       # vp[1] = log(gamma) or delta
-      vg <- fTF(vx=mQ, gamma=exp(vp[1]), vc=vp[2:length(vp)])
+      # vg <- fTF(vx=mQ, gamma=exp(vp[1]), vc=vp[2:length(vp)])
+      cc <- sort(vp[2:length(vp)])
+      vg <- fTF(vx=mQ, gamma=exp(vp[1]), vc=cc)
+      
       mXX <- mK * vg
       aXX <- array(c(mXX), dim=c(iT,iN,ik))
       mXXb <- cbind(mXb, matrix(c(apply(aXX, c(2,3), ftmp)), iT*iN, ik))
@@ -312,7 +315,8 @@ PSTR$set("public", "EstPSTR", function(im=1, iq=NULL, par=NULL, useDelta=FALSE, 
     # return value (store to private)
     self$delta <- opt$par[1]
     self$gamma <- exp(self$delta)
-    self$c <- opt$par[2:length(opt$par)]
+    # self$c <- opt$par[2:length(opt$par)]
+    self$c <- sort(opt$par[2:length(opt$par)])
     private$convergence <- opt$convergence
     
     vg <- fTF(vx=mQ, gamma=self$gamma, vc=self$c) # g_it

@@ -160,26 +160,19 @@ PSTR$set("public", "WCB_TVTest", function(iB = 100, parallel = FALSE, cpus = 4) 
     stop(simpleError("Estimate the PSTR model first!"))
   }
   
-  # snowfall is only needed when parallel = TRUE
-  if (parallel) {
-    if (!requireNamespace("snowfall", quietly = TRUE)) {
-      stop(
-        "Parallel bootstrap requires the 'snowfall' package. ",
-        "Please install it via install.packages('snowfall').",
-        call. = FALSE
-      )
-    }
-  }
-  
-  # helper: run bootstrap either in parallel (snowfall) or serial (base sapply)
+  # helper: run bootstrap either in parallel (future.apply) or serial (base sapply)
   .run_boot <- function(FUN) {
-    if (parallel) {
-      snowfall::sfInit(parallel = TRUE, cpus = cpus)
-      on.exit(snowfall::sfStop(), add = TRUE)
-      snowfall::sfSapply(1:iB, FUN)
-    } else {
-      sapply(1:iB, FUN)
+    if (!parallel) {
+      return(sapply(1:iB, FUN))
     }
+    .pstr_vapply(
+      X = seq_len(iB),
+      FUN = FUN,
+      FUN.VALUE = numeric(1),
+      parallel = TRUE,
+      workers = cpus,
+      seed = TRUE
+    )
   }
   
   # IMPORTANT: use a deep clone so we don't overwrite the original object

@@ -265,30 +265,30 @@ LinTest <- function(use)
 
 PSTR$set("public", "WCB_LinTest", function(iB = 100, parallel = FALSE, cpus = 2) {
   
-  # snowfall is only needed when parallel = TRUE
-  if (parallel) {
-    if (!requireNamespace("snowfall", quietly = TRUE)) {
-      stop(
-        "Parallel bootstrap requires the 'snowfall' package. ",
-        "Please install it via install.packages('snowfall').",
-        call. = FALSE
-      )
-    }
-  }
-  
   iT <- private$iT
   iN <- private$iN
   im <- private$im
   
-  # helper: run bootstrap either in parallel (snowfall) or serial (base sapply)
+  # Helper: run bootstrap replications either serially or via future.apply.
+  #
+  # Important:
+  # - We keep the behaviour identical to the old code:
+  #     * serial branch returns sapply(1:iB, FUN) (a numeric vector)
+  #     * parallel branch returns the same shape/type (numeric vector)
+  # - In parallel mode we rely on .pstr_vapply() (defined in parallel.R),
+  #   which uses future.apply::future_lapply() internally.
   .run_boot <- function(FUN) {
-    if (parallel) {
-      snowfall::sfInit(parallel = TRUE, cpus = cpus)
-      on.exit(snowfall::sfStop(), add = TRUE)
-      snowfall::sfSapply(1:iB, FUN)
-    } else {
-      sapply(1:iB, FUN)
+    if (!parallel) {
+      return(sapply(1:iB, FUN))
     }
+    .pstr_vapply(
+      X = seq_len(iB),
+      FUN = FUN,
+      FUN.VALUE = numeric(1),
+      parallel = TRUE,
+      workers = cpus,
+      seed = TRUE
+    )
   }
   
   # get the data here

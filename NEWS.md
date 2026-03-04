@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# New Features in PSTR 2.0.0 ‘Green Panel’
+# New Features in PSTR 2.1.0 ‘Green Panel’
 
 ## New features
 

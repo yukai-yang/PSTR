@@ -1,5 +1,5 @@
-# delete this file when the package is ok.
-library(PSTR)
+devtools::load_all()
+data("Hansen99", package = "PSTR")
 
 pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa','sales'),
                tvars=c('vala'), im=1, iT=14)

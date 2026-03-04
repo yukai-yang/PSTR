@@ -14,8 +14,23 @@ knitr::opts_chunk$set(
 )
 ```
 
-# PSTR 2.1.0 'Green Panel'
+# New Features in PSTR 2.0.0 'Green Panel'
 
+## New features
+
+* Parallel bootstrap support is migrated from snowfall to future/future.apply for cross-platform execution.
+* Internal parallel helpers are added to provide a unified serial/parallel apply interface with reproducible seeding.
+
+## Improvements
+
+* Bootstrap routines are reorganised to rely on the internal parallel helpers, reducing duplicated backend-specific code.
+* Better safeguards are added for common parallel misconfiguration (for example invalid cpus/workers inputs and oversized exported globals).
+* Minor refinements to messages and documentation to reflect the new parallel backend and recommended usage.
+
+## Bug fixes
+
+* Minor robustness fixes in numerical routines and near-singular inversion fallbacks (SVD-based pseudoinverse handling).
+* Documentation and examples updated to match the refactored interfaces and internal naming.
 
 
 # New Features in PSTR 2.0.0 'Green Panel'

@@ -30,22 +30,19 @@ running many cores on super-computation servers.
 
 ## How to install
 
-<!--
 You can either install the stable version from CRAN
 
 ``` r
 install.packages("PSTR")
 ```
-or install the development version from GitHub
--->
 
-You can install the package by running
+or install the development version from GitHub
 
 ``` r
 devtools::install_github("yukai-yang/PSTR")
 ```
 
-or You can install the package by running
+or
 
 ``` r
 remotes::install_github("yukai-yang/PSTR")

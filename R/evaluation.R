@@ -36,7 +36,7 @@
 #'   test. Required if \code{"heterogeneity"} is included in \code{type}, and required for
 #'   \code{WCB_HETest}.
 #' @param iB Integer. Number of bootstrap replications. Default is \code{100}.
-#' @param parallel Logical. Whether to use parallel computation (via the \pkg{snowfall} backend).
+#' @param parallel Logical. Whether to use parallel computation (via the \pkg{future}/\pkg{future.apply} backend).
 #' @param cpus Integer. Number of CPU cores used if \code{parallel = TRUE}.
 #'
 #' @return Invisibly returns \code{use} with evaluation results added.
@@ -69,15 +69,19 @@
 #' )
 #' print(pstr, mode = "evaluation")
 #'
-#' # bootstrap variants (requires snowfall)
-#' library(snowfall)
-#' pstr <- WCB_TVTest(
-#'     use = pstr, iB = 4,
-#'     parallel = TRUE, cpus = 2)
+#' # bootstrap variants (parallel via future/future.apply; can be slow)
+#'
+#' # optional: temporarily increase the maximum size of exported globals
+#' old_max <- getOption("PSTR.future.globals.maxSize")
+#' options(PSTR.future.globals.maxSize = 4 * 1024^3)  # 4 GB
+#' on.exit(options(PSTR.future.globals.maxSize = old_max), add = TRUE)
+#'
+#' pstr <- WCB_TVTest(use = pstr, iB = 4, parallel = TRUE, cpus = 2)
 #' pstr <- WCB_HETest(
-#'     use = pstr,
-#'     vq = as.matrix(Hansen99[,'vala'])[,1],
-#'     iB = 4, parallel = TRUE, cpus = 2)
+#'   use = pstr,
+#'   vq = as.matrix(Hansen99[, "vala"])[, 1],
+#'   iB = 4, parallel = TRUE, cpus = 2
+#' )
 #' print(pstr, mode = "evaluation")
 #' }
 #'

@@ -7,6 +7,7 @@
 ^_config\.yml$
 ^rmd_files$
 ^CODE_OF_CONDUCT\.md$
+^dev$
 ^NEWS\.Rmd$
 ^README\.Rmd$
 ^cran-comments\.md$

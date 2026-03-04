@@ -9,7 +9,10 @@ pstr
 LinTest(pstr)
 
 pstr$WCB_LinTest(iB = 20, parallel = FALSE)
+
+old_opt <- options(PSTR.future.globals.maxSize = 4 * 1024^3)
 pstr$WCB_LinTest(iB = 20, parallel = TRUE, cpus = 2)
+options(old_opt)
 
 print(pstr, mode="tests")
 
@@ -21,7 +24,17 @@ min(pstr$vg); max(pstr$vg)
 EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
 print(pstr, mode="estimates")
 
+WCB_TVTest(use=pstr,iB=10,parallel=F)
+WCB_HETest(use=pstr,vq=as.matrix(Hansen99[,'vala'])[,1],iB=10,parallel=F)
 
+old_opt <- options(PSTR.future.globals.maxSize = 4 * 1024^3)
+## wild bootstrap time-varying evaluation test 
+WCB_TVTest(use=pstr,iB=20,parallel=TRUE,cpus=2)
+## wild bootstrap heterogeneity evaluation test
+WCB_HETest(use=pstr,vq=as.matrix(Hansen99[,'vala'])[,1],iB=20,parallel=TRUE,cpus=2)
+options(old_opt)
+
+print(pstr, mode="evaluation")
 
 
 ret <- plot_target(obj = pstr, iq = 1, basedon = c(1, 2),

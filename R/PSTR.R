@@ -94,7 +94,7 @@ NULL
 #' @importFrom magrittr %>%
 NULL
 
-#' @importFrom tibble tibble
+#' @importFrom tibble tibble is_tibble as_tibble
 NULL
 
 #' @importFrom ggplot2 ggplot aes geom_point geom_rug geom_rect geom_line geom_hline facet_grid vars labs scale_x_log10 xlim ylim

@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# PSTR version 2.0.0 (Green Panel)
+# PSTR version 2.1.0 (Green Panel)
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PSTR)](https://cran.r-project.org/package=PSTR)
 ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR)
@@ -68,7 +68,7 @@ running
 
 ``` r
 version()
-#> PSTR version 2.0.0 (Green Panel)
+#> PSTR version 2.1.0 (Green Panel)
 ```
 
 Then you can take a look at all the available functions and data in the
@@ -102,7 +102,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
 #> ✔ The PSTR model is ready.
 pstr
 #> 
-#> ── R package PSTR 2.0.0 (Green Panel) ──────────────────────────────────────────
+#> ── R package PSTR 2.1.0 (Green Panel) ──────────────────────────────────────────
 #> 
 #> ── Summary of the model ──
 #> 
@@ -147,7 +147,7 @@ LinTest(pstr)
 #> ✔ Done!
 print(pstr, mode="tests")
 #> 
-#> ── R package PSTR 2.0.0 (Green Panel) ──────────────────────────────────────────
+#> ── R package PSTR 2.1.0 (Green Panel) ──────────────────────────────────────────
 #> 
 #> ── Results of the linearity (homogeneity) tests ──
 #> 
@@ -232,7 +232,7 @@ the method for estimation by doing
 EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
 print(pstr, mode="estimates")
 #> 
-#> ── R package PSTR 2.0.0 (Green Panel) ──────────────────────────────────────────
+#> ── R package PSTR 2.1.0 (Green Panel) ──────────────────────────────────────────
 #> 
 #> ── Results of the PSTR estimation: ──
 #> 
@@ -252,7 +252,7 @@ print(pstr, mode="estimates")
 #>             dt_80_0     dt_81_0     dt_82_0     dt_83_0      dt_84_0
 #> --------  ---------  ----------  ----------  ----------  -----------
 #> Est        0.006085   0.0004164   -0.007802   -0.014410   -0.0009146
-#> s.e.       0.002910   0.0029220    0.002609    0.002701    0.0030910
+#> s.e.       0.002909   0.0029230    0.002609    0.002701    0.0030910
 #> t-ratio    2.091000   0.1425000   -2.990000   -5.337000   -0.2959000
 #> 
 #> 
@@ -260,16 +260,16 @@ print(pstr, mode="estimates")
 #>             dt_85_0     dt_86_0     dt_87_0    vala_0    debta_0
 #> --------  ---------  ----------  ----------  --------  ---------
 #> Est        0.003467   -0.001591   -0.008606   0.11500   -0.03392
-#> s.e.       0.003232    0.003202    0.003133   0.04073    0.03319
-#> t-ratio    1.073000   -0.496900   -2.747000   2.82200   -1.02200
+#> s.e.       0.003232    0.003202    0.003133   0.04047    0.03320
+#> t-ratio    1.073000   -0.496900   -2.747000   2.84100   -1.02200
 #> 
 #> 
 #> 
 #>              cfa_0    sales_0
 #> --------  --------  ---------
 #> Est        0.10980   0.002978
-#> s.e.       0.04458   0.008221
-#> t-ratio    2.46400   0.362200
+#> s.e.       0.04431   0.008204
+#> t-ratio    2.47900   0.362900
 #> 
 #> ── Parameter estimates in the non-linear part
 #> 
@@ -277,8 +277,8 @@ print(pstr, mode="estimates")
 #>              vala_1   debta_1      cfa_1    sales_1
 #> --------  ---------  --------  ---------  ---------
 #> Est        -0.10370   0.02892   -0.08801   0.005945
-#> s.e.        0.03981   0.04891    0.05672   0.012140
-#> t-ratio    -2.60300   0.59140   -1.55200   0.489600
+#> s.e.        0.03956   0.04892    0.05639   0.012100
+#> t-ratio    -2.62000   0.59130   -1.56100   0.491200
 #> 
 #> ── Parameter estimates in the second extreme regime
 #> 
@@ -286,17 +286,17 @@ print(pstr, mode="estimates")
 #>            vala_{0+1}   debta_{0+1}   cfa_{0+1}   sales_{0+1}
 #> --------  -----------  ------------  ----------  ------------
 #> Est          0.011300      -0.00500     0.02183      0.008923
-#> s.e.         0.001976       0.01739     0.01885      0.004957
-#> t-ratio      5.718000      -0.28750     1.15800      1.800000
+#> s.e.         0.001974       0.01738     0.01882      0.004937
+#> t-ratio      5.722000      -0.28760     1.16000      1.807000
 #> 
 #> ── Non-linear parameter estimates
 #> 
 #> 
-#>             gamma          c_1
-#> --------  -------  -----------
-#> Est        0.6299   -0.0002008
-#> s.e.       0.1032    0.7252000
-#> t-ratio    6.1040   -0.0002769
+#>              gamma          c_1
+#> --------  --------  -----------
+#> Est        0.62990   -0.0002008
+#> s.e.       0.09942    0.7141000
+#> t-ratio    6.33600   -0.0002811
 #> ℹ Estimated standard deviation of the residuals is 0.04301.
 #> ℹ The specification results are ready, run `print(obj, mode="tests")` to show
 #>   the results.
@@ -322,7 +322,7 @@ implemented. The user can do it by simply running
 EstPSTR(use=pstr0)
 print(pstr0, mode="estimates")
 #> 
-#> ── R package PSTR 2.0.0 (Green Panel) ──────────────────────────────────────────
+#> ── R package PSTR 2.1.0 (Green Panel) ──────────────────────────────────────────
 #> 
 #> ── A linear panel regression with fixed effects is estimated. ──
 #> 

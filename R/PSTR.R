@@ -79,7 +79,7 @@
 "_PACKAGE"
 
 
-#' @importFrom stats optim pchisq pf quantile
+#' @importFrom stats optim pchisq pf quantile plogis
 NULL
 
 #' @importFrom R6 R6Class
@@ -94,7 +94,7 @@ NULL
 #' @importFrom magrittr %>%
 NULL
 
-#' @import tibble
+#' @importFrom tibble tibble
 NULL
 
 #' @importFrom ggplot2 ggplot aes geom_point geom_rug geom_rect geom_line geom_hline facet_grid vars labs scale_x_log10 xlim ylim

@@ -194,25 +194,34 @@ By doing so, the new PSTR object `pstr0` is an independent copy of the
 original object, and when you do something on either of the two objects
 (`pstr` or `pstr0`), the other one remains unchanged.
 
-You can do, for example, the wild bootstrap and wild cluster bootstrap
-by running the following code.
+You can, for example, run the wild bootstrap and the wild cluster
+bootstrap with parallel computation as follows.
 
 ``` r
-iB = 5000 # the number of repetitions in the bootstrap
-library(snowfall)
-WCB_LinTest(pstr,iB=iB,parallel=T,cpus=50)
+iB <- 5000  # number of bootstrap replications
+
+# Optional: increase the maximum size allowed for exported globals in parallel runs.
+# This can be helpful if your model matrices are large and you see an error such as
+# "the size of the globals ... exceeds future.globals.maxSize".
+options(PSTR.future.globals.maxSize = 4 * 1024^3)  # 4 GB
+
+WCB_LinTest(pstr, iB = iB, parallel = TRUE, cpus = 50)
 ```
 
-It takes a long long time to run the bootstrap. This function is
-developed for those who work on some super-computation server with many
-cores and a large memory. Note that you will have to attach the
-`snowfall` package manually.
+It can take a long time to run the bootstrap. This functionality is
+intended for users who run the package on machines with many cores and
+sufficient memory.
+
+Parallel execution is implemented via the future and `future.apply`
+backend. No manual cluster initialisation is required. The option
+`PSTR.future.globals.maxSize` controls the maximum total size of objects
+that may be exported to each parallel worker.
 
 You can try the following code on your own computer by reducing the
 number of repetitions and cores.
 
 ``` r
-WCB_LinTest(pstr,iB=4,parallel=T,cpus=2)
+WCB_LinTest(pstr, iB = 4, parallel = TRUE, cpus = 2)
 ```
 
 ### Estimation
@@ -387,10 +396,10 @@ iB = 5000
 cpus = 50
 
 ## wild bootstrap time-varying evaluation test 
-WCB_TVTest(use=pstr,iB=iB,parallel=T,cpus=cpus)
+WCB_TVTest(use=pstr,iB=iB,parallel=TRUE,cpus=cpus)
 
 ## wild bootstrap heterogeneity evaluation test
-WCB_HETest(use=pstr,vq=as.matrix(Hansen99[,'vala'])[,1],iB=iB,parallel=T,cpus=cpus)
+WCB_HETest(use=pstr,vq=as.matrix(Hansen99[,'vala'])[,1],iB=iB,parallel=TRUE,cpus=cpus)
 
 print(pstr, mode="evaluation")
 ```

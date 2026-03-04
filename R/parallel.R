@@ -91,16 +91,17 @@
   # --------------------------------------------------------------------------
   # "Fuse" for accidentally exporting huge objects (globals) to workers.
   #
-  # future inspects the closure and exports referenced objects to each worker.
-  # If a user accidentally captures something very large (e.g., the whole data
-  # tibble or a big R6 object), this can cause slowdowns or out-of-memory (OOM).
+  # Default is 1GB, but allow users to override via:
+  #   options(PSTR.future.globals.maxSize = <bytes>)
   #
-  # Setting a maximum size makes this fail early with a clear error, instead of
-  # crashing the session. You can adjust this value if you have a strong reason.
+  # We only increase the limit if the current future.globals.maxSize is smaller.
+  # We never reduce the user's existing limit.
   # --------------------------------------------------------------------------
+  maxSize <- getOption("PSTR.future.globals.maxSize", 1024^3)  # default 1GB
+  
   old_max <- getOption("future.globals.maxSize")
-  if (is.null(old_max) || old_max < 1024^3) {
-    old_opt <- options(future.globals.maxSize = 1024^3)  # 1 GB
+  if (is.null(old_max) || old_max < maxSize) {
+    old_opt <- options(future.globals.maxSize = maxSize)
     on.exit(options(old_opt), add = TRUE)
   }
   

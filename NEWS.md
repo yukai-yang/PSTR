@@ -4,26 +4,30 @@
 
 ## New features
 
-- Parallel bootstrap support is migrated from snowfall to
-  future/future.apply for cross-platform execution.
-- Internal parallel helpers are added to provide a unified
-  serial/parallel apply interface with reproducible seeding.
+- Parallel bootstrap support is migrated from the snowfall backend to
+  the future and future.apply frameworks, enabling cross-platform
+  parallel execution.
+- Internal parallel helper functions are introduced to provide a unified
+  interface for serial and parallel evaluation.
 
 ## Improvements
 
-- Bootstrap routines are reorganised to rely on the internal parallel
-  helpers, reducing duplicated backend-specific code.
-- Better safeguards are added for common parallel misconfiguration (for
-  example invalid cpus/workers inputs and oversized exported globals).
-- Minor refinements to messages and documentation to reflect the new
-  parallel backend and recommended usage.
+- Bootstrap routines are refactored to use the new internal parallel
+  helpers, simplifying the code base and removing backend-specific
+  logic.
+- Additional safeguards are implemented for parallel execution,
+  including validation of the number of workers and protection against
+  exporting excessively large globals.
+- Documentation and examples are updated to reflect the new parallel
+  infrastructure.
 
 ## Bug fixes
 
-- Minor robustness fixes in numerical routines and near-singular
-  inversion fallbacks (SVD-based pseudoinverse handling).
-- Documentation and examples updated to match the refactored interfaces
-  and internal naming.
+- Minor robustness improvements in numerical routines, including safer
+  handling of near-singular matrix inversion using an SVD-based
+  pseudoinverse.
+- Small fixes and consistency improvements across internal helper
+  functions.
 
 # New Features in PSTR 2.0.0 ‘Green Panel’
 

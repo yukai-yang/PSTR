@@ -6,7 +6,11 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
 
 pstr
 
-LinTest(pstr) 
+LinTest(pstr)
+
+pstr$WCB_LinTest(iB = 20, parallel = FALSE)
+pstr$WCB_LinTest(iB = 20, parallel = TRUE, cpus = 2)
+
 print(pstr, mode="tests")
 
 EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-.57,-1.2), vLower=4, vUpper=4)

@@ -82,10 +82,10 @@ print(pstr, mode = "evaluation")
 
 # bootstrap variants (parallel via future/future.apply; can be slow)
 
-# optional: temporarily increase the maximum size of exported globals
+# Optional: if parallel bootstrap exports a large object, temporarily
+# increase the maximum size of exported globals.
 old_max <- getOption("PSTR.future.globals.maxSize")
-options(PSTR.future.globals.maxSize = 4 * 1024^3)  # 4 GB
-on.exit(options(PSTR.future.globals.maxSize = old_max), add = TRUE)
+options(PSTR.future.globals.maxSize = 4 * 1024^3)  # 4 GB, if needed
 
 pstr <- WCB_TVTest(use = pstr, iB = 4, parallel = TRUE, cpus = 2)
 pstr <- WCB_HETest(
@@ -93,6 +93,10 @@ pstr <- WCB_HETest(
   vq = as.matrix(Hansen99[, "vala"])[, 1],
   iB = 4, parallel = TRUE, cpus = 2
 )
+
+# Reset to the previous option value.
+options(PSTR.future.globals.maxSize = old_max)
+
 print(pstr, mode = "evaluation")
 }
 

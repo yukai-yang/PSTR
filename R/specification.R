@@ -181,10 +181,18 @@ sLMTEST <- function(iT, iN, vU, mX, mW, mM, s2, mX2, invXX)
 #' print(pstr, mode = "tests")
 #'
 #' \donttest{
-#' # Bootstrap tests (can be slow)
+#' # Bootstrap tests (can be slow).
+#' # For parallel execution, the exported object may exceed the default
+#' # size limit. If that happens, temporarily increase the limit below.
+#' old_max <- getOption("PSTR.future.globals.maxSize")
+#' options(PSTR.future.globals.maxSize = 4 * 1024^3)  # 4 GB, if needed
+#'
 #' pstr$WCB_LinTest(iB = 200, parallel = TRUE, cpus = 2)
 #' # or
 #' pstr <- WCB_LinTest(use = pstr, iB = 200, parallel = TRUE, cpus = 2)
+#'
+#' # Reset to the previous option value.
+#' options(PSTR.future.globals.maxSize = old_max)
 #'
 #' print(pstr, mode = "tests")
 #' }

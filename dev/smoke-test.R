@@ -50,8 +50,19 @@ print(pstr0, mode="estimates")
 
 #######
 
-pstr = NewPSTR(Hansen99, dep = 'inva', indep = c(4:16, 17:20), indep_k = c('vala'),
-  tvars = c('vala'), im = 1, iT = 14)
+pstr = NewPSTR( Hansen99, dep = 'inva',
+  indep = c('dt_75', 'dt_76', 'dt_80', 'dt_83', 'dt_84', 'dt_85', 'dt_86',
+            'vala', 'debta', 'cfa', 'sales'),
+  indep_k = c('vala', 'debta', 'cfa', 'sales'),
+  tvars = c('vala'),
+  im = 1, iT = 14)
+pstr
+
 
 LinTest(pstr) 
 print(pstr, mode="tests")
+
+old_max <- getOption("PSTR.future.globals.maxSize")
+options(PSTR.future.globals.maxSize = 4 * 1024^3)
+pstr$WCB_LinTest(iB = 20, parallel = TRUE, cpus = 6)
+options(PSTR.future.globals.maxSize = old_max)

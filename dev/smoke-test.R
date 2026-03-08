@@ -51,7 +51,7 @@ print(pstr0, mode="estimates")
 #######
 
 pstr = NewPSTR( Hansen99, dep = 'inva',
-  indep = c('dt_75', 'dt_76', 'dt_80', 'dt_83', 'dt_84', 'dt_85', 'dt_86',
+  indep = c('dt_76', 'dt_80', 'dt_83', 'dt_85', 
             'vala', 'debta', 'cfa', 'sales'),
   indep_k = c('vala', 'debta', 'cfa', 'sales'),
   tvars = c('vala'),
@@ -64,5 +64,17 @@ print(pstr, mode="tests")
 
 old_max <- getOption("PSTR.future.globals.maxSize")
 options(PSTR.future.globals.maxSize = 4 * 1024^3)
-pstr$WCB_LinTest(iB = 20, parallel = TRUE, cpus = 6)
+pstr$WCB_LinTest(iB = 1000, parallel = TRUE, cpus = 6)
 options(PSTR.future.globals.maxSize = old_max)
+
+EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(0,0), method="CG")
+print(pstr, mode="estimates")
+
+exp(pstr$gamma); pstr$c; pstr$s2
+
+EstPSTR(use=pstr,im=1,iq=1,useDelta=F,par=c(pstr$gamma+0.2,pstr$c-0.2), method="CG")
+print(pstr, mode="estimates")
+ret <- plot_target(pstr, iq = 1, from = c(exp(pstr$gamma-0.2), pstr$c-0.2),
+                   to = c(exp(pstr$gamma+0.2), pstr$c+0.2),
+                   length.out = c(30, 30))
+ret

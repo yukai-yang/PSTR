@@ -20,12 +20,15 @@ fTF <- function(vx, gamma, vc, clip = 35, eps_d = 1e-12) {
   m <- length(vc)
   if (m < 1L) stop("vc must have length >= 1.")
   
-  d <- matrix(vx - vc, nrow = m)
+  if (is.matrix(vx)) {
+    if (nrow(vx) != m) stop("When vx is a matrix, nrow(vx) must equal length(vc).")
+    d <- sweep(vx, 1L, vc, FUN = "-")
+  } else {
+    d <- outer(vc, vx, FUN = function(cj, x) x - cj)
+  }
   
-  # protect near-zero differences
-  d <- sign(d) * pmax(abs(d), eps_d)
+  d <- ifelse(d >= 0, pmax(d, eps_d), pmin(d, -eps_d))
   
-  # stable product: prod(d) = sign * exp(sum(log(abs(d))))
   logabs <- log(abs(d))
   sgn    <- apply(sign(d), 2L, prod)
   p      <- sgn * exp(colSums(logabs))

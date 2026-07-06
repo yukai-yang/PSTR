@@ -21,6 +21,6 @@ There are currently no reverse dependencies on CRAN.
 ## R CMD check results
 
 Platform: aarch64-apple-darwin20  
-R version: 4.5.2  
+R version: 4.6.1  
 
 0 errors | 0 warnings | 0 notes

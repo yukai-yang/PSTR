@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# PSTR version 2.1.0 (Green Panel)
+# PSTR version 2.1.1 (Green Panel)
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PSTR)](https://cran.r-project.org/package=PSTR)
 ![](http://cranlogs.r-pkg.org/badges/grand-total/PSTR)
@@ -65,7 +65,7 @@ running
 
 ``` r
 version()
-#> PSTR version 2.1.0 (Green Panel)
+#> PSTR version 2.1.1 (Green Panel)
 ```
 
 Then you can take a look at all the available functions and data in the
@@ -99,7 +99,7 @@ pstr = NewPSTR(Hansen99, dep='inva', indep=4:20, indep_k=c('vala','debta','cfa',
 #> ✔ The PSTR model is ready.
 pstr
 #> 
-#> ── R package PSTR 2.1.0 (Green Panel) ──────────────────────────────────────────
+#> ── R package PSTR 2.1.1 (Green Panel) ──────────────────────────────────────────
 #> 
 #> ── Summary of the model ──
 #> 
@@ -144,7 +144,7 @@ LinTest(pstr)
 #> ✔ Done!
 print(pstr, mode="tests")
 #> 
-#> ── R package PSTR 2.1.0 (Green Panel) ──────────────────────────────────────────
+#> ── R package PSTR 2.1.1 (Green Panel) ──────────────────────────────────────────
 #> 
 #> ── Results of the linearity (homogeneity) tests ──
 #> 
@@ -238,7 +238,7 @@ the method for estimation by doing
 EstPSTR(use=pstr,im=1,iq=1,useDelta=T,par=c(-0.462,0), method="CG")
 print(pstr, mode="estimates")
 #> 
-#> ── R package PSTR 2.1.0 (Green Panel) ──────────────────────────────────────────
+#> ── R package PSTR 2.1.1 (Green Panel) ──────────────────────────────────────────
 #> 
 #> ── Results of the PSTR estimation: ──
 #> 
@@ -328,7 +328,7 @@ implemented. The user can do it by simply running
 EstPSTR(use=pstr0)
 print(pstr0, mode="estimates")
 #> 
-#> ── R package PSTR 2.1.0 (Green Panel) ──────────────────────────────────────────
+#> ── R package PSTR 2.1.1 (Green Panel) ──────────────────────────────────────────
 #> 
 #> ── A linear panel regression with fixed effects is estimated. ──
 #> 

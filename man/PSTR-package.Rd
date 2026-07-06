@@ -101,5 +101,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Yukai Yang \email{yukai.yang@statistik.uu.se} (\href{https://orcid.org/0000-0002-2623-8549}{ORCID})
 
+Authors:
+\itemize{
+  \item Yukai Yang \email{yukai.yang@statistik.uu.se} (\href{https://orcid.org/0000-0002-2623-8549}{ORCID})
+}
+
 }
 \keyword{internal}

@@ -1,5 +1,15 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# New Features in PSTR 2.1.1 ‘Green Panel’
+
+## Bug fixes
+
+- Fixed transition-function evaluation for models with multiple switches
+  (`im > 1`). The previous implementation could return a transition
+  vector with an incorrect length, leading to recycling warnings and
+  dimension mismatch errors in `EstPSTR()` for multi-switch
+  specifications.
+
 # New Features in PSTR 2.1.0 ‘Green Panel’
 
 ## New features

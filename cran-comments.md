@@ -2,7 +2,7 @@
 
 This is an update to the CRAN package "PSTR".
 
-Version 2.1.0 improves numerical robustness, refines the internal implementation, and modernises several utilities while keeping the statistical methodology and the user-facing workflow unchanged.
+Version 2.1.1 improves numerical robustness, refines the internal implementation, and modernises several utilities while keeping the statistical methodology and the user-facing workflow unchanged.
 
 ## Main changes
 

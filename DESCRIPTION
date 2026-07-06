@@ -1,7 +1,7 @@
 Package: PSTR
 Type: Package
 Title: Panel Smooth Transition Regression Modelling
-Version: 2.1.0
+Version: 2.1.1
 Authors@R: person(given="Yukai",family="Yang",email="yukai.yang@statistik.uu.se",role=c("aut", "cre"),comment=c(ORCID="0000-0002-2623-8549"))
 Description: Implements the Panel Smooth Transition Regression (PSTR) framework for nonlinear panel data modelling.
     The modelling procedure consists of three stages: Specification, Estimation and Evaluation.

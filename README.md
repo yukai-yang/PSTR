@@ -562,7 +562,7 @@ software implementation and the underlying methodology.
       title        = {PSTR: Panel Smooth Transition Regression Modelling},
       author       = {Yukai Yang},
       year         = {2017},
-      note         = {R package version 2.0.0 (CRAN release 2026-02-27)},
+      note         = {R package version 2.1.1 (CRAN release 2026-07-07)},
       doi          = {10.32614/CRAN.package.PSTR},
       url          = {https://CRAN.R-project.org/package=PSTR}
     }
